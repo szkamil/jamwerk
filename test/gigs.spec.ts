@@ -203,3 +203,73 @@ describe('Gig marketplace', () => {
 		expect(apply.status).toBe(409);
 	});
 });
+
+describe('Practice partners', () => {
+	const practiceListing = {
+		kind: 'practice',
+		instrument: 'drums',
+		genres: ['rock'],
+		venue_city: 'Bern',
+		description: 'Weekly jam, Tuesdays 19:00, rehearsal room near the station.',
+	};
+
+	it('rejects a practice listing with a fee, and a paid gig without one', async () => {
+		const withFee = await call('/gigs', {
+			method: 'POST', as: poster, body: { ...practiceListing, fee_chf: 100 },
+		});
+		expect(withFee.status).toBe(400);
+		const noFee = await call('/gigs', {
+			method: 'POST', as: poster, body: { ...validGig, fee_chf: undefined },
+		});
+		expect(noFee.status).toBe(400);
+	});
+
+	it('posts a practice listing without fee or date; it appears only on the practice feed', async () => {
+		const created = await call('/gigs', { method: 'POST', as: poster, body: practiceListing });
+		expect(created.status).toBe(201);
+		const id = created.json.id;
+
+		const practiceFeed = await call('/gigs?kind=practice');
+		const found = practiceFeed.json.gigs.find((g: any) => g.id === id);
+		expect(found).toBeTruthy();
+		expect(found.fee_chf).toBeNull();
+		expect(found.gig_date).toBeNull();
+
+		const gigFeed = await call('/gigs');
+		expect(gigFeed.json.gigs.find((g: any) => g.id === id)).toBeUndefined();
+	});
+
+	it('connects multiple partners, listing stays open; no completion or reviews', async () => {
+		const created = await call('/gigs', { method: 'POST', as: poster, body: practiceListing });
+		const id = created.json.id;
+
+		await call('/musicians/me', { method: 'POST', as: bassist, body: bassistProfile });
+		await call('/musicians/me', { method: 'POST', as: drummer, body: { instruments: ['drums'], genres: ['rock'] } });
+		await call(`/gigs/${id}/apply`, { method: 'POST', as: bassist, body: {} });
+		await call(`/gigs/${id}/apply`, { method: 'POST', as: drummer, body: {} });
+
+		const detail = await call(`/gigs/${id}`, { as: poster });
+		expect(detail.json.applications).toHaveLength(2);
+		for (const a of detail.json.applications) {
+			const r = await call(`/gigs/${id}/applications/${a.id}/accept`, { method: 'POST', as: poster });
+			expect(r.status).toBe(200);
+		}
+
+		// both accepted, none declined, listing still open for more partners
+		const after = await call(`/gigs/${id}`, { as: poster });
+		expect(after.json.status).toBe('open');
+		expect(after.json.applications.every((a: any) => a.status === 'accepted')).toBe(true);
+
+		const complete = await call(`/gigs/${id}/complete`, { method: 'POST', as: poster });
+		expect(complete.status).toBe(409);
+		const review = await call(`/gigs/${id}/review`, { method: 'POST', as: bassist, body: { rating: 5 } });
+		expect(review.status).toBe(409);
+
+		// close it; applying afterwards bounces
+		const close = await call(`/gigs/${id}/cancel`, { method: 'POST', as: poster, body: {} });
+		expect(close.status).toBe(200);
+		const late = await call('/musicians/me', { method: 'POST', as: drummer, body: { instruments: ['drums'], genres: ['rock'] } })
+			.then(() => call(`/gigs/${id}/apply`, { method: 'POST', as: drummer, body: {} }));
+		expect(late.status).toBe(409);
+	});
+});

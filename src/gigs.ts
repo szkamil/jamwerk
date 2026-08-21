@@ -86,15 +86,16 @@ function notify(to: string, subject: string, body: string) {
 interface GigRow {
   id: number;
   poster_email: string;
+  kind: 'gig' | 'practice';
   instrument: string;
   genres: string;
-  gig_date: string;
+  gig_date: string | null;
   call_time: string | null;
   end_time: string | null;
   venue_city: string;
   venue_lat: number | null;
   venue_lng: number | null;
-  fee_chf: number;
+  fee_chf: number | null;
   requirements: string;
   setlist_link: string | null;
   description: string;
@@ -192,18 +193,30 @@ gigs.post('/', async (c) => {
   const body = await c.req.json().catch(() => null);
   if (!body) return c.json({ error: 'Invalid JSON body' }, 400);
 
+  // 'gig' is a dated, paid booking; 'practice' is a free, open-ended jam listing.
+  const kind: 'gig' | 'practice' = body.kind === 'practice' ? 'practice' : 'gig';
   const errors: string[] = [];
   if (typeof body.instrument !== 'string' || !(INSTRUMENTS as readonly string[]).includes(body.instrument)) {
     errors.push(`instrument must be one of: ${INSTRUMENTS.join(', ')}`);
   }
   const genres = parseSlugArray(body.genres) ?? [];
   if (genres.length === 0) errors.push('genres must be a non-empty array of slugs');
-  if (!isIsoDate(body.gig_date)) errors.push('gig_date must be YYYY-MM-DD');
-  else if (body.gig_date < new Date().toISOString().slice(0, 10)) errors.push('gig_date must not be in the past');
-  if (typeof body.venue_city !== 'string' || !body.venue_city.trim()) errors.push('venue_city is required');
-  if (!Number.isInteger(body.fee_chf) || body.fee_chf <= 0 || body.fee_chf > 100000) {
-    errors.push('fee_chf must be a positive integer (CHF for the whole gig)');
+  const today = new Date().toISOString().slice(0, 10);
+  if (kind === 'gig') {
+    if (!isIsoDate(body.gig_date)) errors.push('gig_date must be YYYY-MM-DD');
+    else if (body.gig_date < today) errors.push('gig_date must not be in the past');
+    if (!Number.isInteger(body.fee_chf) || body.fee_chf <= 0 || body.fee_chf > 100000) {
+      errors.push('fee_chf must be a positive integer (CHF for the whole gig)');
+    }
+  } else {
+    if (body.fee_chf !== undefined && body.fee_chf !== null) {
+      errors.push('practice listings have no fee — omit fee_chf');
+    }
+    if (body.gig_date !== undefined && !isIsoDate(body.gig_date)) {
+      errors.push('gig_date, if given, must be YYYY-MM-DD');
+    }
   }
+  if (typeof body.venue_city !== 'string' || !body.venue_city.trim()) errors.push('venue_city is required');
   if (typeof body.description !== 'string' || !body.description.trim() || body.description.length > MAX_TEXT) {
     errors.push(`description is required (max ${MAX_TEXT} chars)`);
   }
@@ -217,17 +230,21 @@ gigs.post('/', async (c) => {
   const setlist = parseHttpUrlArray(body.setlist_link ? [body.setlist_link] : undefined);
   const requirements = body.requirements && typeof body.requirements === 'object' && !Array.isArray(body.requirements)
     ? body.requirements : {};
-  // Day after the gig; a scheduled job can flip leftover 'open' gigs to 'expired'.
-  const expiresAt = new Date(Date.parse(body.gig_date) + 86400000).toISOString().slice(0, 10);
+  // Gigs expire the day after the date; practice listings run 60 days.
+  // A scheduled job can flip leftover 'open' rows past expires_at to 'expired'.
+  const expiresAt = kind === 'gig'
+    ? new Date(Date.parse(body.gig_date) + 86400000).toISOString().slice(0, 10)
+    : new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
 
   const result = await c.env.DB.prepare(
-    `INSERT INTO gigs (poster_email, instrument, genres, gig_date, call_time, end_time,
+    `INSERT INTO gigs (poster_email, kind, instrument, genres, gig_date, call_time, end_time,
                        venue_city, venue_lat, venue_lng, fee_chf, requirements, setlist_link,
                        description, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
-    user.email, body.instrument, JSON.stringify(genres), body.gig_date, callTime, endTime,
-    body.venue_city.trim().slice(0, 100), lat, lng, body.fee_chf,
+    user.email, kind, body.instrument, JSON.stringify(genres),
+    isIsoDate(body.gig_date) ? body.gig_date : null, callTime, endTime,
+    body.venue_city.trim().slice(0, 100), lat, lng, kind === 'gig' ? body.fee_chf : null,
     JSON.stringify(requirements), setlist && setlist[0] ? setlist[0] : null,
     body.description.trim(), expiresAt
   ).run();
@@ -238,8 +255,10 @@ gigs.post('/', async (c) => {
 gigs.get('/', async (c) => {
   const user = c.get('user');
   const q = c.req.query();
-  const conds = ["status = 'open'", 'gig_date >= date()'];
-  const binds: unknown[] = [];
+  // The board shows one kind at a time; paid gigs are the default tab.
+  const kind = q.kind === 'practice' ? 'practice' : 'gig';
+  const conds = ["status = 'open'", 'kind = ?', '(gig_date IS NULL OR gig_date >= date())'];
+  const binds: unknown[] = [kind];
   if (q.instrument && (INSTRUMENTS as readonly string[]).includes(q.instrument)) {
     conds.push('instrument = ?');
     binds.push(q.instrument);
@@ -263,7 +282,7 @@ gigs.get('/', async (c) => {
   }
 
   const { results } = await c.env.DB.prepare(
-    `SELECT * FROM gigs WHERE ${conds.join(' AND ')} ORDER BY gig_date ASC LIMIT 100`
+    `SELECT * FROM gigs WHERE ${conds.join(' AND ')} ORDER BY ${kind === 'gig' ? 'gig_date ASC' : 'created_at DESC'} LIMIT 100`
   ).bind(...binds).all();
 
   let rows = results as unknown as GigRow[];
@@ -366,7 +385,10 @@ gigs.post('/:id/apply', async (c) => {
     throw err;
   }
 
-  notify(gig.poster_email, `New application for your gig on ${gig.gig_date}`,
+  notify(gig.poster_email,
+    gig.kind === 'practice'
+      ? `New practice partner request in ${gig.venue_city}`
+      : `New application for your gig on ${gig.gig_date}`,
     `${user.email}${note ? `\n\n${note}` : ''}`);
   return c.json({ ok: true }, 201);
 });
@@ -383,6 +405,17 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     "SELECT * FROM gig_applications WHERE id = ? AND gig_id = ? AND status IN ('applied','shortlisted')"
   ).bind(appId, gig.id).first<{ id: number; musician_email: string }>();
   if (!application) return c.json({ error: 'Application not found or no longer active' }, 404);
+
+  // Practice listings have no single winner: accepting connects the two
+  // musicians (contact shared) and leaves the listing open for more partners.
+  if (gig.kind === 'practice') {
+    if (gig.status !== 'open') return c.json({ error: `Listing is ${gig.status}, not open` }, 409);
+    await c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?")
+      .bind(application.id).run();
+    notify(application.musician_email, `Practice match in ${gig.venue_city}!`,
+      `The poster accepted you.\nContact: ${gig.poster_email}\n\n${gig.description}`);
+    return c.json({ ok: true, musician_email: application.musician_email });
+  }
 
   // Claim the gig first; meta.changes = 0 means someone was accepted concurrently.
   const claim = await c.env.DB.prepare(
@@ -439,6 +472,7 @@ gigs.post('/:id/complete', async (c) => {
   const gig = await loadGig(c, c.req.param('id'));
   if (!gig) return c.json({ error: 'Gig not found' }, 404);
   if (gig.poster_email !== user.email) return c.json({ error: 'Only the poster can confirm completion' }, 403);
+  if (gig.kind !== 'gig') return c.json({ error: 'Practice listings have no completion — close them with cancel' }, 409);
   if (gig.status !== 'booked') return c.json({ error: `Gig is ${gig.status}, not booked` }, 409);
 
   const booking = await c.env.DB.prepare('SELECT id, musician_email FROM bookings WHERE gig_id = ? AND cancelled_at IS NULL')
@@ -459,6 +493,7 @@ gigs.post('/:id/review', async (c) => {
   if (!user) return c.json({ error: 'Authentication required' }, 401);
   const gig = await loadGig(c, c.req.param('id'));
   if (!gig) return c.json({ error: 'Gig not found' }, 404);
+  if (gig.kind !== 'gig') return c.json({ error: 'Practice listings are not reviewable' }, 409);
   if (gig.status !== 'completed') return c.json({ error: 'Reviews open once the gig is completed' }, 409);
 
   const booking = await c.env.DB.prepare('SELECT id, musician_email FROM bookings WHERE gig_id = ?')

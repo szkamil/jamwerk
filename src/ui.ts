@@ -78,6 +78,10 @@ export const PAGE = `<!doctype html>
 
   <section id="tab-board">
     <div class="filters">
+      <select id="fKind">
+        <option value="gig">Paid gigs</option>
+        <option value="practice">Practice partners</option>
+      </select>
       <select id="fInstrument"><option value="">All instruments</option></select>
       <input type="text" id="fCity" placeholder="City">
       <button class="ghost" id="fGo">Filter</button>
@@ -87,11 +91,17 @@ export const PAGE = `<!doctype html>
 
   <section id="tab-post" hidden>
     <div class="card"><form id="postForm">
+      <div class="row"><label>Listing type</label>
+        <select id="pKind">
+          <option value="gig">Paid gig — dated, fixed fee</option>
+          <option value="practice">Practice partner — free, open-ended</option>
+        </select>
+      </div>
       <div class="grid2">
         <div class="row"><label>Instrument needed</label><select id="pInstrument" required></select></div>
-        <div class="row"><label>Date</label><input type="date" id="pDate" required></div>
+        <div class="row" id="pDateRow"><label>Date</label><input type="date" id="pDate" required></div>
         <div class="row"><label>City</label><input type="text" id="pCity" required placeholder="Bern"></div>
-        <div class="row"><label>Fee (CHF, whole gig)</label><input type="number" id="pFee" min="1" required placeholder="300"></div>
+        <div class="row" id="pFeeRow"><label>Fee (CHF, whole gig)</label><input type="number" id="pFee" min="1" required placeholder="300"></div>
         <div class="row"><label>Call time</label><input type="time" id="pCall"></div>
         <div class="row"><label>End time</label><input type="time" id="pEnd"></div>
       </div>
@@ -220,8 +230,8 @@ function gigCard(g, actions) {
   const head = el('div', 'gig-head');
   head.append(el('strong', '', label(g.instrument)));
   head.append(el('span', 'tag status-' + g.status, g.status));
-  head.append(el('span', 'muted', g.gig_date + ' · ' + g.venue_city));
-  head.append(el('span', 'fee', 'CHF ' + g.fee_chf));
+  head.append(el('span', 'muted', (g.gig_date || 'flexible') + ' · ' + g.venue_city));
+  head.append(el('span', 'fee', g.kind === 'practice' ? 'Jam' : 'CHF ' + g.fee_chf));
   c.append(head);
   const tags = el('div');
   (g.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
@@ -233,13 +243,15 @@ function gigCard(g, actions) {
 }
 async function loadBoard() {
   const params = new URLSearchParams();
+  params.set('kind', $('fKind').value);
   if ($('fInstrument').value) params.set('instrument', $('fInstrument').value);
   if ($('fCity').value.trim()) params.set('city', $('fCity').value.trim());
   const r = await api('/gigs?' + params);
   const board = $('board');
   board.replaceChildren();
   if (!r.json.gigs || !r.json.gigs.length) {
-    board.append(el('div', 'empty', 'No open gigs match. Post one!'));
+    board.append(el('div', 'empty', $('fKind').value === 'practice'
+      ? 'No practice listings match. Post one!' : 'No open gigs match. Post one!'));
     return;
   }
   r.json.gigs.forEach((g) => board.append(gigCard(g, (gig) => {
@@ -258,24 +270,41 @@ async function loadBoard() {
   })));
 }
 $('fGo').onclick = loadBoard;
+$('fKind').onchange = loadBoard;
+
+// Practice listings have no fee and no fixed date.
+$('pKind').onchange = () => {
+  const practice = $('pKind').value === 'practice';
+  $('pFeeRow').hidden = practice;
+  $('pFee').required = !practice;
+  $('pDate').required = !practice;
+  $('pDateRow').querySelector('label').textContent = practice ? 'Date (optional)' : 'Date';
+};
 
 // ── Post ─────────────────────────────────────────────
 $('postForm').onsubmit = async (e) => {
   e.preventDefault();
   if (!me) { $('authDialog').showModal(); return; }
+  const practice = $('pKind').value === 'practice';
   const body = {
+    kind: $('pKind').value,
     instrument: $('pInstrument').value,
     genres: parseCsv($('pGenres').value),
-    gig_date: $('pDate').value,
+    gig_date: $('pDate').value || undefined,
     venue_city: $('pCity').value,
-    fee_chf: parseInt($('pFee').value, 10),
+    fee_chf: practice ? undefined : parseInt($('pFee').value, 10),
     call_time: $('pCall').value || undefined,
     end_time: $('pEnd').value || undefined,
     description: $('pDesc').value,
     requirements: { reads_charts: $('pCharts').checked, rehearsal: $('pRehearsal').checked },
   };
   const r = await api('/gigs', { method: 'POST', body });
-  if (r.ok) { flash('Gig posted.', 'ok'); $('postForm').reset(); document.querySelector('[data-tab=board]').click(); }
+  if (r.ok) {
+    flash(practice ? 'Practice listing posted.' : 'Gig posted.', 'ok');
+    $('postForm').reset(); $('pKind').onchange();
+    $('fKind').value = practice ? 'practice' : 'gig';
+    document.querySelector('[data-tab=board]').click();
+  }
   else flash((r.json.details || [r.json.error]).join(' · '), 'err');
 };
 
@@ -332,14 +361,29 @@ async function showManage(gigId, bar) {
       row.append(document.createTextNode(' '), link);
     });
     if (a.status === 'applied' || a.status === 'shortlisted') {
-      const acc = el('button', 'primary small', 'Book this musician');
+      const practice = r.json.kind === 'practice';
+      const acc = el('button', 'primary small', practice ? 'Connect' : 'Book this musician');
       acc.onclick = async () => {
         const res = await api('/gigs/' + gigId + '/applications/' + a.id + '/accept', { method: 'POST' });
-        if (res.ok) { flash('Booked ' + res.json.musician_email + '. Others were declined.', 'ok'); loadMine(); }
-        else flash(res.json.error || 'Failed', 'err');
+        if (res.ok) {
+          flash(practice
+            ? 'Connected with ' + res.json.musician_email + ' — they got your contact.'
+            : 'Booked ' + res.json.musician_email + '. Others were declined.', 'ok');
+          loadMine();
+        } else flash(res.json.error || 'Failed', 'err');
       };
       row.append(document.createTextNode(' '), acc);
     }
+    bar.append(row);
+  }
+  if (r.json.kind === 'practice' && r.json.status === 'open') {
+    const close = el('button', 'ghost small', 'Close listing');
+    close.onclick = async () => {
+      const res = await api('/gigs/' + gigId + '/cancel', { method: 'POST', body: {} });
+      if (res.ok) { flash('Listing closed.', 'ok'); loadMine(); } else flash(res.json.error || 'Failed', 'err');
+    };
+    const row = el('div', 'application');
+    row.append(close);
     bar.append(row);
   }
   if (r.json.status === 'booked') {

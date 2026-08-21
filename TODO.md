@@ -24,7 +24,7 @@
 
 ## Growth features (sequenced — see "Product ladder" below)
 
-- [ ] **Practice partners** (phase 2): listing type alongside gigs — "looking to jam/practice",
+- [x] **Practice partners** (phase 2): listing type alongside gigs — "looking to jam/practice",
       no fee, same instrument/genre/radius matching, same apply flow. Cheap: reuses
       musician_details + the application pattern. Gives musicians a reason to open the app
       weekly even when no paid gigs match.

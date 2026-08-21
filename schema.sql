@@ -33,24 +33,26 @@ CREATE TABLE IF NOT EXISTS musician_details (
 CREATE TABLE IF NOT EXISTS gigs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   poster_email TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'gig' CHECK(kind IN ('gig','practice')),
   instrument TEXT NOT NULL,
   genres TEXT NOT NULL DEFAULT '[]',
-  gig_date TEXT NOT NULL,
+  gig_date TEXT,
   call_time TEXT,
   end_time TEXT,
   venue_city TEXT NOT NULL,
   venue_lat REAL,
   venue_lng REAL,
-  fee_chf INTEGER NOT NULL CHECK(fee_chf > 0),
+  fee_chf INTEGER CHECK(fee_chf IS NULL OR fee_chf > 0),
   requirements TEXT NOT NULL DEFAULT '{}',
   setlist_link TEXT,
   description TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','booked','completed','cancelled','expired')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   expires_at TEXT NOT NULL,
+  CHECK(kind = 'practice' OR (fee_chf IS NOT NULL AND gig_date IS NOT NULL)),
   FOREIGN KEY (poster_email) REFERENCES users(email) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_gigs_open ON gigs(status, gig_date);
+CREATE INDEX IF NOT EXISTS idx_gigs_open ON gigs(status, kind, gig_date);
 CREATE INDEX IF NOT EXISTS idx_gigs_poster ON gigs(poster_email);
 
 CREATE TABLE IF NOT EXISTS gig_applications (
