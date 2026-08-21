@@ -5,7 +5,7 @@
 // Ambient layers for the "backstage editorial" theme (mirrors design/):
 // an audio-waveform strip along the header's bottom edge, and a faint violet
 // scatter of notation behind the page. Deterministic — same field every load.
-const WAVE_SVG = (() => {
+export const WAVE_SVG = (() => {
   const heights = [8, 14, 10, 22, 30, 18, 12, 26, 36, 24, 14, 20, 32, 16, 10, 24, 34, 28, 16, 12, 22, 38, 26, 14, 18, 30, 20, 10, 16, 28, 36, 22, 12, 20, 26, 18, 32, 14, 8];
   let bars = '';
   for (let i = 0; i < 120; i++) {
@@ -15,7 +15,7 @@ const WAVE_SVG = (() => {
   return `<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" fill="#a58bff" aria-hidden="true">${bars}</svg>`;
 })();
 
-const NOTES_LAYER = (() => {
+export const NOTES_LAYER = (() => {
   let seed = 33;
   const rnd = () => {
     seed = (seed * 1103515245 + 12345) % 2147483648;
@@ -217,6 +217,7 @@ ${NOTES_LAYER}
       <div class="row"><label>Demo links (one per line, max 5)</label><textarea id="mDemos" placeholder="https://youtube.com/…"></textarea></div>
       <button class="primary">Save profile</button>
       <span class="muted" id="mStats"></span>
+      <a id="mPublic" target="_blank" rel="noopener" hidden style="margin-left: 10px;">View my public page &#8599;</a>
     </form></div>
   </section>
 </main>
@@ -470,6 +471,13 @@ async function showManage(gigId, bar) {
     who.append(meta);
     head.append(who, el('span', 'tag', a.status));
     row.append(head);
+    if (a.handle) {
+      const prof = el('a', 'muted', 'View profile \u2197');
+      prof.href = '/m/' + a.handle;
+      prof.target = '_blank';
+      prof.rel = 'noopener noreferrer';
+      row.append(prof);
+    }
     if (a.status === 'accepted' && a.musician_email) row.append(el('div', 'muted', 'Contact: ' + a.musician_email));
     if (a.note) row.append(el('p', 'muted', a.note));
     (a.demo_links || []).forEach((u) => {
@@ -543,6 +551,10 @@ async function loadProfile() {
   $('mPa').checked = !!r.json.own_pa;
   $('mDemos').value = (r.json.demo_links || []).join('\\n');
   $('mStats').textContent = ' ' + r.json.gigs_played + ' gigs played through JamWerk';
+  if (r.json.handle) {
+    $('mPublic').href = '/m/' + r.json.handle;
+    $('mPublic').hidden = false;
+  }
 }
 $('profileForm').onsubmit = async (e) => {
   e.preventDefault();
@@ -559,7 +571,7 @@ $('profileForm').onsubmit = async (e) => {
     demo_links: $('mDemos').value.split('\\n').map((x) => x.trim()).filter(Boolean),
   };
   const r = await api('/musicians/me', { method: 'POST', body });
-  if (r.ok) flash('Profile saved.', 'ok'); else flash(r.json.error || 'Failed', 'err');
+  if (r.ok) { flash('Profile saved.', 'ok'); loadProfile(); } else flash(r.json.error || 'Failed', 'err');
 };
 
 // ── Init ─────────────────────────────────────────────

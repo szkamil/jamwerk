@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS musician_details (
   rate_max INTEGER,
   demo_links TEXT NOT NULL DEFAULT '[]',
   gigs_played INTEGER DEFAULT 0,
+  handle TEXT,
   home_city TEXT,
   home_lat REAL,
   home_lng REAL,
@@ -42,6 +43,8 @@ CREATE TABLE IF NOT EXISTS musician_details (
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (owner) REFERENCES users(email) ON DELETE CASCADE
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_musician_handle ON musician_details(handle);
 
 CREATE TABLE IF NOT EXISTS gigs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -10,8 +10,9 @@
 2. [x] **Applicant cards with names + ratings** — shipped 2026-08-21: display name with
        avatar initials, star average + review count, gigs played, home city, instruments;
        contact email revealed only after booking
-3. [ ] **Public musician profile pages** — shareable page per musician: demos, reviews,
-       stats (the Profile screen from the design canvas)
+3. [x] **Public musician profile pages** — shipped 2026-08-21: /m/:handle, server-rendered
+       and shareable (name, instruments, stats, demos, reviews; email never exposed);
+       linked from applicant cards and the musician's own profile tab
 4. [ ] **Web push** — "new gig for your instrument near you" on the phone; PWA groundwork done
 5. [ ] **Expiry cron** — scheduled job flipping stale open gigs past expires_at to expired
        (fold into whichever of the above ships first)
@@ -34,7 +35,6 @@
 - [x] Geocode city names on gig post + musician profile (Nominatim, D1-cached) — the board's
       city filter is now "within 25/50/100 km", cards show distance; shipped 2026-08-21
 - [ ] Show musician display_name + reviews/rating on applicant cards (data exists, UI shows email)
-- [ ] Public musician profile pages (demo embeds, review history, gigs played)
 - [ ] In-app messaging between poster and applicant (currently contact is exchanged on booking)
 - [ ] Push/email digest: "new gigs for your instrument within your radius"
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)

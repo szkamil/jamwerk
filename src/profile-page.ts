@@ -1,0 +1,181 @@
+// src/profile-page.ts — public, shareable musician profile at /m/:handle.
+// Server-rendered (works logged out); shows the musician's public track record
+// but never their email. Mirrors the Profile artboard in design/.
+import { Hono } from 'hono';
+import { WAVE_SVG, NOTES_LAYER } from './ui';
+import type { AppEnv } from './types';
+
+function esc(s: unknown): string {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+const CSS = `
+  :root {
+    --ink: #14131a; --paper: #f4f2ec; --card: #fffdf8; --line: #e5e1d8;
+    --accent: #6440fb; --accent-deep: #4f30d8; --accent-light: #a58bff;
+    --accent-tint: #efeaff; --accent-tint-line: #d8cdfd;
+    --muted: #6f6c64; --gold: #b98a00; --r: 14px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; }
+  #bgnotes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.085; pointer-events: none; }
+  .display { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; }
+  a { color: var(--accent); } a:hover { color: var(--accent-deep); }
+  header {
+    background-color: var(--ink);
+    background-image: radial-gradient(circle at 88% -12%, rgba(100,64,251,0.34), transparent 58%);
+    color: #fff; padding: 20px; position: relative; z-index: 0; overflow: hidden;
+  }
+  header .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
+  header .inner, main { max-width: 720px; margin: 0 auto; }
+  header a.back { color: rgba(255,255,255,0.65); font-size: 13.5px; text-decoration: none; }
+  .hero { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+  .avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; flex-shrink: 0; }
+  .hero h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .hero .sub { color: rgba(255,255,255,0.65); font-size: 13.5px; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; }
+  .pill { background: #232230; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: #d8d5e6; }
+  .stats { display: flex; background: var(--card); border-bottom: 1px solid var(--line); }
+  .stats .inner { display: flex; flex: 1; max-width: 720px; margin: 0 auto; padding: 14px 0; }
+  .stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .stat + .stat { border-left: 1px solid var(--line); }
+  .stat b { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 19px; font-weight: 800; }
+  .stat b.gold { color: var(--gold); }
+  .stat span { font-size: 12px; color: var(--muted); }
+  main { padding: 16px 20px 64px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: var(--muted); }
+  .chip.hot { background: var(--accent-tint); border-color: var(--accent-tint-line); color: var(--accent-deep); font-weight: 600; }
+  h2 { font-size: 13px; font-weight: 700; color: #3a382f; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 8px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(20,19,26,0.05); }
+  .demo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+  .demo .play { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .demo .t { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+  .demo .d { font-size: 12.5px; color: var(--muted); }
+  .review .head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .stars { color: var(--gold); font-size: 13px; letter-spacing: 2px; }
+  .review .ctx { font-size: 12.5px; color: var(--muted); }
+  .review p { margin: 0; font-size: 14px; line-height: 1.45; color: #3a382f; }
+  .empty { color: var(--muted); font-size: 14px; }
+  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
+  footer .display { font-weight: 800; color: #1b1a16; }
+`;
+
+const profilePage = new Hono<AppEnv>();
+
+profilePage.get('/:handle', async (c) => {
+  const handle = c.req.param('handle');
+  if (!/^[a-z0-9-]{1,50}$/.test(handle)) return c.notFound();
+
+  const m = await c.env.DB.prepare(
+    `SELECT m.*, u.display_name, u.created_at AS member_since
+     FROM musician_details m JOIN users u ON u.email = m.owner
+     WHERE m.handle = ?`
+  ).bind(handle).first<any>();
+  if (!m) {
+    return c.html('<!doctype html><meta charset="utf-8"><title>Not found — JamWerk</title><p style="font-family:system-ui;padding:40px">No such musician. <a href="/">Back to JamWerk</a></p>', 404);
+  }
+
+  const stats = await c.env.DB.prepare(
+    `SELECT AVG(rating) AS avg_rating, COUNT(*) AS review_count
+     FROM gig_reviews WHERE reviewee_email = ? AND direction = 'poster_to_musician'`
+  ).bind(m.owner).first<{ avg_rating: number | null; review_count: number }>();
+
+  const { results: reviews } = await c.env.DB.prepare(
+    `SELECT r.rating, r.comment, r.created_at, g.instrument, g.venue_city, g.gig_date
+     FROM gig_reviews r
+     JOIN bookings b ON b.id = r.booking_id
+     JOIN gigs g ON g.id = b.gig_id
+     WHERE r.reviewee_email = ? AND r.direction = 'poster_to_musician'
+     ORDER BY r.created_at DESC LIMIT 20`
+  ).bind(m.owner).all();
+
+  const name = m.display_name || 'JamWerk musician';
+  const initials = name.split(/\s+/).map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
+  const instruments: string[] = JSON.parse(m.instruments || '[]');
+  const genres: string[] = JSON.parse(m.genres || '[]');
+  const demos: string[] = JSON.parse(m.demo_links || '[]');
+  const label = (s: string) => s.replace(/_/g, ' ');
+  const avg = stats?.avg_rating != null ? Math.round(stats.avg_rating * 10) / 10 : null;
+
+  const flagChips = [
+    m.reads_charts ? '<span class="chip hot">reads charts</span>' : '',
+    m.sings_backing ? '<span class="chip">backing vocals</span>' : '',
+    m.own_transport ? '<span class="chip">own transport</span>' : '',
+    m.own_pa ? '<span class="chip">own PA</span>' : '',
+    ...genres.map((x) => `<span class="chip">${esc(x)}</span>`),
+  ].filter(Boolean).join('');
+
+  const demoHtml = demos.length
+    ? demos.map((u) => {
+        let host = '';
+        try { host = new URL(u).hostname.replace(/^www\./, ''); } catch { /* leave blank */ }
+        return `<div class="card"><a class="demo" href="${esc(u)}" target="_blank" rel="noopener noreferrer nofollow">
+          <span class="play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+          <span><span class="t">${esc(u)}</span><br><span class="d">${esc(host)}</span></span>
+        </a></div>`;
+      }).join('')
+    : '<p class="empty">No demos yet.</p>';
+
+  const reviewHtml = (reviews as any[]).length
+    ? (reviews as any[]).map((r) => `<div class="card review">
+        <div class="head">
+          <span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          <span class="ctx">${esc(label(r.instrument))} · ${esc(r.venue_city)}${r.gig_date ? ' · ' + esc(r.gig_date) : ''}</span>
+        </div>
+        ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
+      </div>`).join('')
+    : '<p class="empty">No reviews yet — they appear after completed gigs.</p>';
+
+  const title = `${name} — ${instruments.map(label).join(', ') || 'musician'} | JamWerk`;
+  return c.html(`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${esc(title)}</title>
+<meta property="og:title" content="${esc(name)} on JamWerk">
+<meta property="og:description" content="${esc(instruments.map(label).join(', '))}${m.home_city ? ' · ' + esc(m.home_city) : ''} · ${m.gigs_played} gigs played">
+<meta property="og:image" content="/icons/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<meta name="theme-color" content="#14131a">
+<style>${CSS}</style>
+</head>
+<body>
+${NOTES_LAYER}
+<header>
+  ${WAVE_SVG}
+  <div class="inner">
+    <a class="back" href="/">&larr; JamWerk</a>
+    <div class="hero">
+      <div class="avatar">${esc(initials)}</div>
+      <div>
+        <h1 class="display">${esc(name)}</h1>
+        <div class="sub">${esc(m.home_city || '')}${m.home_city ? ' · ' : ''}travels ${m.travel_radius_km} km</div>
+      </div>
+    </div>
+    <div class="pills">${instruments.map((x) => `<span class="pill">${esc(label(x))}</span>`).join('')}</div>
+  </div>
+</header>
+<div class="stats"><div class="inner">
+  <div class="stat"><b class="display">${m.gigs_played}</b><span>gigs played</span></div>
+  <div class="stat"><b class="display gold">${avg != null ? avg + ' ★' : '–'}</b><span>${stats?.review_count || 0} reviews</span></div>
+  <div class="stat"><b class="display">${m.rate_min != null ? 'CHF ' + m.rate_min + '+' : '–'}</b><span>per gig</span></div>
+</div></div>
+<main>
+  <div class="chips">${flagChips}</div>
+  <h2>Demos</h2>
+  ${demoHtml}
+  <h2>Reviews</h2>
+  ${reviewHtml}
+</main>
+<footer>Booked through <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — find a dep, fill a gig.</footer>
+</body>
+</html>`);
+});
+
+export default profilePage;
