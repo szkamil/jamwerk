@@ -388,14 +388,22 @@ gigs.get('/:id', async (c) => {
   if (user && gig.poster_email === user.email) {
     const { results } = await c.env.DB.prepare(
       `SELECT a.id, a.musician_email, a.note, a.status, a.created_at,
-              m.instruments, m.genres, m.demo_links, m.gigs_played, m.reads_charts, m.rate_min, m.rate_max
+              u.display_name,
+              m.instruments, m.genres, m.demo_links, m.gigs_played, m.reads_charts, m.rate_min, m.rate_max, m.home_city,
+              (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS avg_rating,
+              (SELECT COUNT(*) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS review_count
        FROM gig_applications a
+       LEFT JOIN users u ON u.email = a.musician_email
        LEFT JOIN musician_details m ON m.owner = a.musician_email
        WHERE a.gig_id = ? AND a.status != 'withdrawn'
        ORDER BY a.created_at ASC`
     ).bind(gig.id).all();
     out.applications = (results as any[]).map((a) => ({
       ...a,
+      // contact stays private until the poster books this musician
+      musician_email: a.status === 'accepted' ? a.musician_email : undefined,
+      display_name: a.display_name || a.musician_email.split('@')[0],
+      avg_rating: a.avg_rating !== null ? Math.round(a.avg_rating * 10) / 10 : null,
       instruments: JSON.parse(a.instruments || '[]'),
       genres: JSON.parse(a.genres || '[]'),
       demo_links: JSON.parse(a.demo_links || '[]'),

@@ -128,7 +128,11 @@ export const PAGE = `<!doctype html>
   .empty { text-align: center; padding: 36px 10px; color: var(--muted); }
   dialog { border: 1px solid var(--line); border-radius: var(--r); padding: 20px; max-width: 420px; width: 92%; background: var(--card); }
   dialog::backdrop { background: rgba(20,19,26,.5); }
-  .application { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+  .application { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+  .applicant-head { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .applicant-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .rating { color: var(--gold); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -452,8 +456,21 @@ async function showManage(gigId, bar) {
   bar.querySelectorAll('.application').forEach((n) => n.remove());
   for (const a of r.json.applications || []) {
     const row = el('div', 'application');
-    row.append(el('strong', '', a.musician_email), el('span', 'tag', a.status));
-    if (a.gigs_played != null) row.append(el('span', 'muted', ' ' + a.gigs_played + ' gigs played · ' + (a.instruments || []).map(label).join(', ')));
+    const head = el('div', 'applicant-head');
+    const initials = a.display_name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    head.append(el('div', 'avatar', initials));
+    const who = el('div');
+    who.style.flex = '1';
+    who.append(el('strong', '', a.display_name));
+    const meta = el('div', 'applicant-meta');
+    if (a.review_count > 0) meta.append(el('span', 'rating', '\u2605 ' + a.avg_rating + ' (' + a.review_count + ')'));
+    if (a.gigs_played != null) meta.append(el('span', '', a.gigs_played + ' gigs'));
+    if (a.home_city) meta.append(el('span', '', a.home_city));
+    if ((a.instruments || []).length) meta.append(el('span', '', a.instruments.map(label).join(', ')));
+    who.append(meta);
+    head.append(who, el('span', 'tag', a.status));
+    row.append(head);
+    if (a.status === 'accepted' && a.musician_email) row.append(el('div', 'muted', 'Contact: ' + a.musician_email));
     if (a.note) row.append(el('p', 'muted', a.note));
     (a.demo_links || []).forEach((u) => {
       const link = el('a', '', 'demo'); link.href = u; link.target = '_blank'; link.rel = 'noopener noreferrer';
@@ -461,7 +478,7 @@ async function showManage(gigId, bar) {
     });
     if (a.status === 'applied' || a.status === 'shortlisted') {
       const practice = r.json.kind === 'practice';
-      const acc = el('button', 'primary small', practice ? 'Connect' : 'Book this musician');
+      const acc = el('button', 'primary small', practice ? 'Connect with ' + a.display_name : 'Book ' + a.display_name);
       acc.onclick = async () => {
         const res = await api('/gigs/' + gigId + '/applications/' + a.id + '/accept', { method: 'POST' });
         if (res.ok) {

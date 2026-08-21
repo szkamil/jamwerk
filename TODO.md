@@ -7,8 +7,9 @@
        ⚠ Remaining one-time step: set the TrustAxis Mailjet keys as Worker secrets
        (`npx wrangler secret put MAILJET_API_KEY` / `MAILJET_SECRET_KEY`) — until then
        sends are logged, not delivered. Shared-account note in README "Email".
-2. [ ] **Applicant cards with names + ratings** — show display name, review average,
-       and gigs played instead of raw emails (data already exists)
+2. [x] **Applicant cards with names + ratings** — shipped 2026-08-21: display name with
+       avatar initials, star average + review count, gigs played, home city, instruments;
+       contact email revealed only after booking
 3. [ ] **Public musician profile pages** — shareable page per musician: demos, reviews,
        stats (the Profile screen from the design canvas)
 4. [ ] **Web push** — "new gig for your instrument near you" on the phone; PWA groundwork done

@@ -57,13 +57,11 @@ const bassistProfile = {
 };
 
 beforeAll(async () => {
-	await env.DB.batch(
-		[poster, bassist, drummer].map((email) =>
-			env.DB.prepare(
-				"INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')"
-			).bind(email)
-		)
-	);
+	await env.DB.batch([
+		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(poster),
+		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, display_name) VALUES (?, 'x', 'Luca Marchetti')").bind(bassist),
+		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(drummer),
+	]);
 });
 
 describe('Gig marketplace', () => {
@@ -145,10 +143,12 @@ describe('Gig marketplace', () => {
 		const dup = await call(`/gigs/${gigId}/apply`, { method: 'POST', as: bassist, body: {} });
 		expect(dup.status).toBe(409);
 
-		// applications visible to the poster only
+		// applications visible to the poster only; name shown, contact hidden until booked
 		const asPoster = await call(`/gigs/${gigId}`, { as: poster });
 		expect(asPoster.json.applications).toHaveLength(1);
-		expect(asPoster.json.applications[0].musician_email).toBe(bassist);
+		expect(asPoster.json.applications[0].display_name).toBe('Luca Marchetti');
+		expect(asPoster.json.applications[0].musician_email).toBeUndefined();
+		expect(asPoster.json.applications[0].avg_rating).toBeNull();
 		const asStranger = await call(`/gigs/${gigId}`, { as: drummer });
 		expect(asStranger.json.applications).toBeUndefined();
 
@@ -157,6 +157,10 @@ describe('Gig marketplace', () => {
 		const accepted = await call(`/gigs/${gigId}/applications/${appId}/accept`, { method: 'POST', as: poster });
 		expect(accepted.status).toBe(200);
 		expect(accepted.json.musician_email).toBe(bassist);
+
+		// contact is revealed on the accepted application
+		const afterBooking = await call(`/gigs/${gigId}`, { as: poster });
+		expect(afterBooking.json.applications[0].musician_email).toBe(bassist);
 
 		// same application cannot be accepted twice; late applications bounce
 		const again = await call(`/gigs/${gigId}/applications/${appId}/accept`, { method: 'POST', as: poster });
@@ -176,6 +180,11 @@ describe('Gig marketplace', () => {
 		expect(p.status).toBe(201);
 		const m = await call(`/gigs/${gigId}/review`, { method: 'POST', as: bassist, body: { rating: 4, comment: 'Well organised.' } });
 		expect(m.status).toBe(201);
+		// the poster's review now shows on the musician's applicant card stats
+		const rated = await call(`/gigs/${gigId}`, { as: poster });
+		expect(rated.json.applications[0].avg_rating).toBe(5);
+		expect(rated.json.applications[0].review_count).toBe(1);
+
 		const dupReview = await call(`/gigs/${gigId}/review`, { method: 'POST', as: poster, body: { rating: 1 } });
 		expect(dupReview.status).toBe(409);
 		const stranger = await call(`/gigs/${gigId}/review`, { method: 'POST', as: drummer, body: { rating: 3 } });
