@@ -1,0 +1,14 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Gig board" },
+    { "file": "PostGig.dc.html", "x": 480, "y": 0, "w": 390, "h": 844, "title": "Post a listing" },
+    { "file": "Applications.dc.html", "x": 960, "y": 0, "w": 390, "h": 844, "title": "Applications" },
+    { "file": "Profile.dc.html", "x": 1440, "y": 0, "w": 390, "h": 844, "title": "Musician profile" },
+    { "file": "StageDark.dc.html", "x": 0, "y": 1010, "w": 390, "h": 620 },
+    { "file": "SwissUtility.dc.html", "x": 480, "y": 1010, "w": 390, "h": 620 }
+  ],
+  "annotations": [
+    { "id": "direction-note", "x": -300, "y": 0, "w": 260, "text": "Direction: Backstage editorial — the brand's ink + violet with warm paper cards, condensed display type for instruments and fees.\n\nThe four phones on top are the deliverable. Below are two rougher alternate directions (B: Stage dark, C: Swiss utility) — pick one and I'll rebuild the four screens in it instead." }
+  ],
+  "launch": { "view": "canvas" }
+}

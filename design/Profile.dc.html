@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Instrument Sans', system-ui, sans-serif; color: #1b1a16; }
+    a { color: #6440fb; } a:hover { color: #4f30d8; }
+    .display { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 844px; background: #f4f2ec; display: flex; flex-direction: column; overflow: hidden;">
+
+  <div style="background: #14131a; color: #ffffff; padding: 20px 20px 22px 20px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+      <div style="font-size: 14px; font-weight: 500; color: #b9b6c9;">Musician profile</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: #6440fb; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px;">LM</div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="display" style="font-size: 23px; font-weight: 800;">Luca Marchetti</div>
+        <div style="font-size: 13.5px; color: #b9b6c9;">Bern · travels 50 km</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <span style="background: #232230; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: #d8d5e6;">bass</span>
+      <span style="background: #232230; border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: #d8d5e6;">double bass</span>
+    </div>
+  </div>
+
+  <div style="display: flex; background: #fffdf8; border-bottom: 1px solid #e5e1d8; padding: 14px 0;">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div class="display" style="font-size: 19px; font-weight: 800;">8</div>
+      <div style="font-size: 12px; color: #6f6c64;">gigs played</div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border-left: 1px solid #e5e1d8; border-right: 1px solid #e5e1d8;">
+      <div class="display" style="font-size: 19px; font-weight: 800; color: #b98a00;">4.9 ★</div>
+      <div style="font-size: 12px; color: #6f6c64;">12 reviews</div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div class="display" style="font-size: 19px; font-weight: 800;">CHF 250+</div>
+      <div style="font-size: 12px; color: #6f6c64;">per gig</div>
+    </div>
+  </div>
+
+  <div style="flex: 1; overflow: hidden; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+
+    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+      <span style="background: #efeaff; border: 1px solid #d8cdfd; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: #4f30d8; font-weight: 600;">reads charts</span>
+      <span style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: #6f6c64;">own transport</span>
+      <span style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: #6f6c64;">backing vocals</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-size: 13px; font-weight: 700; color: #3a382f; text-transform: uppercase; letter-spacing: 0.06em;">Demos</div>
+      <div style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 12px; padding: 13px 14px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #14131a; color: #ffffff; display: flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 1px;">
+          <div style="font-size: 14px; font-weight: 600;">Live at Bee-Flat, Bern</div>
+          <div style="font-size: 12.5px; color: #6f6c64;">YouTube · 4:32</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b887e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><path d="M15 3h6v6M10 14 21 3"></path></svg>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 12px; padding: 13px 14px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #14131a; color: #ffffff; display: flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 1px;">
+          <div style="font-size: 14px; font-weight: 600;">Trio session — jazz standards</div>
+          <div style="font-size: 12.5px; color: #6f6c64;">SoundCloud · 6:10</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b887e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><path d="M15 3h6v6M10 14 21 3"></path></svg>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="font-size: 13px; font-weight: 700; color: #3a382f; text-transform: uppercase; letter-spacing: 0.06em;">Reviews</div>
+      <div style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 7px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #b98a00; font-size: 13px; letter-spacing: 2px;">★★★★★</span>
+          <span style="font-size: 12.5px; color: #6f6c64;">Wedding · Thun · Aug 2026</span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.45; color: #3a382f;">Sight-read the whole book, nailed it. Guests thought he had been with us for years.</div>
+        <div style="font-size: 12.5px; color: #8b887e;">— Bandleader, The Midnight Keys</div>
+      </div>
+      <div style="background: #fffdf8; border: 1px solid #e5e1d8; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 7px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #b98a00; font-size: 13px; letter-spacing: 2px;">★★★★★</span>
+          <span style="font-size: 12.5px; color: #6f6c64;">Club night · Bern · Jul 2026</span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.45; color: #3a382f;">Solid time, great feel, zero fuss on the changeover.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
