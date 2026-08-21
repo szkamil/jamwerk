@@ -28,6 +28,8 @@ export default defineWorkersConfig({
 				miniflare: {
 					bindings: {
 						TEST_SCHEMA_STATEMENTS: schemaStatements,
+						// Never hit Nominatim from tests; specs seed geocode_cache instead.
+						GEOCODE_OFF: '1',
 					},
 				},
 			},

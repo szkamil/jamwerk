@@ -77,6 +77,46 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * City name -> coordinates via Nominatim (OpenStreetMap), cached in D1 so each
+ * city is looked up at most once. A failed lookup is cached as NULL so it is
+ * not retried on every request. Best-effort: callers proceed without
+ * coordinates when this returns null.
+ */
+async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string }, city: string): Promise<{ lat: number; lng: number } | null> {
+  const key = city.trim().toLowerCase();
+  if (!key) return null;
+  const cached = await env.DB.prepare('SELECT lat, lng FROM geocode_cache WHERE city_key = ?')
+    .bind(key).first<{ lat: number | null; lng: number | null }>();
+  if (cached) return cached.lat !== null && cached.lng !== null ? { lat: cached.lat, lng: cached.lng } : null;
+  if (env.GEOCODE_OFF === '1') return null;
+  let lat: number | null = null;
+  let lng: number | null = null;
+  let display: string | null = null;
+  try {
+    const res = await fetch(
+      'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(city.trim()),
+      { headers: { 'User-Agent': 'JamWerk/0.1 (https://jamwerk.app)' }, signal: AbortSignal.timeout(4000) }
+    );
+    if (res.ok) {
+      const data = (await res.json()) as Array<{ lat: string; lon: string; display_name?: string }>;
+      if (Array.isArray(data) && data[0]) {
+        const la = parseFloat(data[0].lat), ln = parseFloat(data[0].lon);
+        if (!isNaN(la) && !isNaN(ln)) {
+          lat = la; lng = ln; display = data[0].display_name ?? null;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Geocode failed for ' + JSON.stringify(city) + ':', err);
+    // Do not negative-cache transient failures - only "no result" responses.
+    return null;
+  }
+  await env.DB.prepare('INSERT OR REPLACE INTO geocode_cache (city_key, lat, lng, display) VALUES (?, ?, ?, ?)')
+    .bind(key, lat, lng, display).run();
+  return lat !== null && lng !== null ? { lat, lng } : null;
+}
+
 // No email provider is wired up yet; log so the intent is visible in
 // observability and the call sites are ready for a real sender.
 function notify(to: string, subject: string, body: string) {
@@ -156,8 +196,12 @@ musicians.post('/me', async (c) => {
     return c.json({ error: 'rate_min must not exceed rate_max' }, 400);
   }
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
-  const homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
-  const homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
+  let homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
+  let homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
+  if (homeCity && (homeLat === null || homeLng === null)) {
+    const geo = await geocodeCity(c.env, homeCity);
+    if (geo) { homeLat = geo.lat; homeLng = geo.lng; }
+  }
   const flag = (v: unknown) => (v ? 1 : 0);
 
   await c.env.DB.prepare(
@@ -225,8 +269,12 @@ gigs.post('/', async (c) => {
   const timeRe = /^\d{2}:\d{2}$/;
   const callTime = timeRe.test(body.call_time) ? body.call_time : null;
   const endTime = timeRe.test(body.end_time) ? body.end_time : null;
-  const lat = typeof body.venue_lat === 'number' && Math.abs(body.venue_lat) <= 90 ? body.venue_lat : null;
-  const lng = typeof body.venue_lng === 'number' && Math.abs(body.venue_lng) <= 180 ? body.venue_lng : null;
+  let lat = typeof body.venue_lat === 'number' && Math.abs(body.venue_lat) <= 90 ? body.venue_lat : null;
+  let lng = typeof body.venue_lng === 'number' && Math.abs(body.venue_lng) <= 180 ? body.venue_lng : null;
+  if (lat === null || lng === null) {
+    const geo = await geocodeCity(c.env, body.venue_city);
+    if (geo) { lat = geo.lat; lng = geo.lng; }
+  }
   const setlist = parseHttpUrlArray(body.setlist_link ? [body.setlist_link] : undefined);
   const requirements = body.requirements && typeof body.requirements === 'object' && !Array.isArray(body.requirements)
     ? body.requirements : {};
@@ -263,15 +311,22 @@ gigs.get('/', async (c) => {
     conds.push('instrument = ?');
     binds.push(q.instrument);
   }
-  if (q.city) {
-    conds.push('LOWER(venue_city) = LOWER(?)');
-    binds.push(q.city.trim());
-  }
   if (isIsoDate(q.date_from)) { conds.push('gig_date >= ?'); binds.push(q.date_from); }
   if (isIsoDate(q.date_to)) { conds.push('gig_date <= ?'); binds.push(q.date_to); }
 
-  const lat = parseFloat(q.lat), lng = parseFloat(q.lng);
+  // Explicit coordinates win; otherwise a city filter is geocoded and becomes
+  // "within radius of that city", falling back to exact name match only when
+  // the city cannot be resolved.
+  let lat = parseFloat(q.lat), lng = parseFloat(q.lng);
   const radius = Math.min(parseFloat(q.radius_km) || 50, 300);
+  if ((isNaN(lat) || isNaN(lng)) && q.city) {
+    const center = await geocodeCity(c.env, q.city);
+    if (center) { lat = center.lat; lng = center.lng; }
+    else {
+      conds.push('LOWER(venue_city) = LOWER(?)');
+      binds.push(q.city.trim());
+    }
+  }
   const geo = !isNaN(lat) && !isNaN(lng);
   if (geo) {
     // Cheap bounding box in SQL (D1 has no trig), exact distance refined below.

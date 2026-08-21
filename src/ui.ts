@@ -158,6 +158,11 @@ ${NOTES_LAYER}
       </div>
       <select id="fInstrument"><option value="">All instruments</option></select>
       <input type="text" id="fCity" placeholder="City">
+      <select id="fRadius">
+        <option value="25">25 km</option>
+        <option value="50" selected>50 km</option>
+        <option value="100">100 km</option>
+      </select>
       <button class="ghost" id="fGo">Filter</button>
     </div>
     <div id="board"></div>
@@ -305,7 +310,7 @@ function gigCard(g, actions) {
   const head = el('div', 'gig-head');
   head.append(el('strong', '', label(g.instrument)));
   head.append(el('span', 'tag status-' + g.status, g.status));
-  head.append(el('span', 'muted', (g.gig_date || 'flexible') + ' · ' + g.venue_city));
+  head.append(el('span', 'muted', (g.gig_date || 'flexible') + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
   head.append(el('span', 'fee', g.kind === 'practice' ? 'Jam' : 'CHF ' + g.fee_chf));
   c.append(head);
   const tags = el('div');
@@ -320,7 +325,10 @@ async function loadBoard() {
   const params = new URLSearchParams();
   params.set('kind', boardKind);
   if ($('fInstrument').value) params.set('instrument', $('fInstrument').value);
-  if ($('fCity').value.trim()) params.set('city', $('fCity').value.trim());
+  if ($('fCity').value.trim()) {
+    params.set('city', $('fCity').value.trim());
+    params.set('radius_km', $('fRadius').value);
+  }
   const r = await api('/gigs?' + params);
   const board = $('board');
   board.replaceChildren();
@@ -345,6 +353,7 @@ async function loadBoard() {
   })));
 }
 $('fGo').onclick = loadBoard;
+$('fRadius').onchange = loadBoard;
 document.querySelectorAll('#kindSeg button').forEach((b) => {
   b.onclick = () => {
     boardKind = b.dataset.kind;

@@ -18,8 +18,8 @@
       Grotesque + Instrument Sans, ink/violet/paper palette, header waveform + glow,
       violet note-scatter background, segmented board toggle) — shipped 2026-08-21
 
-- [ ] Geocode city names on gig post + musician profile (Nominatim) so radius search actually
-      has coordinates; "gigs near me" as the default board view
+- [x] Geocode city names on gig post + musician profile (Nominatim, D1-cached) — the board's
+      city filter is now "within 25/50/100 km", cards show distance; shipped 2026-08-21
 - [ ] Show musician display_name + reviews/rating on applicant cards (data exists, UI shows email)
 - [ ] Public musician profile pages (demo embeds, review history, gigs played)
 - [ ] In-app messaging between poster and applicant (currently contact is exchanged on booking)

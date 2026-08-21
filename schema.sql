@@ -97,3 +97,13 @@ CREATE TABLE IF NOT EXISTS gig_reviews (
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_gig_reviews_reviewee ON gig_reviews(reviewee_email);
+
+-- Geocode cache (mirrors migrations/002) — one row per normalized city name;
+-- NULL lat/lng records a failed lookup so it is not retried on every request.
+CREATE TABLE IF NOT EXISTS geocode_cache (
+  city_key TEXT PRIMARY KEY,
+  lat REAL,
+  lng REAL,
+  display TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
