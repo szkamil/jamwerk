@@ -7,6 +7,7 @@ import { getCookie, setCookie } from 'hono/cookie';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { sendEmail } from './email';
+import { normLang, pickLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
 
@@ -53,18 +54,27 @@ auth.post('/register', async (c) => {
 
   const hash = await bcrypt.hash(password, 10);
   const confirmToken = crypto.randomUUID();
+  const lang = ['en', 'fr', 'de', 'it'].includes(body?.lang)
+    ? normLang(body.lang)
+    : pickLang(c.req.header('Accept-Language'));
   try {
     await c.env.DB.prepare(
-      'INSERT INTO users (email, password_hash, display_name, confirm_token) VALUES (?, ?, ?, ?)'
-    ).bind(email, hash, displayName, confirmToken).run();
+      'INSERT INTO users (email, password_hash, display_name, confirm_token, lang) VALUES (?, ?, ?, ?, ?)'
+    ).bind(email, hash, displayName, confirmToken, lang).run();
   } catch (err: any) {
     if (String(err?.message || err).includes('UNIQUE')) {
       return c.json({ error: 'An account with this email already exists' }, 409);
     }
     throw err;
   }
-  const task = sendEmail(c.env, email, 'Confirm your JamWerk account',
-    `Welcome to JamWerk!\n\nConfirm your email address:\n${baseUrl(c)}/auth/confirm?token=${confirmToken}\n\nIf you did not sign up, ignore this message.`);
+  const task = sendEmail(c.env, email,
+    t(lang, { en: 'Confirm your JamWerk account', fr: 'Confirmez votre compte JamWerk', de: 'Bestätige dein JamWerk-Konto', it: 'Conferma il tuo account JamWerk' }),
+    t(lang, {
+      en: `Welcome to JamWerk!\n\nConfirm your email address:\n{link}\n\nTip: tap the bell in the app header to get gig alerts for your instrument near you.\n\nIf you did not sign up, ignore this message.`,
+      fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : touchez la cloche dans l'en-tête de l'app pour recevoir les alertes de concerts près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
+      de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Tippe auf die Glocke in der App, um Gig-Alerts für dein Instrument in deiner Nähe zu erhalten.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
+      it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: tocca la campanella nell'app per ricevere avvisi sui concerti vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
+    }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`));
   try { c.executionCtx.waitUntil(task); } catch { /* no execution context in some test setups */ }
   setSession(c, email);
   return c.json({ ok: true, email }, 201);
@@ -110,8 +120,16 @@ auth.post('/forgot', async (c) => {
       "UPDATE users SET reset_token = ?, reset_expires = datetime('now', '+1 hour') WHERE email = ?"
     ).bind(token, email).run();
     if (r.meta.changes) {
-      const task = sendEmail(c.env, email, 'Reset your JamWerk password',
-        `Someone asked to reset the password for this JamWerk account.\n\nSet a new password (link valid 1 hour):\n${baseUrl(c)}/?reset=${token}\n\nIf this was not you, ignore this message.`);
+      const row = await c.env.DB.prepare('SELECT lang FROM users WHERE email = ?').bind(email).first<{ lang: string }>();
+      const lang = normLang(row?.lang);
+      const task = sendEmail(c.env, email,
+        t(lang, { en: 'Reset your JamWerk password', fr: 'Réinitialisez votre mot de passe JamWerk', de: 'Setze dein JamWerk-Passwort zurück', it: 'Reimposta la tua password JamWerk' }),
+        t(lang, {
+          en: `Someone asked to reset the password for this JamWerk account.\n\nSet a new password (link valid 1 hour):\n{link}\n\nIf this was not you, ignore this message.`,
+          fr: `Quelqu'un a demandé la réinitialisation du mot de passe de ce compte JamWerk.\n\nDéfinissez un nouveau mot de passe (lien valable 1 heure) :\n{link}\n\nSi ce n'était pas vous, ignorez ce message.`,
+          de: `Jemand hat das Zurücksetzen des Passworts für dieses JamWerk-Konto angefordert.\n\nNeues Passwort festlegen (Link 1 Stunde gültig):\n{link}\n\nFalls das nicht du warst, ignoriere diese Nachricht.`,
+          it: `Qualcuno ha chiesto di reimpostare la password di questo account JamWerk.\n\nImposta una nuova password (link valido 1 ora):\n{link}\n\nSe non sei stato tu, ignora questo messaggio.`,
+        }).replace('{link}', `${baseUrl(c)}/?reset=${token}`));
       try { c.executionCtx.waitUntil(task); } catch { /* no execution context in some test setups */ }
     }
   }
@@ -133,6 +151,17 @@ auth.post('/reset', async (c) => {
   ).bind(hash, row.email).run();
   setSession(c, row.email);
   return c.json({ ok: true, email: row.email });
+});
+
+// Persist the user's UI language so emails and push match it.
+auth.post('/lang', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const body = await c.req.json().catch(() => null);
+  const lang = body?.lang;
+  if (!['en', 'fr', 'de', 'it'].includes(lang)) return c.json({ error: 'Unknown language' }, 400);
+  await c.env.DB.prepare('UPDATE users SET lang = ? WHERE email = ?').bind(lang, user.email).run();
+  return c.json({ ok: true });
 });
 
 auth.post('/logout', (c) => {

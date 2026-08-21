@@ -9,6 +9,7 @@
 // Degrades gracefully: with no keys configured, sends are skipped and logged.
 import { Context } from 'hono';
 import { sendPushTo } from './push';
+import { Lang, normLang } from './i18n';
 import type { AppEnv, Env } from './types';
 
 function escapeHtml(s: string): string {
@@ -52,12 +53,30 @@ export async function sendEmail(env: Env, to: string, subject: string, text: str
   }
 }
 
-/** Fire-and-forget notification (email + web push); non-critical best-effort. */
-export function notify(c: Context<AppEnv>, to: string, subject: string, body: string) {
-  const task = Promise.allSettled([
-    sendEmail(c.env, to, subject, body),
-    sendPushTo(c.env, to, subject, body),
-  ]);
+/**
+ * Fire-and-forget notification (email + web push) in the recipient's language;
+ * non-critical best-effort. Pass the recipient's lang when the caller already
+ * has it (saves a lookup); otherwise it is read from users.lang.
+ */
+export function notify(
+  c: Context<AppEnv>,
+  to: string,
+  build: (lang: Lang) => { subject: string; body: string },
+  knownLang?: string
+) {
+  const task = (async () => {
+    let lang = normLang(knownLang);
+    if (!knownLang) {
+      const row = await c.env.DB.prepare('SELECT lang FROM users WHERE email = ?')
+        .bind(to).first<{ lang: string }>();
+      lang = normLang(row?.lang);
+    }
+    const { subject, body } = build(lang);
+    await Promise.allSettled([
+      sendEmail(c.env, to, subject, body),
+      sendPushTo(c.env, to, subject, body),
+    ]);
+  })();
   try {
     c.executionCtx.waitUntil(task);
   } catch {

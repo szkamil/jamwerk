@@ -20,6 +20,7 @@
 // always corresponds to a gig that verifiably happened.
 import { Hono, Context } from 'hono';
 import { notify } from './email';
+import { Lang, normLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
 
@@ -317,8 +318,9 @@ gigs.post('/', async (c) => {
   // Best-effort and capped; failures never block the post.
   try {
     const { results } = await c.env.DB.prepare(
-      `SELECT owner, travel_radius_km, home_lat, home_lng, home_city
-       FROM musician_details WHERE instruments LIKE ? AND owner != ? LIMIT 500`
+      `SELECT m.owner, m.travel_radius_km, m.home_lat, m.home_lng, m.home_city, u.lang
+       FROM musician_details m JOIN users u ON u.email = m.owner
+       WHERE m.instruments LIKE ? AND m.owner != ? LIMIT 500`
     ).bind(`%"${body.instrument}"%`, user.email).all();
     const city = body.venue_city.trim().toLowerCase();
     const targets = (results as any[]).filter((m) => {
@@ -327,12 +329,23 @@ gigs.post('/', async (c) => {
       }
       return (m.home_city || '').trim().toLowerCase() === city;
     }).slice(0, 50);
-    const title = kind === 'practice'
-      ? `Jam: ${body.instrument} wanted in ${body.venue_city}`
-      : `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`;
-    for (const t of targets) {
-      notify(c, t.owner, title,
-        `${body.gig_date ?? 'flexible'} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`);
+    for (const target of targets) {
+      notify(c, target.owner, (lang: Lang) => ({
+        subject: kind === 'practice'
+          ? t(lang, {
+              en: `Jam: ${body.instrument} wanted in ${body.venue_city}`,
+              fr: `Jam : ${body.instrument} recherché à ${body.venue_city}`,
+              de: `Jam: ${body.instrument} gesucht in ${body.venue_city}`,
+              it: `Jam: cercasi ${body.instrument} a ${body.venue_city}`,
+            })
+          : t(lang, {
+              en: `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`,
+              fr: `Concert : ${body.instrument} à ${body.venue_city} — CHF ${body.fee_chf}`,
+              de: `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`,
+              it: `Concerto: ${body.instrument} a ${body.venue_city} — CHF ${body.fee_chf}`,
+            }),
+        body: `${body.gig_date ?? t(lang, { en: 'flexible', fr: 'flexible', de: 'flexibel', it: 'flessibile' })} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`,
+      }), target.lang);
     }
   } catch (err) {
     console.error('Gig fan-out failed:', err);
@@ -493,11 +506,22 @@ gigs.post('/:id/apply', async (c) => {
     throw err;
   }
 
-  notify(c, gig.poster_email,
-    gig.kind === 'practice'
-      ? `New practice partner request in ${gig.venue_city}`
-      : `New application for your gig on ${gig.gig_date}`,
-    `${user.email}${note ? `\n\n${note}` : ''}`);
+  notify(c, gig.poster_email, (lang: Lang) => ({
+    subject: gig.kind === 'practice'
+      ? t(lang, {
+          en: `New practice partner request in ${gig.venue_city}`,
+          fr: `Nouvelle demande de partenaire de répétition à ${gig.venue_city}`,
+          de: `Neue Anfrage für Übungspartner in ${gig.venue_city}`,
+          it: `Nuova richiesta di partner di prova a ${gig.venue_city}`,
+        })
+      : t(lang, {
+          en: `New application for your gig on ${gig.gig_date}`,
+          fr: `Nouvelle candidature pour votre concert du ${gig.gig_date}`,
+          de: `Neue Bewerbung für deinen Gig am ${gig.gig_date}`,
+          it: `Nuova candidatura per il tuo concerto del ${gig.gig_date}`,
+        }),
+    body: `${note || t(lang, { en: 'Open the app to review it.', fr: "Ouvrez l'app pour la consulter.", de: 'Öffne die App, um sie anzusehen.', it: "Apri l'app per esaminarla." })}\n\nhttps://jamwerk.app`,
+  }));
   return c.json({ ok: true }, 201);
 });
 
@@ -520,8 +544,20 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     if (gig.status !== 'open') return c.json({ error: `Listing is ${gig.status}, not open` }, 409);
     await c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?")
       .bind(application.id).run();
-    notify(c, application.musician_email, `Practice match in ${gig.venue_city}!`,
-      `The poster accepted you.\nContact: ${gig.poster_email}\n\n${gig.description}`);
+    notify(c, application.musician_email, (lang: Lang) => ({
+      subject: t(lang, {
+        en: `Practice match in ${gig.venue_city}!`,
+        fr: `Partenaire trouvé à ${gig.venue_city} !`,
+        de: `Übungspartner-Match in ${gig.venue_city}!`,
+        it: `Partner trovato a ${gig.venue_city}!`,
+      }),
+      body: t(lang, {
+        en: `The poster accepted you.\nContact: {contact}`,
+        fr: `L'annonceur vous a accepté.\nContact : {contact}`,
+        de: `Der Inserent hat dich angenommen.\nKontakt: {contact}`,
+        it: `L'inserzionista ti ha accettato.\nContatto: {contact}`,
+      }).replace('{contact}', gig.poster_email) + `\n\n${gig.description}`,
+    }));
     return c.json({ ok: true, musician_email: application.musician_email });
   }
 
@@ -541,8 +577,16 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     ).bind(gig.id, application.id),
   ]);
 
-  notify(c, application.musician_email, `You're booked! Gig on ${gig.gig_date} in ${gig.venue_city}`,
-    `CHF ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\nContact: ${gig.poster_email}`);
+  notify(c, application.musician_email, (lang: Lang) => ({
+    subject: t(lang, {
+      en: `You're booked! Gig on ${gig.gig_date} in ${gig.venue_city}`,
+      fr: `Vous êtes engagé ! Concert le ${gig.gig_date} à ${gig.venue_city}`,
+      de: `Du bist gebucht! Gig am ${gig.gig_date} in ${gig.venue_city}`,
+      it: `Sei ingaggiato! Concerto il ${gig.gig_date} a ${gig.venue_city}`,
+    }),
+    body: `CHF ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\n` +
+      t(lang, { en: 'Contact', fr: 'Contact', de: 'Kontakt', it: 'Contatto' }) + `: ${gig.poster_email}`,
+  }));
   return c.json({ ok: true, musician_email: application.musician_email });
 });
 
@@ -569,7 +613,15 @@ gigs.post('/:id/cancel', async (c) => {
   ]);
 
   if (booking) {
-    notify(c, booking.musician_email, `Gig cancelled: ${gig.gig_date} in ${gig.venue_city}`, reason || '-');
+    notify(c, booking.musician_email, (lang: Lang) => ({
+      subject: t(lang, {
+        en: `Gig cancelled: ${gig.gig_date} in ${gig.venue_city}`,
+        fr: `Concert annulé : ${gig.gig_date} à ${gig.venue_city}`,
+        de: `Gig abgesagt: ${gig.gig_date} in ${gig.venue_city}`,
+        it: `Concerto annullato: ${gig.gig_date} a ${gig.venue_city}`,
+      }),
+      body: reason || '-',
+    }));
   }
   return c.json({ ok: true });
 });

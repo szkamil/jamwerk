@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   confirm_token TEXT,
   reset_token TEXT,
   reset_expires TEXT,
+  lang TEXT NOT NULL DEFAULT 'en',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

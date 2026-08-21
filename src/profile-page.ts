@@ -3,6 +3,7 @@
 // but never their email. Mirrors the Profile artboard in design/.
 import { Hono } from 'hono';
 import { WAVE_SVG, NOTES_LAYER } from './ui';
+import { pickLang, t } from './i18n';
 import type { AppEnv } from './types';
 
 function esc(s: unknown): string {
@@ -67,6 +68,7 @@ profilePage.get('/:handle', async (c) => {
   const handle = c.req.param('handle');
   if (!/^[a-z0-9-]{1,50}$/.test(handle)) return c.notFound();
 
+  const lang = pickLang(c.req.header('Accept-Language'));
   const m = await c.env.DB.prepare(
     `SELECT m.*, u.display_name, u.created_at AS member_since
      FROM musician_details m JOIN users u ON u.email = m.owner
@@ -115,7 +117,7 @@ profilePage.get('/:handle', async (c) => {
           <span><span class="t">${esc(u)}</span><br><span class="d">${esc(host)}</span></span>
         </a></div>`;
       }).join('')
-    : '<p class="empty">No demos yet.</p>';
+    : `<p class="empty">${t(lang, { en: 'No demos yet.', fr: 'Pas encore de démos.', de: 'Noch keine Demos.', it: 'Ancora nessuna demo.' })}</p>`;
 
   const reviewHtml = (reviews as any[]).length
     ? (reviews as any[]).map((r) => `<div class="card review">
@@ -125,11 +127,11 @@ profilePage.get('/:handle', async (c) => {
         </div>
         ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
       </div>`).join('')
-    : '<p class="empty">No reviews yet — they appear after completed gigs.</p>';
+    : `<p class="empty">${t(lang, { en: 'No reviews yet — they appear after completed gigs.', fr: "Pas encore d'avis — ils apparaissent après les concerts effectués.", de: 'Noch keine Bewertungen — sie erscheinen nach abgeschlossenen Gigs.', it: 'Ancora nessuna recensione — appaiono dopo i concerti completati.' })}</p>`;
 
   const title = `${name} — ${instruments.map(label).join(', ') || 'musician'} | JamWerk`;
   return c.html(`<!doctype html>
-<html lang="en">
+<html lang="${lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -155,25 +157,25 @@ ${NOTES_LAYER}
       <div class="avatar">${esc(initials)}</div>
       <div>
         <h1 class="display">${esc(name)}</h1>
-        <div class="sub">${esc(m.home_city || '')}${m.home_city ? ' · ' : ''}travels ${m.travel_radius_km} km</div>
+        <div class="sub">${esc(m.home_city || '')}${m.home_city ? ' · ' : ''}${t(lang, { en: 'travels', fr: 'se déplace jusqu\u2019à', de: 'reist bis', it: 'si sposta fino a' })} ${m.travel_radius_km} km</div>
       </div>
     </div>
     <div class="pills">${instruments.map((x) => `<span class="pill">${esc(label(x))}</span>`).join('')}</div>
   </div>
 </header>
 <div class="stats"><div class="inner">
-  <div class="stat"><b class="display">${m.gigs_played}</b><span>gigs played</span></div>
-  <div class="stat"><b class="display gold">${avg != null ? avg + ' ★' : '–'}</b><span>${stats?.review_count || 0} reviews</span></div>
-  <div class="stat"><b class="display">${m.rate_min != null ? 'CHF ' + m.rate_min + '+' : '–'}</b><span>per gig</span></div>
+  <div class="stat"><b class="display">${m.gigs_played}</b><span>${t(lang, { en: 'gigs played', fr: 'concerts joués', de: 'gespielte Gigs', it: 'concerti suonati' })}</span></div>
+  <div class="stat"><b class="display gold">${avg != null ? avg + ' ★' : '–'}</b><span>${stats?.review_count || 0} ${t(lang, { en: 'reviews', fr: 'avis', de: 'Bewertungen', it: 'recensioni' })}</span></div>
+  <div class="stat"><b class="display">${m.rate_min != null ? 'CHF ' + m.rate_min + '+' : '–'}</b><span>${t(lang, { en: 'per gig', fr: 'par concert', de: 'pro Gig', it: 'a concerto' })}</span></div>
 </div></div>
 <main>
   <div class="chips">${flagChips}</div>
-  <h2>Demos</h2>
+  <h2>${t(lang, { en: 'Demos', fr: 'Démos', de: 'Demos', it: 'Demo' })}</h2>
   ${demoHtml}
-  <h2>Reviews</h2>
+  <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}</h2>
   ${reviewHtml}
 </main>
-<footer>Booked through <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — find a dep, fill a gig.</footer>
+<footer>${t(lang, { en: 'Booked through', fr: 'Réservé via', de: 'Gebucht über', it: 'Prenotato tramite' })} <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — find a dep, fill a gig.</footer>
 </body>
 </html>`);
 });

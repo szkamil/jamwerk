@@ -23,10 +23,10 @@
        reach your phone"), an empty-board prompt to turn on alerts, a line in the signup
        confirmation email, and landing-page copy once there is a landing page. The Alerts
        bell alone is not discoverable enough.
-7. [ ] **Localization: FR / DE / IT / EN** — full app UI, emails, push notifications, and
-       public profile pages in all four languages (Swiss market; English included).
-       Language picker + browser-language default; TrustAxis's t() helper pattern is a
-       reference. Do before promoting outside English-speaking circles.
+7. [x] **Localization: FR / DE / IT / EN** — shipped 2026-08-21: full app UI (client
+       dictionary + header language picker, browser-language default, choice persisted
+       per user), all emails and push notifications in the recipient's language, and
+       public profile pages in the visitor's browser language.
 
 ## Before real users (hardening)
 
