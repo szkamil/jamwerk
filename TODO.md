@@ -33,6 +33,17 @@
       Ship only once the musician graph is dense enough (see ladder rationale).
 - [ ] Later: rehearsal room listings; escrow payments (Stripe Connect) once gig liquidity exists
 
+## Mobile (ladder — web-first, stores when justified)
+
+- [ ] **PWA layer now**: manifest + icons + service worker + iOS meta tags so
+      "Add to Home Screen" gives an app-like install from the existing site; zero store friction
+- [ ] Web push notifications ("new gig for your instrument near you") — works on Android
+      and on iOS for installed PWAs; push is the killer feature for short-notice deps
+- [ ] **Capacitor wrap** (gate: liquidity in seed city + push proven to drive matches):
+      same codebase into App Store / Play Store; needs Apple Developer (USD 99/yr) +
+      Google Play (USD 25 one-off) accounts, store listings, review cycles
+- [ ] Native rebuild only if the UI ever outgrows the web shell (no current need)
+
 ## Product ladder (why this order)
 
 Practice (casual, free) → Dep gigs (transactional, the paid core) → Bands (long-term).

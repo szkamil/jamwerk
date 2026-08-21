@@ -61,6 +61,18 @@ So the forum arrives bottom-up, in three steps, each useful even with 10 users:
 Moderation minimum before step 2: report button, poster-owner delete, simple
 rate limit. (Reddit-ness — votes, nesting — only at step 3, if ever.)
 
+## Mobile strategy (asked 2026-08: iOS/Android apps?)
+
+Web-first, deliberately. Store apps are the most expensive commitment available
+at POC stage: every iteration goes from minutes (deploy on push) to days
+(review queues), plus release engineering and store accounts — all before
+knowing what musicians actually use. The product is mobile-critical, though, so
+the ladder is: (1) PWA install + web push now — 80% of the app experience from
+the same codebase; (2) Capacitor wrap of the same code for real store presence
+and native push once the seed city is liquid and push provably drives matches;
+(3) native UI only if ever needed. The one thing store apps truly add earlier —
+reliable iOS push — is also the first thing to validate cheaply via the PWA.
+
 ## Standing constraints
 
 - One seed city until the gig board is liquid there; features never outrun
