@@ -6,8 +6,21 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT PRIMARY KEY,
   password_hash TEXT NOT NULL,
   display_name TEXT NOT NULL DEFAULT '',
+  confirmed INTEGER DEFAULT 0,
+  confirm_token TEXT,
+  reset_token TEXT,
+  reset_expires TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Per-IP fixed-window rate limiting (mirrors migrations/003)
+CREATE TABLE IF NOT EXISTS rate_limits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL,
+  action TEXT NOT NULL,
+  attempted_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_lookup ON rate_limits(ip, action, attempted_at);
 
 CREATE TABLE IF NOT EXISTS musician_details (
   owner TEXT PRIMARY KEY,

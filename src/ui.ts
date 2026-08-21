@@ -226,6 +226,7 @@ ${NOTES_LAYER}
     <div class="row" id="aNameRow" hidden><label>Name (shown to bandleaders)</label><input type="text" id="aName"></div>
     <button class="primary" id="authSubmit">Log in</button>
     <button type="button" class="ghost" id="authSwitch">Need an account? Register</button>
+    <button type="button" class="ghost" id="authForgot">Forgot password?</button>
     <button type="button" class="ghost" id="authClose">Close</button>
   </form>
 </dialog>
@@ -283,6 +284,13 @@ $('authSwitch').onclick = () => {
   $('aNameRow').hidden = !registering;
 };
 $('authClose').onclick = () => $('authDialog').close();
+$('authForgot').onclick = async () => {
+  const email = $('aEmail').value || prompt('Your account email:');
+  if (!email) return;
+  await api('/auth/forgot', { method: 'POST', body: { email } });
+  $('authDialog').close();
+  flash('If that account exists, a reset link is on its way.', 'ok');
+};
 $('authForm').onsubmit = async (e) => {
   e.preventDefault();
   const body = { email: $('aEmail').value, password: $('aPassword').value };
@@ -548,6 +556,19 @@ for (const i of INSTRUMENTS) {
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 (async () => {
+  const q = new URLSearchParams(location.search);
+  if (q.get('confirmed') === '1') flash('Email confirmed — welcome aboard.', 'ok');
+  if (q.get('confirmed') === '0') flash('That confirmation link is invalid or already used.', 'err');
+  const resetToken = q.get('reset');
+  if (resetToken) {
+    const pw = prompt('Set a new password (min 8 characters):');
+    if (pw) {
+      const r = await api('/auth/reset', { method: 'POST', body: { token: resetToken, password: pw } });
+      if (r.ok) { me = { email: r.json.email }; flash('Password updated — you are logged in.', 'ok'); }
+      else flash(r.json.error || 'Reset failed', 'err');
+    }
+  }
+  if (q.toString()) history.replaceState(null, '', '/');
   const r = await api('/auth/me');
   if (r.ok) me = { email: r.json.email };
   renderAuth(); loadBoard(); loadProfile();

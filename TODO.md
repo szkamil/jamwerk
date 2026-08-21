@@ -2,11 +2,11 @@
 
 ## Next up (priority order, agreed 2026-08-21)
 
-1. [ ] **Notifications batch** — Mailjet email sending replaces the `notify()` log stub
-       (new gig near you / application received / booked / cancelled), plus signup email
-       confirmation, password reset, and rate limiting on register/login/apply.
-       Needs: JamWerk API key + secret from the existing Mailjet account, stored as
-       Worker secrets; sender address (e.g. notify@jamwerk.app) verified in Mailjet.
+1. [x] **Notifications batch** — shipped 2026-08-21: Mailjet sending (src/email.ts),
+       signup confirmation, password reset, per-IP rate limits on register/login/apply/forgot.
+       ⚠ Remaining one-time step: set the TrustAxis Mailjet keys as Worker secrets
+       (`npx wrangler secret put MAILJET_API_KEY` / `MAILJET_SECRET_KEY`) — until then
+       sends are logged, not delivered. Shared-account note in README "Email".
 2. [ ] **Applicant cards with names + ratings** — show display name, review average,
        and gigs played instead of raw emails (data already exists)
 3. [ ] **Public musician profile pages** — shareable page per musician: demos, reviews,
@@ -21,9 +21,6 @@
 - [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets to this repo so
       `.github/workflows/deploy.yml` deploys on push to main; then delete the temporary
       `deploy-jamwerk.yml` bridge workflow from szkamil/poc-poc
-- [ ] Rate limiting on register/login/apply (per-IP, D1 table or Turnstile)
-- [ ] Email sending: replace the `notify()` console stub in `src/gigs.ts` (Mailjet or Resend);
-      wire signup confirmation + password reset
 - [ ] Cron trigger to flip stale `open` gigs past `expires_at` to `expired`
 - [ ] Custom 404 / error pages; favicon; OG meta for link sharing
 

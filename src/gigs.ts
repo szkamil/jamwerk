@@ -19,6 +19,8 @@
 // open/booked. Reviews hang off the booking (one per direction), so a review
 // always corresponds to a gig that verifiably happened.
 import { Hono, Context } from 'hono';
+import { notify } from './email';
+import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
 
 export const INSTRUMENTS = [
@@ -115,12 +117,6 @@ async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string }, city: 
   await env.DB.prepare('INSERT OR REPLACE INTO geocode_cache (city_key, lat, lng, display) VALUES (?, ?, ?, ?)')
     .bind(key, lat, lng, display).run();
   return lat !== null && lng !== null ? { lat, lng } : null;
-}
-
-// No email provider is wired up yet; log so the intent is visible in
-// observability and the call sites are ready for a real sender.
-function notify(to: string, subject: string, body: string) {
-  console.log(`[NOTIFY] to=${to} subject=${JSON.stringify(subject)} body=${JSON.stringify(body)}`);
 }
 
 interface GigRow {
@@ -417,6 +413,9 @@ gigs.get('/:id', async (c) => {
 gigs.post('/:id/apply', async (c) => {
   const user = requireUser(c);
   if (!user) return c.json({ error: 'Authentication required' }, 401);
+  if (await rateLimited(c.env, clientIp(c), 'apply', 30, 60)) {
+    return c.json({ error: 'Too many applications — slow down a little' }, 429);
+  }
   const gig = await loadGig(c, c.req.param('id'));
   if (!gig) return c.json({ error: 'Gig not found' }, 404);
   if (gig.poster_email === user.email) return c.json({ error: 'You cannot apply to your own gig' }, 403);
@@ -440,7 +439,7 @@ gigs.post('/:id/apply', async (c) => {
     throw err;
   }
 
-  notify(gig.poster_email,
+  notify(c, gig.poster_email,
     gig.kind === 'practice'
       ? `New practice partner request in ${gig.venue_city}`
       : `New application for your gig on ${gig.gig_date}`,
@@ -467,7 +466,7 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     if (gig.status !== 'open') return c.json({ error: `Listing is ${gig.status}, not open` }, 409);
     await c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?")
       .bind(application.id).run();
-    notify(application.musician_email, `Practice match in ${gig.venue_city}!`,
+    notify(c, application.musician_email, `Practice match in ${gig.venue_city}!`,
       `The poster accepted you.\nContact: ${gig.poster_email}\n\n${gig.description}`);
     return c.json({ ok: true, musician_email: application.musician_email });
   }
@@ -488,7 +487,7 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     ).bind(gig.id, application.id),
   ]);
 
-  notify(application.musician_email, `You're booked! Gig on ${gig.gig_date} in ${gig.venue_city}`,
+  notify(c, application.musician_email, `You're booked! Gig on ${gig.gig_date} in ${gig.venue_city}`,
     `CHF ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\nContact: ${gig.poster_email}`);
   return c.json({ ok: true, musician_email: application.musician_email });
 });
@@ -516,7 +515,7 @@ gigs.post('/:id/cancel', async (c) => {
   ]);
 
   if (booking) {
-    notify(booking.musician_email, `Gig cancelled: ${gig.gig_date} in ${gig.venue_city}`, reason || '-');
+    notify(c, booking.musician_email, `Gig cancelled: ${gig.gig_date} in ${gig.venue_city}`, reason || '-');
   }
   return c.json({ ok: true });
 });

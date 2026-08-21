@@ -25,8 +25,33 @@ It needs two repository secrets (Settings → Secrets and variables → Actions)
 Schema changes: `schema.sql` is idempotent; apply it to the `jamwerk-db` D1
 database with `npx wrangler d1 execute jamwerk-db --remote --file schema.sql`.
 
+## Email (Mailjet)
+
+Transactional email (gig notifications, signup confirmation, password reset)
+goes through Mailjet — `src/email.ts`. Without keys configured the app still
+runs; sends are skipped and logged.
+
+**⚠ Shared account — deliberate, temporary.** JamWerk currently uses the
+**existing TrustAxis Mailjet account's** API key pair, and sends from the
+TrustAxis-verified sender `outreach@trustaxis.ch` (display name "JamWerk"),
+because that sender is the one the account has verified. When JamWerk is
+viable and gets traffic, move it to a **dedicated Mailjet account**:
+
+1. Create the account, get a fresh API key + secret.
+2. Verify the `jamwerk.app` domain there (SPF/DKIM DNS records in Cloudflare).
+3. `npx wrangler secret put MAILJET_API_KEY` / `MAILJET_SECRET_KEY`, and
+   `npx wrangler secret put EMAIL_FROM` with `notify@jamwerk.app`.
+
+To enable sending today (one-time, from a checkout of this repo):
+
+```
+npx wrangler secret put MAILJET_API_KEY     # paste the TrustAxis account's API key
+npx wrangler secret put MAILJET_SECRET_KEY  # paste its secret key
+```
+
+(The same values TrustAxis production uses; they live only as encrypted Worker
+secrets, never in this repo.)
+
 ## POC shortcuts (fix before real users)
 
 - `JWT_SECRET` is a plaintext var in `wrangler.toml` — move to `wrangler secret put` and rotate.
-- No email confirmation, password reset, or rate limiting on signup.
-- Notifications are logged, not emailed (`notify()` in `src/gigs.ts`).

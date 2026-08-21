@@ -20,6 +20,7 @@ database_name = "jamwerk-db"
 database_id = "9b956c5a-b8e2-41e4-930c-8a647501b6cb"
 
 [vars]
+BASE_URL = "https://jamwerk.app"
 # POC only: plaintext var so the workers.dev deploy needs no secret setup.
 # Before this app gets a real domain and real users, move it to
 # `wrangler secret put JWT_SECRET` and rotate.
