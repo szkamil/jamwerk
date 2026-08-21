@@ -35,8 +35,8 @@
 
 ## Mobile (ladder — web-first, stores when justified)
 
-- [ ] **PWA layer now**: manifest + icons + service worker + iOS meta tags so
-      "Add to Home Screen" gives an app-like install from the existing site; zero store friction
+- [x] **PWA layer**: manifest + icons + service worker + iOS meta tags — jamwerk.app is
+      installable from the browser ("Add to Home Screen"); offline shell fallback
 - [ ] Web push notifications ("new gig for your instrument near you") — works on Android
       and on iOS for installed PWAs; push is the killer feature for short-notice deps
 - [ ] **Capacitor wrap** (gate: liquidity in seed city + push proven to drive matches):

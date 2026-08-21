@@ -67,7 +67,7 @@ Web-first, deliberately. Store apps are the most expensive commitment available
 at POC stage: every iteration goes from minutes (deploy on push) to days
 (review queues), plus release engineering and store accounts — all before
 knowing what musicians actually use. The product is mobile-critical, though, so
-the ladder is: (1) PWA install + web push now — 80% of the app experience from
+the ladder is: (1) PWA install (DONE 2026-08-21) + web push next — 80% of the app experience from
 the same codebase; (2) Capacitor wrap of the same code for real store presence
 and native push once the seed city is liquid and push provably drives matches;
 (3) native UI only if ever needed. The one thing store apps truly add earlier —

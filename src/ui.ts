@@ -9,6 +9,13 @@ export const PAGE = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>JamWerk — find a dep, fill a gig</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#16161d">
+<link rel="icon" type="image/png" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JamWerk">
 <style>
   :root {
     --ink: #16161d; --paper: #f6f5f2; --card: #ffffff; --line: #e3e1db;
@@ -455,6 +462,7 @@ for (const i of INSTRUMENTS) {
   cb.append(input, document.createTextNode(label(i)));
   $('mInstruments').append(cb);
 }
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 (async () => {
   const r = await api('/auth/me');
   if (r.ok) me = { email: r.json.email };

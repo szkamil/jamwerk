@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from './auth';
 import authRoutes from './auth';
 import gigRoutes, { musicians as musicianRoutes } from './gigs';
+import pwaRoutes from './pwa';
 import { PAGE } from './ui';
 import type { AppEnv } from './types';
 
@@ -31,6 +32,7 @@ app.onError((err, c) => {
 });
 
 app.get('/', (c) => c.html(PAGE));
+app.route('/', pwaRoutes);
 app.route('/auth', authRoutes);
 app.route('/gigs', gigRoutes);
 app.route('/musicians', musicianRoutes);
