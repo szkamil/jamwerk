@@ -1,5 +1,20 @@
 # JamWerk — TODO
 
+## Next up (priority order, agreed 2026-08-21)
+
+1. [ ] **Notifications batch** — Mailjet email sending replaces the `notify()` log stub
+       (new gig near you / application received / booked / cancelled), plus signup email
+       confirmation, password reset, and rate limiting on register/login/apply.
+       Needs: JamWerk API key + secret from the existing Mailjet account, stored as
+       Worker secrets; sender address (e.g. notify@jamwerk.app) verified in Mailjet.
+2. [ ] **Applicant cards with names + ratings** — show display name, review average,
+       and gigs played instead of raw emails (data already exists)
+3. [ ] **Public musician profile pages** — shareable page per musician: demos, reviews,
+       stats (the Profile screen from the design canvas)
+4. [ ] **Web push** — "new gig for your instrument near you" on the phone; PWA groundwork done
+5. [ ] **Expiry cron** — scheduled job flipping stale open gigs past expires_at to expired
+       (fold into whichever of the above ships first)
+
 ## Before real users (hardening)
 
 - [ ] Move `JWT_SECRET` out of `wrangler.toml` to `wrangler secret put JWT_SECRET`, rotate the value
