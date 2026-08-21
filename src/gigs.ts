@@ -312,6 +312,32 @@ gigs.post('/', async (c) => {
     body.description.trim(), expiresAt
   ).run();
 
+  // Fan out to matching musicians: same instrument, within their own travel
+  // radius of the gig (city-name match when either side lacks coordinates).
+  // Best-effort and capped; failures never block the post.
+  try {
+    const { results } = await c.env.DB.prepare(
+      `SELECT owner, travel_radius_km, home_lat, home_lng, home_city
+       FROM musician_details WHERE instruments LIKE ? AND owner != ? LIMIT 500`
+    ).bind(`%"${body.instrument}"%`, user.email).all();
+    const city = body.venue_city.trim().toLowerCase();
+    const targets = (results as any[]).filter((m) => {
+      if (lat !== null && lng !== null && m.home_lat !== null && m.home_lng !== null) {
+        return haversineKm(lat, lng, m.home_lat, m.home_lng) <= (m.travel_radius_km || 30);
+      }
+      return (m.home_city || '').trim().toLowerCase() === city;
+    }).slice(0, 50);
+    const title = kind === 'practice'
+      ? `Jam: ${body.instrument} wanted in ${body.venue_city}`
+      : `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`;
+    for (const t of targets) {
+      notify(c, t.owner, title,
+        `${body.gig_date ?? 'flexible'} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`);
+    }
+  } catch (err) {
+    console.error('Gig fan-out failed:', err);
+  }
+
   return c.json({ ok: true, id: result.meta.last_row_id }, 201);
 });
 

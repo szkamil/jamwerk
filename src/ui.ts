@@ -143,6 +143,10 @@ ${NOTES_LAYER}
   <span style="color: rgba(255,255,255,0.55); font-size: 13.5px;">find a dep, fill a gig</span>
   <span class="spacer"></span>
   <span class="who" id="who"></span>
+  <button class="ghost small" id="notifBtn" hidden style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+    <span id="notifLabel">Alerts</span>
+  </button>
   <button class="ghost small" id="authBtn" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35);">Log in</button>
 </header>
 <nav id="tabs">
@@ -272,6 +276,7 @@ let registering = false;
 function renderAuth() {
   $('who').textContent = me ? me.email : '';
   $('authBtn').textContent = me ? 'Log out' : 'Log in';
+  refreshNotifBtn();
 }
 $('authBtn').onclick = async () => {
   if (me) {
@@ -584,6 +589,50 @@ for (const i of INSTRUMENTS) {
   $('mInstruments').append(cb);
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// ── Web push ─────────────────────────────────────────
+let vapidKey = null;
+function vapidBytes(key) {
+  const pad = '='.repeat((4 - (key.length % 4)) % 4);
+  const raw = atob((key + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+async function currentSub() {
+  const reg = await navigator.serviceWorker.ready;
+  return reg.pushManager.getSubscription();
+}
+async function refreshNotifBtn() {
+  const supported = me && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  if (!supported) { $('notifBtn').hidden = true; return; }
+  if (vapidKey === null) vapidKey = (await api('/push/vapid')).json.key || false;
+  if (!vapidKey) { $('notifBtn').hidden = true; return; }
+  const sub = await currentSub().catch(() => null);
+  $('notifLabel').textContent = sub ? 'Alerts on' : 'Alerts';
+  $('notifBtn').hidden = false;
+}
+$('notifBtn').onclick = async () => {
+  try {
+    const existing = await currentSub();
+    if (existing) {
+      await api('/push/unsubscribe', { method: 'POST', body: { endpoint: existing.endpoint } });
+      await existing.unsubscribe();
+      flash('Alerts off.', 'ok');
+    } else {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { flash('Notifications are blocked in your browser settings.', 'err'); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidBytes(vapidKey) });
+      const r = await api('/push/subscribe', { method: 'POST', body: sub.toJSON() });
+      if (r.ok) flash('Alerts on — gigs near you will reach this device.', 'ok');
+      else flash(r.json.error || 'Could not enable alerts', 'err');
+    }
+  } catch (err) {
+    flash('Could not change alert settings.', 'err');
+  }
+  refreshNotifBtn();
+};
 (async () => {
   const q = new URLSearchParams(location.search);
   if (q.get('confirmed') === '1') flash('Email confirmed — welcome aboard.', 'ok');

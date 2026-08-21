@@ -21,7 +21,7 @@ const MANIFEST = JSON.stringify({
 
 // Network-first for navigations so deploys land immediately; the last good
 // shell is cached as an offline fallback. API calls are never intercepted.
-const SW = `const VERSION = 'jamwerk-v1';
+const SW = `const VERSION = 'jamwerk-v2';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
@@ -36,6 +36,23 @@ self.addEventListener('fetch', (e) => {
       })
       .catch(() => caches.match('/'))
   );
+});
+self.addEventListener('push', (e) => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch (err) {}
+  e.waitUntil(self.registration.showNotification(data.title || 'JamWerk', {
+    body: data.body || '',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    data: { url: '/' },
+  }));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+    for (const w of wins) { if ('focus' in w) return w.focus(); }
+    return self.clients.openWindow('/');
+  }));
 });
 `;
 

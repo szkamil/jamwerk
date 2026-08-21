@@ -10,6 +10,10 @@ export interface Env {
   MAILJET_SECRET_KEY?: string;
   EMAIL_FROM?: string;
   BASE_URL?: string;
+  // Web Push VAPID keys (see wrangler.toml note). Absent: pushes are skipped.
+  VAPID_PUBLIC_KEY?: string;
+  VAPID_PRIVATE_JWK?: string;
+  VAPID_SUBJECT?: string;
 }
 
 export interface SessionUser {

@@ -5,6 +5,7 @@ import authRoutes from './auth';
 import gigRoutes, { musicians as musicianRoutes } from './gigs';
 import pwaRoutes from './pwa';
 import profilePage from './profile-page';
+import pushRoutes from './push';
 import { PAGE } from './ui';
 import type { AppEnv } from './types';
 
@@ -37,6 +38,7 @@ app.route('/', pwaRoutes);
 app.route('/auth', authRoutes);
 app.route('/gigs', gigRoutes);
 app.route('/m', profilePage);
+app.route('/push', pushRoutes);
 app.route('/musicians', musicianRoutes);
 
 export default app;

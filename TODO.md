@@ -13,9 +13,15 @@
 3. [x] **Public musician profile pages** — shipped 2026-08-21: /m/:handle, server-rendered
        and shareable (name, instruments, stats, demos, reviews; email never exposed);
        linked from applicant cards and the musician's own profile tab
-4. [ ] **Web push** — "new gig for your instrument near you" on the phone; PWA groundwork done
+4. [x] **Web push** — shipped 2026-08-21: VAPID + aes128gcm from scratch on WebCrypto,
+       Alerts toggle in the header, pushes ride along with every email notification,
+       and new gigs fan out to matching musicians within their travel radius
 5. [ ] **Expiry cron** — scheduled job flipping stale open gigs past expires_at to expired
        (fold into whichever of the above ships first)
+6. [ ] **Localization: FR / DE / IT / EN** — full app UI, emails, push notifications, and
+       public profile pages in all four languages (Swiss market; English included).
+       Language picker + browser-language default; TrustAxis's t() helper pattern is a
+       reference. Do before promoting outside English-speaking circles.
 
 ## Before real users (hardening)
 
@@ -54,8 +60,6 @@
 
 - [x] **PWA layer**: manifest + icons + service worker + iOS meta tags — jamwerk.app is
       installable from the browser ("Add to Home Screen"); offline shell fallback
-- [ ] Web push notifications ("new gig for your instrument near you") — works on Android
-      and on iOS for installed PWAs; push is the killer feature for short-notice deps
 - [ ] **Capacitor wrap** (gate: liquidity in seed city + push proven to drive matches):
       same codebase into App Store / Play Store; needs Apple Developer (USD 99/yr) +
       Google Play (USD 25 one-off) accounts, store listings, review cycles

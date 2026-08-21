@@ -8,6 +8,7 @@
 //
 // Degrades gracefully: with no keys configured, sends are skipped and logged.
 import { Context } from 'hono';
+import { sendPushTo } from './push';
 import type { AppEnv, Env } from './types';
 
 function escapeHtml(s: string): string {
@@ -51,9 +52,12 @@ export async function sendEmail(env: Env, to: string, subject: string, text: str
   }
 }
 
-/** Fire-and-forget notification; all gig emails are non-critical best-effort. */
+/** Fire-and-forget notification (email + web push); non-critical best-effort. */
 export function notify(c: Context<AppEnv>, to: string, subject: string, body: string) {
-  const task = sendEmail(c.env, to, subject, body);
+  const task = Promise.allSettled([
+    sendEmail(c.env, to, subject, body),
+    sendPushTo(c.env, to, subject, body),
+  ]);
   try {
     c.executionCtx.waitUntil(task);
   } catch {

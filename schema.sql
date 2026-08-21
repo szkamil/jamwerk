@@ -123,3 +123,14 @@ CREATE TABLE IF NOT EXISTS geocode_cache (
   display TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Web Push subscriptions (mirrors migrations/005)
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  endpoint TEXT PRIMARY KEY,
+  owner TEXT NOT NULL,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (owner) REFERENCES users(email) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_push_owner ON push_subscriptions(owner);
