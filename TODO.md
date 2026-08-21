@@ -14,6 +14,10 @@
 
 ## Core loop improvements
 
+- [x] UI refresh: "backstage editorial" direction from the design canvas (Bricolage
+      Grotesque + Instrument Sans, ink/violet/paper palette, header waveform + glow,
+      violet note-scatter background, segmented board toggle) — shipped 2026-08-21
+
 - [ ] Geocode city names on gig post + musician profile (Nominatim) so radius search actually
       has coordinates; "gigs near me" as the default board view
 - [ ] Show musician display_name + reviews/rating on applicant cards (data exists, UI shows email)

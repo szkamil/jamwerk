@@ -73,6 +73,12 @@ and native push once the seed city is liquid and push provably drives matches;
 (3) native UI only if ever needed. The one thing store apps truly add earlier —
 reliable iOS push — is also the first thing to validate cheaply via the PWA.
 
+## Design
+
+The "backstage editorial" direction (design/ canvas) is implemented in the live
+app as of 2026-08-21: type pairing, palette, header glow + audio-waveform strip,
+scattered violet notation on the page background, segmented board toggle.
+
 ## Standing constraints
 
 - One seed city until the gig board is liquid there; features never outrun
