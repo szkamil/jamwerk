@@ -70,7 +70,7 @@ function parseHttpUrlArray(v: unknown, max = 5): string[] | null {
   return out;
 }
 
-function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+export function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const rad = Math.PI / 180;
   const dLat = (lat2 - lat1) * rad;
   const dLng = (lng2 - lng1) * rad;
@@ -86,7 +86,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
  * not retried on every request. Best-effort: callers proceed without
  * coordinates when this returns null.
  */
-async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string }, city: string): Promise<{ lat: number; lng: number } | null> {
+export async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string }, city: string): Promise<{ lat: number; lng: number } | null> {
   const key = city.trim().toLowerCase();
   if (!key) return null;
   const cached = await env.DB.prepare('SELECT lat, lng FROM geocode_cache WHERE city_key = ?')

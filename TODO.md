@@ -55,9 +55,10 @@
       no fee, same instrument/genre/radius matching, same apply flow. Cheap: reuses
       musician_details + the application pattern. Gives musicians a reason to open the app
       weekly even when no paid gigs match.
-- [ ] **Band formation** (phase 3): `bands` entity with open seats (instrument slots);
-      seat applications reuse the gig application pattern; band page with lineup + genres.
-      Ship only once the musician graph is dense enough (see ladder rationale).
+- [x] **Band formation** (phase 3) — shipped 2026-08-21: Bands tab (create band with
+      instrument seats, seat applications with the enriched applicant cards, owner fills
+      seats, contact shared on acceptance, seat fan-out to matching musicians nearby,
+      localized notifications). Liquidity caveat from PLAN.md still applies.
 - [ ] Later: rehearsal room listings; escrow payments (Stripe Connect) once gig liquidity exists
 
 ## Mobile (ladder — web-first, stores when justified)

@@ -159,6 +159,7 @@ ${NOTES_LAYER}
   <button data-tab="board" class="active" data-i18n="nav_board">Gig board</button>
   <button data-tab="post" data-i18n="nav_post">Post a gig</button>
   <button data-tab="mine" data-i18n="nav_mine">My gigs</button>
+  <button data-tab="bands" data-i18n="nav_bands">Bands</button>
   <button data-tab="profile" data-i18n="nav_profile">Musician profile</button>
 </nav>
 <main>
@@ -210,6 +211,20 @@ ${NOTES_LAYER}
 
   <section id="tab-mine" hidden><div id="mine"></div></section>
 
+  <section id="tab-bands" hidden>
+    <div class="card"><form id="bandForm">
+      <div class="grid2">
+        <div class="row"><label data-i18n="band_name">Band name</label><input type="text" id="bName" required maxlength="80"></div>
+        <div class="row"><label data-i18n="city">City</label><input type="text" id="bCity" placeholder="Bern"></div>
+      </div>
+      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="bGenres" required placeholder="indie, rock"></div>
+      <div class="row"><label data-i18n="description">Description</label><textarea id="bDesc"></textarea></div>
+      <div class="row"><label data-i18n="seats_l">Open seats (choose instruments)</label><div class="checks" id="bSeats"></div></div>
+      <button class="primary" data-i18n="start_band">Start a band</button>
+    </form></div>
+    <div id="bandsList"></div>
+  </section>
+
   <section id="tab-profile" hidden>
     <div class="card"><form id="profileForm">
       <div class="row"><label data-i18n="instruments_l">Instruments</label><div class="checks" id="mInstruments"></div></div>
@@ -251,7 +266,8 @@ const $ = (id) => document.getElementById(id);
 const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion','keys','piano','accordion','violin','viola','cello','trumpet','trombone','saxophone','clarinet','flute','harmonica','dj','other'];
 const I18N = {
   en: {
-    nav_board: 'Gig board', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
+    nav_board: 'Gig board',
+    nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_gigs: 'Paid gigs', seg_practice: 'Practice partners', all_instruments: 'All instruments', ph_city: 'City', btn_filter: 'Filter',
     login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
     email: 'Email', password: 'Password', name_label: 'Name (shown to bandleaders)',
@@ -286,7 +302,8 @@ const I18N = {
     inst: {},
   },
   fr: {
-    nav_board: 'Tableau des concerts', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
+    nav_board: 'Tableau des concerts',
+    nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_gigs: 'Concerts payés', seg_practice: 'Partenaires de répétition', all_instruments: 'Tous les instruments', ph_city: 'Ville', btn_filter: 'Filtrer',
     login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
     email: 'E-mail', password: 'Mot de passe', name_label: 'Nom (visible par les chefs de groupe)',
@@ -321,7 +338,8 @@ const I18N = {
     inst: { vocals: 'chant', guitar: 'guitare', bass: 'basse', double_bass: 'contrebasse', drums: 'batterie', percussion: 'percussions', keys: 'claviers', piano: 'piano', accordion: 'accordéon', violin: 'violon', viola: 'alto', cello: 'violoncelle', trumpet: 'trompette', trombone: 'trombone', saxophone: 'saxophone', clarinet: 'clarinette', flute: 'fl\u00fbte', harmonica: 'harmonica', dj: 'dj', other: 'autre' },
   },
   de: {
-    nav_board: 'Gig-Board', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
+    nav_board: 'Gig-Board',
+    nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_gigs: 'Bezahlte Gigs', seg_practice: 'Übungspartner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', btn_filter: 'Filtern',
     login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
     email: 'E-Mail', password: 'Passwort', name_label: 'Name (für Bandleader sichtbar)',
@@ -356,7 +374,8 @@ const I18N = {
     inst: { vocals: 'Gesang', guitar: 'Gitarre', bass: 'Bass', double_bass: 'Kontrabass', drums: 'Schlagzeug', percussion: 'Percussion', keys: 'Keys', piano: 'Klavier', accordion: 'Akkordeon', violin: 'Violine', viola: 'Bratsche', cello: 'Cello', trumpet: 'Trompete', trombone: 'Posaune', saxophone: 'Saxophon', clarinet: 'Klarinette', flute: 'Fl\u00f6te', harmonica: 'Mundharmonika', dj: 'DJ', other: 'Sonstiges' },
   },
   it: {
-    nav_board: 'Bacheca concerti', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
+    nav_board: 'Bacheca concerti',
+    nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_gigs: 'Concerti pagati', seg_practice: 'Partner di prova', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', btn_filter: 'Filtra',
     login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
     email: 'E-mail', password: 'Password', name_label: 'Nome (visibile ai bandleader)',
@@ -476,8 +495,9 @@ document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
     b.classList.add('active');
-    ['board','post','mine','profile'].forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
+    ['board','post','mine','bands','profile'].forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
     if (b.dataset.tab === 'mine') loadMine();
+    if (b.dataset.tab === 'bands') loadBands();
     if (b.dataset.tab === 'board') loadBoard();
   };
 });
@@ -744,8 +764,128 @@ for (const i of INSTRUMENTS) {
   const input = el('input'); input.type = 'checkbox'; input.value = i;
   cb.append(input, document.createTextNode(label(i)));
   $('mInstruments').append(cb);
+  const sb = el('label');
+  const sInput = el('input'); sInput.type = 'checkbox'; sInput.value = i;
+  sb.append(sInput, document.createTextNode(label(i)));
+  $('bSeats').append(sb);
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// ── Bands ────────────────────────────────────────────
+$('bandForm').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!me) { $('authDialog').showModal(); return; }
+  const body = {
+    name: $('bName').value,
+    home_city: $('bCity').value || undefined,
+    genres: parseCsv($('bGenres').value),
+    description: $('bDesc').value,
+    seats: [...document.querySelectorAll('#bSeats input:checked')].map((x) => x.value),
+  };
+  const r = await api('/bands', { method: 'POST', body });
+  if (r.ok) { flash(T('band_created'), 'ok'); $('bandForm').reset(); loadBands(); }
+  else flash(r.json.error || T('failed'), 'err');
+};
+async function loadBands() {
+  const wrap = $('bandsList');
+  wrap.replaceChildren();
+  const r = await api('/bands');
+  if (!r.json.bands || !r.json.bands.length) { wrap.append(el('div', 'empty', T('no_bands'))); return; }
+  for (const b of r.json.bands) {
+    const card = el('div', 'card');
+    const head = el('div', 'gig-head');
+    head.append(el('strong', '', b.name));
+    head.append(el('span', 'muted', (b.home_city ? b.home_city + ' · ' : '') + T('members_n2', b.member_count)));
+    card.append(head);
+    const tags = el('div');
+    (b.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
+    card.append(tags);
+    if (b.description) card.append(el('p', '', b.description));
+    const bar = el('div');
+    bar.style.display = 'flex'; bar.style.gap = '8px'; bar.style.flexWrap = 'wrap';
+    if (b.is_mine) {
+      const manage = el('button', 'ghost small', T('manage'));
+      manage.onclick = () => showBandManage(b.id, card);
+      bar.append(manage);
+    } else {
+      for (const seat of b.open_seats) {
+        const btn = el('button', 'primary small', T('apply') + ' — ' + label(seat.instrument));
+        btn.onclick = async () => {
+          if (!me) { $('authDialog').showModal(); return; }
+          const note = prompt(T('note_prompt')) || '';
+          const res = await api('/bands/seats/' + seat.id + '/apply', { method: 'POST', body: { note } });
+          if (res.ok) flash(T('applied_seat_ok'), 'ok');
+          else flash(res.json.error || T('could_not_apply'), 'err');
+        };
+        bar.append(btn);
+      }
+      if (!b.open_seats.length) bar.append(el('span', 'muted', T('lineup_full')));
+    }
+    card.append(bar);
+    wrap.append(card);
+  }
+}
+async function showBandManage(bandId, card) {
+  const r = await api('/bands/' + bandId);
+  card.querySelectorAll('.application').forEach((n) => n.remove());
+  for (const s of r.json.seats || []) {
+    const row = el('div', 'application');
+    const head = el('div', 'applicant-head');
+    const who = el('div');
+    who.style.flex = '1';
+    who.append(el('strong', '', label(s.instrument)));
+    if (s.member) {
+      const meta = el('div', 'applicant-meta');
+      meta.append(el('span', '', s.member.display_name));
+      if (s.member.avg_rating != null) meta.append(el('span', 'rating', '\u2605 ' + s.member.avg_rating));
+      if (s.member.gigs_played != null) meta.append(el('span', '', T('applications_gigs', s.member.gigs_played)));
+      who.append(meta);
+    }
+    head.append(who, el('span', 'tag', TS(s.status)));
+    row.append(head);
+    if (s.status === 'open') {
+      const apps = (r.json.applications || []).filter((a) => a.seat_id === s.id && a.status === 'applied');
+      for (const a of apps) {
+        const line = el('div', 'applicant-meta');
+        line.append(el('span', '', a.display_name));
+        if (a.review_count > 0) line.append(el('span', 'rating', '\u2605 ' + a.avg_rating + ' (' + a.review_count + ')'));
+        if (a.gigs_played != null) line.append(el('span', '', T('applications_gigs', a.gigs_played)));
+        if (a.handle) {
+          const prof = el('a', 'muted', T('view_profile'));
+          prof.href = '/m/' + a.handle; prof.target = '_blank'; prof.rel = 'noopener noreferrer';
+          line.append(prof);
+        }
+        const acc = el('button', 'primary small', T('book', a.display_name));
+        acc.onclick = async () => {
+          const res = await api('/bands/seats/' + s.id + '/applications/' + a.id + '/accept', { method: 'POST' });
+          if (res.ok) { flash(T('joined_ok', res.json.musician_email), 'ok'); loadBands(); }
+          else flash(res.json.error || T('failed'), 'err');
+        };
+        line.append(acc);
+        row.append(line);
+        if (a.note) row.append(el('p', 'muted', a.note));
+      }
+      const closeBtn = el('button', 'ghost small', T('close_seat'));
+      closeBtn.onclick = async () => {
+        const res = await api('/bands/seats/' + s.id + '/close', { method: 'POST' });
+        if (res.ok) { flash(T('seat_closed'), 'ok'); loadBands(); } else flash(res.json.error || T('failed'), 'err');
+      };
+      row.append(closeBtn);
+    }
+    card.append(row);
+  }
+  const addRow = el('div', 'application');
+  const sel = el('select');
+  INSTRUMENTS.forEach((i) => sel.append(new Option(label(i), i)));
+  sel.style.width = 'auto';
+  const addBtn = el('button', 'ghost small', T('add_seat'));
+  addBtn.onclick = async () => {
+    const res = await api('/bands/' + bandId + '/seats', { method: 'POST', body: { instrument: sel.value } });
+    if (res.ok) { flash(T('seat_added'), 'ok'); showBandManage(bandId, card); } else flash(res.json.error || T('failed'), 'err');
+  };
+  addRow.append(sel, document.createTextNode(' '), addBtn);
+  card.append(addRow);
+}
 
 // ── Web push ─────────────────────────────────────────
 let vapidKey = null;

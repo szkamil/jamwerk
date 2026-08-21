@@ -28,7 +28,7 @@ Geocoding on post + profile so radius search is real; display names and ratings
 on applicant cards; public musician profile pages; gig-digest notifications once
 email lands. (Tracked in TODO.md.)
 
-## Phase 3 — Band formation (after gig liquidity)
+## Phase 3 — Band formation (SHIPPED 2026-08-21)
 
 `bands` (name, genres, home city, description, owner) + `band_seats`
 (instrument, status open/filled). Seat applications reuse the application
