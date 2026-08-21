@@ -1,0 +1,26 @@
+# JamWerk — gig marketplace for musicians (dep booking).
+# Own Worker + own D1 database, served at jamwerk.app.
+name = "jamwerk"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+routes = [
+  { pattern = "jamwerk.app", custom_domain = true },
+  { pattern = "www.jamwerk.app", custom_domain = true }
+]
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jamwerk-db"
+database_id = "9b956c5a-b8e2-41e4-930c-8a647501b6cb"
+
+[vars]
+# POC only: plaintext var so the workers.dev deploy needs no secret setup.
+# Before this app gets a real domain and real users, move it to
+# `wrangler secret put JWT_SECRET` and rotate.
+JWT_SECRET = "jamwerk-poc-fb42e697ffab16f5f43ed3e097fe7817"

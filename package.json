@@ -1,0 +1,25 @@
+{
+  "name": "jamwerk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JamWerk — local paid dep booking for musicians. Cloudflare Worker + D1.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "hono": "^4.7.4",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.6.4",
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9",
+    "wrangler": "4.66.0"
+  }
+}
