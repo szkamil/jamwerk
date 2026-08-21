@@ -18,7 +18,12 @@
        and new gigs fan out to matching musicians within their travel radius
 5. [ ] **Expiry cron** — scheduled job flipping stale open gigs past expires_at to expired
        (fold into whichever of the above ships first)
-6. [ ] **Localization: FR / DE / IT / EN** — full app UI, emails, push notifications, and
+6. [ ] **Advertise the notification features in-product** — users will not discover them
+       alone: first-run onboarding tout ("Enable alerts — gigs for your instrument near you
+       reach your phone"), an empty-board prompt to turn on alerts, a line in the signup
+       confirmation email, and landing-page copy once there is a landing page. The Alerts
+       bell alone is not discoverable enough.
+7. [ ] **Localization: FR / DE / IT / EN** — full app UI, emails, push notifications, and
        public profile pages in all four languages (Swiss market; English included).
        Language picker + browser-language default; TrustAxis's t() helper pattern is a
        reference. Do before promoting outside English-speaking circles.

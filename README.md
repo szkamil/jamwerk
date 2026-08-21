@@ -8,6 +8,31 @@ the gig. Fees are always public — that is the point.
 
 Cloudflare Worker (Hono) + D1, JSON API + single-page UI, all in this repo.
 
+## Features
+
+- **Gig board** with paid gigs and free practice-partner listings; public fees
+  in CHF; instrument, city, and radius filters (real geocoded radius search,
+  distance shown on cards).
+- **Booking flow**: apply with one tap, poster books one musician (others are
+  declined automatically), completion unlocks two-sided reviews. Applicant
+  cards show names, star ratings, and gigs played — contact is shared only
+  after booking.
+- **Public musician pages** at `/m/:handle` — shareable track record: demos,
+  reviews from completed gigs, stats.
+- **Notifications, email + web push together.** Every notification that goes
+  out by email also arrives as a push on subscribed devices: application
+  received, you're booked, practice match, gig cancelled.
+- **New-gig fan-out** — posting a gig sends "Gig: bass in Bern — CHF 300" to
+  every musician playing that instrument within *their own* travel radius of
+  the venue (email + push). This is the short-notice-dep killer feature.
+- **Tapping a push notification opens or focuses the app.** Alerts are enabled
+  with the bell button in the header; works on Android/desktop browsers and on
+  iOS once the PWA is installed to the home screen.
+- **Installable PWA** with offline shell.
+
+⚠ These features are invisible until someone tells users about them — see the
+"Advertise the notification features" item in TODO.md.
+
 ## Develop
 
 ```
