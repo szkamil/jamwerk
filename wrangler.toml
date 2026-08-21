@@ -11,6 +11,10 @@ routes = [
   { pattern = "www.jamwerk.app", custom_domain = true }
 ]
 
+[triggers]
+# Daily housekeeping (see scheduled() in src/index.ts)
+crons = ["17 3 * * *"]
+
 [observability]
 enabled = true
 

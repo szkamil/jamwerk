@@ -16,8 +16,8 @@
 4. [x] **Web push** — shipped 2026-08-21: VAPID + aes128gcm from scratch on WebCrypto,
        Alerts toggle in the header, pushes ride along with every email notification,
        and new gigs fan out to matching musicians within their travel radius
-5. [ ] **Expiry cron** — scheduled job flipping stale open gigs past expires_at to expired
-       (fold into whichever of the above ships first)
+5. [x] **Expiry cron** — shipped 2026-08-21: daily scheduled Worker run (03:17 UTC)
+       expires stale open listings and prunes old rate-limit rows
 6. [ ] **Advertise the notification features in-product** — users will not discover them
        alone: first-run onboarding tout ("Enable alerts — gigs for your instrument near you
        reach your phone"), an empty-board prompt to turn on alerts, a line in the signup
@@ -34,7 +34,6 @@
 - [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets to this repo so
       `.github/workflows/deploy.yml` deploys on push to main; then delete the temporary
       `deploy-jamwerk.yml` bridge workflow from szkamil/poc-poc
-- [ ] Cron trigger to flip stale `open` gigs past `expires_at` to `expired`
 - [ ] Custom 404 / error pages; favicon; OG meta for link sharing
 
 ## Core loop improvements
