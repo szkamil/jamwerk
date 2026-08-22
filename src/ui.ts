@@ -131,8 +131,10 @@ export const PAGE = `<!doctype html>
   .msg { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 14.5px; display: none; }
   .msg.err { display: block; background: #fdecea; color: var(--warn); }
   .msg.ok { display: block; background: #e7f6ef; color: var(--ok); }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
-  .filters select, .filters input { width: auto; flex: 1 1 130px; border-radius: 999px; padding: 10px 14px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
+  .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; }
+  .filters #fRadius { flex: 0 1 auto; min-width: 106px; }
+  .filters button.ghost { min-height: 46px; border-radius: 999px; }
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
   .seg button { flex: 1; border: 0; background: transparent; color: #b9b6c9; border-radius: 9px; padding: 10px 0; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 42px; }
   .seg button.active { background: var(--accent); color: #fff; font-weight: 600; }
@@ -248,8 +250,12 @@ ${NOTES_LAYER}
       <select id="fInstrument"><option value="" data-i18n="all_instruments">All instruments</option></select>
       <input type="text" id="fCity" placeholder="City" data-i18n-ph="ph_city">
       <select id="fRadius">
+        <option value="5">5 km</option>
+        <option value="10">10 km</option>
+        <option value="15">15 km</option>
         <option value="25">25 km</option>
         <option value="50" selected>50 km</option>
+        <option value="75">75 km</option>
         <option value="100">100 km</option>
       </select>
       <button class="ghost" id="fGo" data-i18n="btn_filter">Filter</button>
