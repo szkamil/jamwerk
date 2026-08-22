@@ -124,10 +124,10 @@ Mon: 10 new contacts. Wed: follow-ups. Fri: post/refresh gigs, screenshot any ne
 Numbers to pull each week (D1 `jamwerk-db`; the agent can run these via the D1 MCP):
 
 ```sql
-SELECT count(*) AS musicians, sum(confirmed IS NOT NULL) AS confirmed FROM users;
+SELECT count(*) AS musicians, sum(confirmed) AS confirmed FROM users;
 SELECT count(*) AS with_alerts FROM push_subscriptions;
 SELECT kind, status, count(*) FROM gigs GROUP BY kind, status;
-SELECT count(*) AS applications FROM applications;
+SELECT count(*) AS applications FROM gig_applications;
 SELECT count(*) AS reviews FROM gig_reviews;
 ```
 
