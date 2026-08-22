@@ -72,6 +72,16 @@
 
 ## Before real users (hardening)
 
+- [ ] **Rethink where feedback goes** — today `POST /feedback` stores the message in the D1
+      `feedback` table and emails a copy to the `FEEDBACK_EMAIL` var in wrangler.toml
+      (= rupert.szewczyk@gmail.com, sent from the Mailjet sender). Problems: a personal
+      inbox hard-coded in config, no way to reply from a JamWerk identity, and nobody sees
+      the D1 rows. Options: (a) `feedback@jamwerk.app` via Cloudflare Email Routing,
+      forwarded to whichever inbox handles support (no code change, swap the var);
+      (b) keep D1 as source of truth + a tiny admin list (`/admin/feedback`, owner-only);
+      (c) pipe into a shared tool (Slack/Notion webhook). DECIDE, then update
+      `FEEDBACK_EMAIL` / src/feedback.ts accordingly.
+
 - [x] **Bot protection on public forms** — shipped 2026-08-22: Cloudflare Turnstile
       widget "jamwerk.app forms" (managed mode) created via the API, secret stored as
       the TURNSTILE_SECRET_KEY Worker secret, widget rendered in the register form and
