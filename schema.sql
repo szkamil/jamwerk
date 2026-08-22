@@ -189,3 +189,11 @@ CREATE TABLE IF NOT EXISTS messages (
   FOREIGN KEY (sender_email) REFERENCES users(email) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_type, thread_id, id);
+
+-- Feedback form submissions (mirrors migrations/010)
+CREATE TABLE IF NOT EXISTS feedback (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

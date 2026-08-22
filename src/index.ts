@@ -8,6 +8,7 @@ import profilePage from './profile-page';
 import pushRoutes from './push';
 import bandRoutes from './bands';
 import messageRoutes from './messages';
+import feedbackRoutes from './feedback';
 import { PAGE } from './ui';
 import type { AppEnv, Env } from './types';
 
@@ -44,6 +45,7 @@ app.route('/push', pushRoutes);
 app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
+app.route('/feedback', feedbackRoutes);
 
 // Daily housekeeping: flip stale open listings past their expiry to 'expired'
 // (paid gigs expire the day after the date, practice listings after 60 days),

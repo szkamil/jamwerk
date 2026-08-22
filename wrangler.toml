@@ -36,3 +36,7 @@ JWT_SECRET = "jamwerk-poc-fb42e697ffab16f5f43ed3e097fe7817"
 VAPID_PUBLIC_KEY = "BNfGECx3PmeosUqaIXYTczj4LiKUIMfr7y-65lCgP8fxOmWeN2xiqZELdHC04zWL883xEgESnfGN9cas_XEA2-o"
 VAPID_PRIVATE_JWK = '{"key_ops":["sign"],"ext":true,"kty":"EC","x":"18YQLHc-Z6ixSpohdhNzOPguIpQgx-vvL7rmUKA_x_E","y":"OmWeN2xiqZELdHC04zWL883xEgESnfGN9cas_XEA2-o","crv":"P-256","d":"bNwu0WkiUbXr7CMi0M8zPfC4wfE5PUs2Tq7sR1iNC7Q"}'
 VAPID_SUBJECT = "mailto:rupert.szewczyk@gmail.com"
+
+# Footer feedback form submissions are stored in D1 and forwarded here by
+# email (once the Mailjet keys are configured — see README "Email").
+FEEDBACK_EMAIL = "rupert.szewczyk@gmail.com"
