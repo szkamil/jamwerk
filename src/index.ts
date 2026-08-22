@@ -37,6 +37,10 @@ app.onError((err, c) => {
 });
 
 app.get('/', (c) => c.html(PAGE));
+// Mailjet domain-ownership validation (Option 1: empty file on the site).
+// Mailjet's DNS-TXT check kept failing on their side even though the record
+// resolves; this file is the documented alternative. Harmless to keep.
+app.get('/c9430416e4605ac213d863a7ff83f3f8.txt', (c) => c.text(''));
 app.route('/', pwaRoutes);
 app.route('/auth', authRoutes);
 app.route('/gigs', gigRoutes);

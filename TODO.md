@@ -6,8 +6,13 @@
        gigwerk@hotmail.com (mailwerk@hotmail.com never existed as a validated sender);
        EMAIL_FROM switched, test feedback email delivered + opened. The stray pending
        sender "mailwerk@hotmail.com" can be deleted in Mailjet → Senders.
-2. [x] **notify@jamwerk.app** — done 2026-08-22: jamwerk.app validated in Mailjet with
-       SPF/DKIM/DMARC (p=none) records in Cloudflare DNS; EMAIL_FROM switched.
+2. [ ] **notify@jamwerk.app** — blocked on Mailjet (2026-08-22): SPF OK, DKIM OK, DMARC
+       live, ownership TXT `mailjet._c9430416` AND the Option-1 file
+       `/c9430416e4605ac213d863a7ff83f3f8.txt` both in place, yet Mailjet's domain row stays
+       "Pending" and a test mail from notify@jamwerk.app was silently dropped (never reached
+       Mailjet stats). Reverted to gigwerk@hotmail.com. Next: retry *Validate* in Senders &
+       domains later / ask Mailjet support; when the row is Active set
+       `EMAIL_FROM = "notify@jamwerk.app"` and deploy.
 3. [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` to this repo's Actions
        secrets → its own deploy.yml takes over; then delete the bridge workflow in poc-poc.
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
