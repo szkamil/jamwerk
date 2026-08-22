@@ -115,6 +115,8 @@ export const PAGE = `<!doctype html>
   nav { display: flex; gap: 6px; padding: 14px 20px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
   nav button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; }
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+  nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
+  #msgBadge { background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px; }
   main { max-width: 860px; margin: 0 auto; padding: 16px 20px 64px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(20,19,26,0.05); }
   .gig-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -135,8 +137,10 @@ export const PAGE = `<!doctype html>
   textarea { min-height: 90px; resize: vertical; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
-  /* Phones: header collapses to one row (logo · lang · bell · login); the
-     tab strip scrolls sideways instead of wrapping into three lines. */
+  /* Phones: header collapses to one row (logo · lang · bell · login/avatar);
+     the section tabs become a fixed bottom bar with icons + short labels so
+     nothing is hidden behind a sideways scroll. Profile lives behind the
+     header avatar; its tab button is hidden from the bar. */
   @media (max-width: 640px) {
     header { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
     header h1 { font-size: 22px; }
@@ -145,11 +149,21 @@ export const PAGE = `<!doctype html>
     header #notifBtn { padding: 7px 10px; min-width: 40px; justify-content: center; }
     header #notifBtn #notifLabel { display: none; }
     header #authBtn { padding: 7px 12px; white-space: nowrap; }
-    nav { flex-wrap: nowrap; overflow-x: auto; padding: 12px 14px 4px; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scroll-padding: 0 14px;
-      mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
-    nav::-webkit-scrollbar { display: none; }
-    nav button { flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap; }
-    nav button:last-child { margin-right: 28px; }
+    body.authed header #authBtn { display: none; }
+    body.authed #profileBtn { display: flex; }
+    #profileBtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.35); background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 15px; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+    .mobile-only { display: flex !important; }
+    nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-width: none; margin: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); gap: 0;
+      display: grid; grid-template-columns: repeat(5, 1fr); background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(20,19,26,0.06); }
+    nav button { border: 0; background: transparent; border-radius: 10px; padding: 5px 2px; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: var(--muted); position: relative; line-height: 1.1; }
+    nav button svg { display: block; }
+    nav button .lf { display: none; }
+    nav button .ls { display: block; white-space: nowrap; }
+    nav button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
+    nav button[data-tab=profile] { display: none; }
+    nav #msgBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
+    main { padding-bottom: 96px; }
+    footer { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
   }
   button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 600; cursor: pointer; min-height: 46px; }
   button.primary:hover { background: var(--accent-deep); }
@@ -212,14 +226,15 @@ ${NOTES_LAYER}
     <span id="notifLabel">Alerts</span>
   </button>
   <button class="ghost small" id="authBtn" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35);">Log in</button>
+  <button id="profileBtn" hidden aria-label="Musician profile" title="Musician profile"></button>
 </header>
 <nav id="tabs">
-  <button data-tab="board" class="active" data-i18n="nav_board">Gig board</button>
-  <button data-tab="post" data-i18n="nav_post">Post a gig</button>
-  <button data-tab="mine" data-i18n="nav_mine">My gigs</button>
-  <button data-tab="bands" data-i18n="nav_bands">Bands</button>
-  <button data-tab="msgs"><span data-i18n="nav_msgs">Messages</span><span id="msgBadge" hidden style="background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px;"></span></button>
-  <button data-tab="profile" data-i18n="nav_profile">Musician profile</button>
+  <button data-tab="board" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span class="lf" data-i18n="nav_board">Gig board</span><span class="ls" data-i18n="nav_board_s">Gigs</span></button>
+  <button data-tab="post"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="lf" data-i18n="nav_post">Post a gig</span><span class="ls" data-i18n="nav_post_s">Post</span></button>
+  <button data-tab="mine"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg><span class="lf" data-i18n="nav_mine">My gigs</span><span class="ls" data-i18n="nav_mine_s">My gigs</span></button>
+  <button data-tab="bands"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="lf" data-i18n="nav_bands">Bands</span><span class="ls" data-i18n="nav_bands_s">Bands</span></button>
+  <button data-tab="msgs"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg><span class="lf" data-i18n="nav_msgs">Messages</span><span class="ls" data-i18n="nav_msgs_s">Messages</span><span id="msgBadge" hidden></span></button>
+  <button data-tab="profile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="lf" data-i18n="nav_profile">Musician profile</span><span class="ls" data-i18n="nav_profile_s">Profile</span></button>
 </nav>
 <main>
   <div class="msg" id="flash"></div>
@@ -353,6 +368,7 @@ ${NOTES_LAYER}
   </section>
 
   <section id="tab-profile" hidden>
+    <div class="mobile-only" style="display: flex; justify-content: flex-end; margin-bottom: 8px;"><button class="ghost small" id="logoutBtn2" data-i18n="logout">Log out</button></div>
     <div class="card"><form id="profileForm">
       <div class="row"><label data-i18n="instruments_l">Instruments</label><div class="checks" id="mInstruments"></div></div>
       <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="mGenres" required placeholder="jazz, funk, wedding pop"></div>
@@ -437,7 +453,7 @@ const $ = (id) => document.getElementById(id);
 const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion','keys','piano','accordion','violin','viola','cello','trumpet','trombone','saxophone','clarinet','flute','harmonica','dj','other'];
 const I18N = {
   en: {
-    nav_board: 'Gig board',
+    nav_board_s: 'Gigs', nav_post_s: 'Post', nav_mine_s: 'My gigs', nav_bands_s: 'Bands', nav_msgs_s: 'Messages', nav_profile_s: 'Profile', nav_board: 'Gig board',
     nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Send', msg_sent: 'Message sent.', msg_placeholder: 'Write a message\u2026', no_threads: 'No conversations yet — they start from an application.', thread_empty: 'No messages yet — say hello.', back: 'Back',
     cta_jam: 'Find jam partners', cta_gigs: 'See paid gigs', land_d_board: 'Every open gig and jam near you — public fees, filtered by instrument and distance.', land_d_post: 'Need a dep or jam partners? Post in two minutes — matching musicians nearby get alerted.', land_d_mine: 'Track your posts and applications, book musicians, leave reviews after the gig.', land_d_bands: 'Start a band with open seats, or join one — with members\u2019 real track records.', land_d_profile: 'Your instruments, demos, and reviews — plus a public page you can share anywhere.',
     how_it_works: 'How it works', tagline: 'gigs · jams · bands', feedback: 'Feedback', fb_label: 'What should we improve?', fb_email_label: 'Your email (optional, if you want a reply)', fb_send: 'Send', fb_sent_t: 'Message sent', fb_thanks: 'Thanks — your feedback reached us.', fb_fail: 'Could not send feedback', welcome_profile: 'Welcome aboard! We sent you a confirmation email — if it is not in your inbox, check the spam folder. Then set up your musician profile — it is what lets you apply to gigs and jams.',
@@ -477,7 +493,7 @@ const I18N = {
     inst: {},
   },
   fr: {
-    nav_board: 'Tableau des concerts',
+    nav_board_s: 'Concerts', nav_post_s: 'Publier', nav_mine_s: 'Mes concerts', nav_bands_s: 'Groupes', nav_msgs_s: 'Messages', nav_profile_s: 'Profil', nav_board: 'Tableau des concerts',
     nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Envoyer', msg_sent: 'Message envoy\u00e9.', msg_placeholder: '\u00c9crivez un message\u2026', no_threads: 'Pas encore de conversations — elles commencent par une candidature.', thread_empty: 'Pas encore de messages — dites bonjour.', back: 'Retour',
     cta_jam: 'Trouver des partenaires de jam', cta_gigs: 'Voir les concerts pay\u00e9s', land_d_board: 'Tous les concerts et jams ouverts pr\u00e8s de chez vous — cachets publics, filtr\u00e9s par instrument et distance.', land_d_post: 'Besoin d\u2019un rempla\u00e7ant ou de partenaires de jam ? Publiez en deux minutes — les musiciens correspondants sont alert\u00e9s.', land_d_mine: 'Suivez vos annonces et candidatures, engagez des musiciens, laissez des avis apr\u00e8s le concert.', land_d_bands: 'Montez un groupe avec des places ouvertes, ou rejoignez-en un — avec le vrai parcours des membres.', land_d_profile: 'Vos instruments, d\u00e9mos et avis — plus une page publique \u00e0 partager partout.',
     how_it_works: 'Comment \u00e7a marche', tagline: 'concerts \u00b7 jams \u00b7 groupes', feedback: 'Vos retours', fb_label: 'Que pouvons-nous améliorer ?', fb_email_label: 'Votre e-mail (facultatif, pour une réponse)', fb_send: 'Envoyer', fb_sent_t: 'Message envoyé', fb_thanks: 'Merci — votre retour nous est bien parvenu.', fb_fail: 'Impossible d’envoyer le retour', welcome_profile: 'Bienvenue ! Un e-mail de confirmation vous a \u00e9t\u00e9 envoy\u00e9 — s\u2019il n\u2019est pas dans votre bo\u00eete de r\u00e9ception, v\u00e9rifiez le dossier spam. Cr\u00e9ez ensuite votre profil musicien — c\u2019est lui qui vous permet de postuler aux concerts et aux jams.',
@@ -517,7 +533,7 @@ const I18N = {
     inst: { vocals: 'chant', guitar: 'guitare', bass: 'basse', double_bass: 'contrebasse', drums: 'batterie', percussion: 'percussions', keys: 'claviers', piano: 'piano', accordion: 'accordéon', violin: 'violon', viola: 'alto', cello: 'violoncelle', trumpet: 'trompette', trombone: 'trombone', saxophone: 'saxophone', clarinet: 'clarinette', flute: 'fl\u00fbte', harmonica: 'harmonica', dj: 'dj', other: 'autre' },
   },
   de: {
-    nav_board: 'Gig-Board',
+    nav_board_s: 'Gigs', nav_post_s: 'Einstellen', nav_mine_s: 'Meine Gigs', nav_bands_s: 'Bands', nav_msgs_s: 'Nachrichten', nav_profile_s: 'Profil', nav_board: 'Gig-Board',
     nav_msgs: 'Nachrichten', msg_btn: 'Nachricht', msg_send: 'Senden', msg_sent: 'Nachricht gesendet.', msg_placeholder: 'Nachricht schreiben\u2026', no_threads: 'Noch keine Unterhaltungen — sie beginnen mit einer Bewerbung.', thread_empty: 'Noch keine Nachrichten — sag hallo.', back: 'Zur\u00fcck',
     cta_jam: 'Jam-Partner finden', cta_gigs: 'Bezahlte Gigs ansehen', land_d_board: 'Alle offenen Gigs und Jams in deiner N\u00e4he — \u00f6ffentliche Gagen, gefiltert nach Instrument und Distanz.', land_d_post: 'Ersatz oder Jam-Partner gesucht? In zwei Minuten inseriert — passende Musiker:innen in der N\u00e4he werden benachrichtigt.', land_d_mine: 'Behalte Anzeigen und Bewerbungen im Blick, buche Musiker:innen, bewerte nach dem Gig.', land_d_bands: 'Gr\u00fcnde eine Band mit offenen Pl\u00e4tzen oder tritt einer bei — mit echtem Leistungsausweis der Mitglieder.', land_d_profile: 'Deine Instrumente, Demos und Bewertungen — plus eine \u00f6ffentliche Seite zum Teilen.',
     how_it_works: 'So funktioniert\u2019s', tagline: 'Gigs \u00b7 Jams \u00b7 Bands', feedback: 'Feedback', fb_label: 'Was sollen wir verbessern?', fb_email_label: 'Deine E-Mail (optional, f\u00fcr eine Antwort)', fb_send: 'Senden', fb_sent_t: 'Nachricht gesendet', fb_thanks: 'Danke \u2014 dein Feedback ist bei uns angekommen.', fb_fail: 'Feedback konnte nicht gesendet werden', welcome_profile: 'Willkommen! Wir haben dir eine Best\u00e4tigungs-E-Mail geschickt — falls sie nicht im Posteingang ist, schau im Spam-Ordner nach. Richte dann dein Musikerprofil ein — damit kannst du dich auf Gigs und Jams bewerben.',
@@ -557,7 +573,7 @@ const I18N = {
     inst: { vocals: 'Gesang', guitar: 'Gitarre', bass: 'Bass', double_bass: 'Kontrabass', drums: 'Schlagzeug', percussion: 'Percussion', keys: 'Keys', piano: 'Klavier', accordion: 'Akkordeon', violin: 'Violine', viola: 'Bratsche', cello: 'Cello', trumpet: 'Trompete', trombone: 'Posaune', saxophone: 'Saxophon', clarinet: 'Klarinette', flute: 'Fl\u00f6te', harmonica: 'Mundharmonika', dj: 'DJ', other: 'Sonstiges' },
   },
   it: {
-    nav_board: 'Bacheca concerti',
+    nav_board_s: 'Concerti', nav_post_s: 'Pubblica', nav_mine_s: 'I miei', nav_bands_s: 'Gruppi', nav_msgs_s: 'Messaggi', nav_profile_s: 'Profilo', nav_board: 'Bacheca concerti',
     nav_msgs: 'Messaggi', msg_btn: 'Messaggio', msg_send: 'Invia', msg_sent: 'Messaggio inviato.', msg_placeholder: 'Scrivi un messaggio\u2026', no_threads: 'Ancora nessuna conversazione — iniziano da una candidatura.', thread_empty: 'Ancora nessun messaggio — saluta.', back: 'Indietro',
     cta_jam: 'Trova partner per jam', cta_gigs: 'Vedi i concerti pagati', land_d_board: 'Tutti i concerti e le jam aperti vicino a te — cachet pubblici, filtrati per strumento e distanza.', land_d_post: 'Cerchi un sostituto o partner per una jam? Pubblica in due minuti — i musicisti compatibili nelle vicinanze ricevono un avviso.', land_d_mine: 'Segui annunci e candidature, ingaggia musicisti, lascia recensioni dopo il concerto.', land_d_bands: 'Crea un gruppo con posti aperti o unisciti a uno — con il vero percorso dei membri.', land_d_profile: 'I tuoi strumenti, demo e recensioni — pi\u00f9 una pagina pubblica da condividere ovunque.',
     how_it_works: 'Come funziona', tagline: 'concerti · jam · band', feedback: 'Feedback', fb_label: 'Cosa possiamo migliorare?', fb_email_label: 'La tua e-mail (facoltativa, per una risposta)', fb_send: 'Invia', fb_sent_t: 'Messaggio inviato', fb_thanks: 'Grazie — il tuo feedback ci è arrivato.', fb_fail: 'Impossibile inviare il feedback', welcome_profile: 'Benvenuto/a! Ti abbiamo inviato un\u2019e-mail di conferma — se non \u00e8 nella posta in arrivo, controlla la cartella spam. Poi crea il tuo profilo musicista — \u00e8 ci\u00f2 che ti permette di candidarti a concerti e jam.',
@@ -708,6 +724,11 @@ function renderAuth() {
   refreshMsgBadge();
   $('who').textContent = me ? me.email : '';
   $('authBtn').textContent = me ? T('logout') : T('login');
+  document.body.classList.toggle('authed', !!me);
+  $('profileBtn').hidden = !me;
+  $('profileBtn').textContent = me ? (me.email || '?').trim().charAt(0).toUpperCase() : '';
+  $('profileBtn').setAttribute('aria-label', T('nav_profile'));
+  $('profileBtn').title = T('nav_profile');
   refreshNotifBtn();
 }
 $('authBtn').onclick = async () => {
@@ -718,6 +739,8 @@ $('authBtn').onclick = async () => {
     $('authDialog').showModal();
   }
 };
+$('profileBtn').onclick = () => document.querySelector('[data-tab=profile]').click();
+$('logoutBtn2').onclick = () => $('authBtn').click();
 $('authSwitch').onclick = () => {
   registering = !registering;
   $('authTitle').textContent = registering ? T('register') : T('login');
