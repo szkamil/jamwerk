@@ -13,8 +13,11 @@
        Mailjet stats). Reverted to gigwerk@hotmail.com. Next: retry *Validate* in Senders &
        domains later / ask Mailjet support; when the row is Active set
        `EMAIL_FROM = "notify@jamwerk.app"` and deploy.
-3. [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` to this repo's Actions
-       secrets → its own deploy.yml takes over; then delete the bridge workflow in poc-poc.
+3. [x] Repo Actions secrets `CLOUDFLARE_API_TOKEN` (token "jamwerk-github-deploy", account +
+       jamwerk.app zone scoped) + `CLOUDFLARE_ACCOUNT_ID` added 2026-08-22; deploy.yml now
+       deploys on every push to main (first green run: version d39cc810). Still to do:
+       delete `.github/workflows/deploy-jamwerk.yml` on poc-poc branch
+       `claude/musician-matching-app-wefw3d` (the old bridge).
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
        URI → then port "Continue with Google" (see Auth section).
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
@@ -72,15 +75,23 @@
 
 ## Before real users (hardening)
 
+- [ ] **Rethink where feedback goes** — today `POST /feedback` stores the message in the D1
+      `feedback` table and emails a copy to the `FEEDBACK_EMAIL` var in wrangler.toml
+      (= rupert.szewczyk@gmail.com, sent from the Mailjet sender). Problems: a personal
+      inbox hard-coded in config, no way to reply from a JamWerk identity, and nobody sees
+      the D1 rows. Options: (a) `feedback@jamwerk.app` via Cloudflare Email Routing,
+      forwarded to whichever inbox handles support (no code change, swap the var);
+      (b) keep D1 as source of truth + a tiny admin list (`/admin/feedback`, owner-only);
+      (c) pipe into a shared tool (Slack/Notion webhook). DECIDE, then update
+      `FEEDBACK_EMAIL` / src/feedback.ts accordingly.
+
 - [x] **Bot protection on public forms** — shipped 2026-08-22: Cloudflare Turnstile
       widget "jamwerk.app forms" (managed mode) created via the API, secret stored as
       the TURNSTILE_SECRET_KEY Worker secret, widget rendered in the register form and
       feedback dialog, token verified server-side (src/turnstile.ts) on /auth/register
       and /feedback. Rate limits stay as the second layer.
 - [ ] Move `JWT_SECRET` out of `wrangler.toml` to `wrangler secret put JWT_SECRET`, rotate the value
-- [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets to this repo so
-      `.github/workflows/deploy.yml` deploys on push to main; then delete the temporary
-      `deploy-jamwerk.yml` bridge workflow from szkamil/poc-poc
+- [x] `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repo secrets — done 2026-08-22, CI deploys on push to main; poc-poc bridge still to delete
 - [ ] Custom 404 / error pages; favicon; OG meta for link sharing
 
 ## Core loop improvements

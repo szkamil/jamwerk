@@ -52,18 +52,13 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 
 ## Deploying
 
-Tests must pass first. Two paths:
-
-1. **From an authenticated machine** (wrangler login or CLOUDFLARE_API_TOKEN):
-   `npx wrangler deploy` — that's it. Worker secrets survive deploys.
-2. **Current CI bridge** (until this repo gets its own Cloudflare secrets):
-   the workflow `.github/workflows/deploy-jamwerk.yml` in **szkamil/poc-poc**
-   (branch `claude/musician-matching-app-wefw3d`) checks out jamwerk@main and
-   deploys with poc-poc's secrets. Trigger it by bumping the
-   `# Deploy counter: N` comment in that file and pushing. 30 deploys so far,
-   all green. Once `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` are added
-   to THIS repo's Actions secrets, its own `.github/workflows/deploy.yml`
-   takes over — then delete the bridge file from poc-poc.
+Tests must pass first. `.github/workflows/deploy.yml` runs the tests and
+deploys on every push to `main` (repo secrets `CLOUDFLARE_API_TOKEN` — token
+"jamwerk-github-deploy", scoped to the account + jamwerk.app zone — and
+`CLOUDFLARE_ACCOUNT_ID`; set 2026-08-22). So: merge to main = deploy. From an
+authenticated machine `npx wrangler deploy` still works for hotfixes; Worker
+secrets survive deploys. The old poc-poc bridge workflow (`deploy-jamwerk.yml` on branch
+`claude/musician-matching-app-wefw3d`) is obsolete and should be deleted.
 
 Prod schema changes: run the new migration against prod D1 (dashboard, MCP
 `d1_database_query`, or `npx wrangler d1 execute jamwerk-db --remote --file …`)
