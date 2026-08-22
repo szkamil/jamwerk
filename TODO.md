@@ -115,26 +115,18 @@
       thread_type is cheap once decided.
 - [ ] **EUR fees** for French-side (Grand Genève) gigs — currency field on gigs, CHF default; show both when the musician's country differs
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
-- [ ] **Musicians on a map** — a map view (alongside the list) showing where musicians
-      are, so a bandleader can see at a glance who plays what near the venue. Data is
-      already there: musician_details home city is geocoded (lat/lng in D1), instruments
-      + level on the profile. Plot one pin per musician at *city* precision (never a
-      street address — privacy rule), jitter pins within the city so overlaps are visible,
-      pin popup = display name, instruments, level, link to /m/:handle. Filters shared
-      with the board (instrument, radius from the city input). Leaflet + OSM tiles
-      (no API key), loaded lazily only when the map tab opens so the SPA shell stays light.
-      Later: same map for gigs / practice listings / band seats (toggle layers).
-
-## Growth features (sequenced — see "Product ladder" below)
-
-- [x] **Practice partners** (phase 2): listing type alongside gigs — "looking to jam/practice",
-      no fee, same instrument/genre/radius matching, same apply flow. Cheap: reuses
-      musician_details + the application pattern. Gives musicians a reason to open the app
-      weekly even when no paid gigs match.
-- [x] **Band formation** (phase 3) — shipped 2026-08-21: Bands tab (create band with
-      instrument seats, seat applications with the enriched applicant cards, owner fills
-      seats, contact shared on acceptance, seat fan-out to matching musicians nearby,
-      localized notifications). Liquidity caveat from PLAN.md still applies.
+- [ ] **Musicians on a map** — PARKED 2026-08-22, not before a city has ~100+ profiles or a
+      second region needs a coverage view. Reasoning: with <50 musicians a map is an empty
+      Switzerland with three pins — it advertises the cold start that the list + radius filter
+      hides; it is a browsing feature while the core loop is alerts (map adds no bookings);
+      pins must be city-precision + jittered for privacy, so at that resolution a list grouped
+      by city says the same; and it costs a day (Leaflet/OSM tiles, clustering, mobile
+      gestures, lazy-load) plus upkeep. Cheap geographic feel instead: distance on musician
+      cards ("12 km · Annemasse") and the city filter accepting French border towns.
+      When built: a secondary view toggle on the musicians list (not a tab), clustered,
+      lazy-loaded only when opened, reused for gigs / practice / band seats as layers.
+      Original spec: one pin per musician at city precision, popup = name, instruments,
+      level, link to /m/:handle; filters shared with the board.
 - [ ] Later: rehearsal room listings; escrow payments (Stripe Connect) once gig liquidity exists
 
 ## Auth
