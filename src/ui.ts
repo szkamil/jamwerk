@@ -143,6 +143,7 @@ ${NOTES_LAYER}
   <span style="color: rgba(255,255,255,0.55); font-size: 13.5px;">find a dep, fill a gig</span>
   <span class="spacer"></span>
   <span class="who" id="who"></span>
+  <button class="ghost small" id="howBtn" hidden style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35);" data-i18n="how_it_works">How it works</button>
   <select id="langSel" style="width: auto; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 10px; padding: 7px 8px; font-size: 14px;">
     <option value="en">EN</option>
     <option value="fr">FR</option>
@@ -167,12 +168,13 @@ ${NOTES_LAYER}
 
   <section id="tab-board">
     <div id="landing" hidden>
-      <div class="card" style="padding: 26px 20px; text-align: center;">
-        <div class="display" style="font-size: 27px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 10px;" data-i18n="land_head">Find a dep. Fill a gig. Start a band.</div>
-        <p class="muted" style="max-width: 560px; margin: 0 auto 18px;" data-i18n="land_sub">JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.</p>
+      <div style="background-color: var(--ink); background-image: radial-gradient(circle at 85% -20%, rgba(100,64,251,0.45), transparent 60%); border-radius: 16px; padding: 34px 24px 40px; text-align: center; position: relative; z-index: 0; overflow: hidden; margin-bottom: 12px; color: #fff;">
+        ${WAVE_SVG}
+        <div class="display" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px;" data-i18n="land_head">Find a dep. Fill a gig. Start a band.</div>
+        <p style="max-width: 560px; margin: 0 auto 22px; color: rgba(255,255,255,0.72); font-size: 15px;" data-i18n="land_sub">JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.</p>
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <button class="primary" id="ctaJoin" data-i18n="cta_join">Create your free profile</button>
-          <button class="ghost" id="ctaBrowse" data-i18n="cta_browse">Browse the board</button>
+          <button class="ghost" id="ctaBrowse" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.4);" data-i18n="cta_browse">Browse the board</button>
         </div>
       </div>
       <div class="grid2">
@@ -185,10 +187,10 @@ ${NOTES_LAYER}
           <p class="muted" style="margin: 0;" data-i18n="aud_pro_p">Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.</p>
         </div>
       </div>
-      <div class="card">
-        <p class="muted" style="margin: 0 0 6px;" data-i18n="land_s1">1 — Create your free musician profile: instruments, city, travel radius.</p>
-        <p class="muted" style="margin: 0 0 6px;" data-i18n="land_s2">2 — Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.</p>
-        <p class="muted" style="margin: 0;" data-i18n="land_s3">3 — Book or connect. Completed gigs earn reviews that build your public track record.</p>
+      <div class="card" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; gap: 12px; align-items: baseline;"><span class="display" style="font-size: 22px; font-weight: 800; color: var(--accent); flex-shrink: 0;">1</span><span class="muted" data-i18n="land_s1">Create your free musician profile: instruments, city, travel radius.</span></div>
+        <div style="display: flex; gap: 12px; align-items: baseline;"><span class="display" style="font-size: 22px; font-weight: 800; color: var(--accent); flex-shrink: 0;">2</span><span class="muted" data-i18n="land_s2">Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.</span></div>
+        <div style="display: flex; gap: 12px; align-items: baseline;"><span class="display" style="font-size: 22px; font-weight: 800; color: var(--accent); flex-shrink: 0;">3</span><span class="muted" data-i18n="land_s3">Book or connect. Completed gigs earn reviews that build your public track record.</span></div>
       </div>
       <div class="card" style="display: flex; align-items: center; gap: 12px;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6440fb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
@@ -312,7 +314,8 @@ const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion'
 const I18N = {
   en: {
     nav_board: 'Gig board',
-    land_head: 'Find a dep. Fill a gig. Start a band.', land_sub: 'JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.', land_s1: '1 — Create your free musician profile: instruments, city, travel radius.', land_s2: '2 — Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: '3 — Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    how_it_works: 'How it works', welcome_profile: 'Welcome aboard! Set up your musician profile — it is what lets you apply to gigs and jams.',
+    land_head: 'Find a dep. Fill a gig. Start a band.', land_sub: 'JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_gigs: 'Paid gigs', seg_practice: 'Practice partners', all_instruments: 'All instruments', ph_city: 'City', btn_filter: 'Filter',
     login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -349,7 +352,8 @@ const I18N = {
   },
   fr: {
     nav_board: 'Tableau des concerts',
-    land_head: 'Trouvez un rempla\u00e7ant. Remplissez un concert. Montez un groupe.', land_sub: 'JamWerk connecte les musiciens locaux : concerts pay\u00e9s aux cachets publics, partenaires de jam gratuits et places de groupe ouvertes — selon votre instrument et votre r\u00e9gion.', land_s1: '1 — Cr\u00e9ez votre profil musicien gratuit : instruments, ville, rayon de d\u00e9placement.', land_s2: '2 — Parcourez ou publiez : concerts pay\u00e9s, jams, places de groupe. Activez les alertes et les annonces arrivent sur votre t\u00e9l\u00e9phone.', land_s3: '3 — R\u00e9servez ou connectez-vous. Les concerts effectu\u00e9s g\u00e9n\u00e8rent des avis qui construisent votre r\u00e9putation publique.', aud_jam_t: 'Envie de jammer ?', aud_jam_p: 'Les annonces de jam sont gratuites et d\u00e9contract\u00e9es — pas de cachet, pas de notes, pas de pression. Trouvez des gens de votre niveau, du d\u00e9butant au groupe du week-end.', aud_pro_t: 'Musicien professionnel ?', aud_pro_p: 'Concerts pay\u00e9s avec le cachet annonc\u00e9 d\u2019avance, en CHF. Les avis de vrais concerts construisent une r\u00e9putation partageable.', land_alerts: 'Touchez la cloche apr\u00e8s l\u2019inscription — les concerts pour votre instrument pr\u00e8s de chez vous arrivent sur votre t\u00e9l\u00e9phone d\u00e8s leur publication.', cta_join: 'Cr\u00e9er un profil gratuit', cta_browse: 'Voir les annonces', lvl_label: 'Niveau', whos_welcome: 'Qui est bienvenu', lvl_any: 'ouvert \u00e0 tous', lvl_hobby: 'amateur', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    how_it_works: 'Comment \u00e7a marche', welcome_profile: 'Bienvenue ! Cr\u00e9ez votre profil musicien — c\u2019est lui qui vous permet de postuler aux concerts et aux jams.',
+    land_head: 'Trouvez un rempla\u00e7ant. Remplissez un concert. Montez un groupe.', land_sub: 'JamWerk connecte les musiciens locaux : concerts pay\u00e9s aux cachets publics, partenaires de jam gratuits et places de groupe ouvertes — selon votre instrument et votre r\u00e9gion.', land_s1: 'Cr\u00e9ez votre profil musicien gratuit : instruments, ville, rayon de d\u00e9placement.', land_s2: 'Parcourez ou publiez : concerts pay\u00e9s, jams, places de groupe. Activez les alertes et les annonces arrivent sur votre t\u00e9l\u00e9phone.', land_s3: 'R\u00e9servez ou connectez-vous. Les concerts effectu\u00e9s g\u00e9n\u00e8rent des avis qui construisent votre r\u00e9putation publique.', aud_jam_t: 'Envie de jammer ?', aud_jam_p: 'Les annonces de jam sont gratuites et d\u00e9contract\u00e9es — pas de cachet, pas de notes, pas de pression. Trouvez des gens de votre niveau, du d\u00e9butant au groupe du week-end.', aud_pro_t: 'Musicien professionnel ?', aud_pro_p: 'Concerts pay\u00e9s avec le cachet annonc\u00e9 d\u2019avance, en CHF. Les avis de vrais concerts construisent une r\u00e9putation partageable.', land_alerts: 'Touchez la cloche apr\u00e8s l\u2019inscription — les concerts pour votre instrument pr\u00e8s de chez vous arrivent sur votre t\u00e9l\u00e9phone d\u00e8s leur publication.', cta_join: 'Cr\u00e9er un profil gratuit', cta_browse: 'Voir les annonces', lvl_label: 'Niveau', whos_welcome: 'Qui est bienvenu', lvl_any: 'ouvert \u00e0 tous', lvl_hobby: 'amateur', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_gigs: 'Concerts payés', seg_practice: 'Partenaires de répétition', all_instruments: 'Tous les instruments', ph_city: 'Ville', btn_filter: 'Filtrer',
     login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -386,7 +390,8 @@ const I18N = {
   },
   de: {
     nav_board: 'Gig-Board',
-    land_head: 'Finde einen Ersatz. Besetze einen Gig. Gr\u00fcnde eine Band.', land_sub: 'JamWerk verbindet lokale Musiker:innen: bezahlte Gigs mit \u00f6ffentlichen Gagen, kostenlose Jam-Partner und offene Bandpl\u00e4tze — passend zu Instrument und Region.', land_s1: '1 — Erstelle dein gratis Musikerprofil: Instrumente, Stadt, Reiseradius.', land_s2: '2 — St\u00f6bern oder inserieren: bezahlte Gigs, Jams, Bandpl\u00e4tze. Alerts an, und Treffer erreichen dein Handy.', land_s3: '3 — Buchen oder verbinden. Abgeschlossene Gigs bringen Bewertungen f\u00fcr deinen \u00f6ffentlichen Leistungsausweis.', aud_jam_t: 'Einfach nur jammen?', aud_jam_p: 'Jam-Anzeigen sind gratis und locker — keine Gagen, keine Bewertungen, kein Druck. Finde Leute auf deinem Niveau, vom Anf\u00e4nger bis zur Wochenendband.', aud_pro_t: 'Berufsmusiker:in?', aud_pro_p: 'Bezahlte Ersatz-Gigs mit vorab genannter Gage in CHF. Bewertungen aus echten Gigs bauen einen teilbaren Leistungsausweis auf.', land_alerts: 'Tippe nach der Anmeldung auf die Glocke — Gigs f\u00fcr dein Instrument in deiner N\u00e4he erreichen dein Handy, sobald sie erscheinen.', cta_join: 'Gratis Profil erstellen', cta_browse: 'Anzeigen ansehen', lvl_label: 'Erfahrungsstufe', whos_welcome: 'Wer ist willkommen', lvl_any: 'alle willkommen', lvl_hobby: 'Hobby', lvl_semi: 'semiprofessionell', lvl_pro: 'Profi',
+    how_it_works: 'So funktioniert\u2019s', welcome_profile: 'Willkommen! Richte dein Musikerprofil ein — damit kannst du dich auf Gigs und Jams bewerben.',
+    land_head: 'Finde einen Ersatz. Besetze einen Gig. Gr\u00fcnde eine Band.', land_sub: 'JamWerk verbindet lokale Musiker:innen: bezahlte Gigs mit \u00f6ffentlichen Gagen, kostenlose Jam-Partner und offene Bandpl\u00e4tze — passend zu Instrument und Region.', land_s1: 'Erstelle dein gratis Musikerprofil: Instrumente, Stadt, Reiseradius.', land_s2: 'St\u00f6bern oder inserieren: bezahlte Gigs, Jams, Bandpl\u00e4tze. Alerts an, und Treffer erreichen dein Handy.', land_s3: 'Buchen oder verbinden. Abgeschlossene Gigs bringen Bewertungen f\u00fcr deinen \u00f6ffentlichen Leistungsausweis.', aud_jam_t: 'Einfach nur jammen?', aud_jam_p: 'Jam-Anzeigen sind gratis und locker — keine Gagen, keine Bewertungen, kein Druck. Finde Leute auf deinem Niveau, vom Anf\u00e4nger bis zur Wochenendband.', aud_pro_t: 'Berufsmusiker:in?', aud_pro_p: 'Bezahlte Ersatz-Gigs mit vorab genannter Gage in CHF. Bewertungen aus echten Gigs bauen einen teilbaren Leistungsausweis auf.', land_alerts: 'Tippe nach der Anmeldung auf die Glocke — Gigs f\u00fcr dein Instrument in deiner N\u00e4he erreichen dein Handy, sobald sie erscheinen.', cta_join: 'Gratis Profil erstellen', cta_browse: 'Anzeigen ansehen', lvl_label: 'Erfahrungsstufe', whos_welcome: 'Wer ist willkommen', lvl_any: 'alle willkommen', lvl_hobby: 'Hobby', lvl_semi: 'semiprofessionell', lvl_pro: 'Profi',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_gigs: 'Bezahlte Gigs', seg_practice: 'Übungspartner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', btn_filter: 'Filtern',
     login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -423,7 +428,8 @@ const I18N = {
   },
   it: {
     nav_board: 'Bacheca concerti',
-    land_head: 'Trova un sostituto. Riempi un concerto. Crea un gruppo.', land_sub: 'JamWerk collega i musicisti locali: concerti pagati con cachet pubblici, partner di jam gratuiti e posti nei gruppi — in base al tuo strumento e alla tua zona.', land_s1: '1 — Crea il tuo profilo musicista gratuito: strumenti, citt\u00e0, raggio di spostamento.', land_s2: '2 — Sfoglia o pubblica: concerti pagati, jam, posti nei gruppi. Attiva gli avvisi e le corrispondenze arrivano sul telefono.', land_s3: '3 — Prenota o connettiti. I concerti completati generano recensioni che costruiscono la tua reputazione pubblica.', aud_jam_t: 'Vuoi solo suonare?', aud_jam_p: 'Gli annunci di prova sono gratuiti e informali — niente cachet, niente voti, niente pressione. Trova persone del tuo livello, dai principianti alle band del weekend.', aud_pro_t: 'Musicista professionista?', aud_pro_p: 'Concerti pagati con il cachet dichiarato in anticipo, in CHF. Le recensioni di concerti reali costruiscono una reputazione condivisibile.', land_alerts: 'Tocca la campanella dopo la registrazione — i concerti per il tuo strumento vicino a te arrivano sul telefono appena pubblicati.', cta_join: 'Crea il tuo profilo gratuito', cta_browse: 'Guarda gli annunci', lvl_label: 'Livello', whos_welcome: 'Chi \u00e8 benvenuto', lvl_any: 'aperto a tutti', lvl_hobby: 'amatoriale', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    how_it_works: 'Come funziona', welcome_profile: 'Benvenuto/a! Crea il tuo profilo musicista — \u00e8 ci\u00f2 che ti permette di candidarti a concerti e jam.',
+    land_head: 'Trova un sostituto. Riempi un concerto. Crea un gruppo.', land_sub: 'JamWerk collega i musicisti locali: concerti pagati con cachet pubblici, partner di jam gratuiti e posti nei gruppi — in base al tuo strumento e alla tua zona.', land_s1: 'Crea il tuo profilo musicista gratuito: strumenti, citt\u00e0, raggio di spostamento.', land_s2: 'Sfoglia o pubblica: concerti pagati, jam, posti nei gruppi. Attiva gli avvisi e le corrispondenze arrivano sul telefono.', land_s3: 'Prenota o connettiti. I concerti completati generano recensioni che costruiscono la tua reputazione pubblica.', aud_jam_t: 'Vuoi solo suonare?', aud_jam_p: 'Gli annunci di prova sono gratuiti e informali — niente cachet, niente voti, niente pressione. Trova persone del tuo livello, dai principianti alle band del weekend.', aud_pro_t: 'Musicista professionista?', aud_pro_p: 'Concerti pagati con il cachet dichiarato in anticipo, in CHF. Le recensioni di concerti reali costruiscono una reputazione condivisibile.', land_alerts: 'Tocca la campanella dopo la registrazione — i concerti per il tuo strumento vicino a te arrivano sul telefono appena pubblicati.', cta_join: 'Crea il tuo profilo gratuito', cta_browse: 'Guarda gli annunci', lvl_label: 'Livello', whos_welcome: 'Chi \u00e8 benvenuto', lvl_any: 'aperto a tutti', lvl_hobby: 'amatoriale', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_gigs: 'Concerti pagati', seg_practice: 'Partner di prova', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', btn_filter: 'Filtra',
     login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -475,6 +481,12 @@ let me = null;
 let boardKind = 'gig';
 let landingDismissed = false;
 $('ctaBrowse').onclick = () => { landingDismissed = true; $('landing').hidden = true; };
+$('howBtn').onclick = () => {
+  landingDismissed = false;
+  document.querySelector('[data-tab=board]').click();
+  $('landing').hidden = false;
+  window.scrollTo({ top: 0 });
+};
 $('ctaJoin').onclick = () => {
   if (!registering) $('authSwitch').onclick();
   $('authDialog').showModal();
@@ -509,6 +521,7 @@ const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(B
 let registering = false;
 function renderAuth() {
   $('landing').hidden = !!me || landingDismissed;
+  $('howBtn').hidden = !!me;
   $('who').textContent = me ? me.email : '';
   $('authBtn').textContent = me ? T('logout') : T('login');
   refreshNotifBtn();
@@ -527,6 +540,7 @@ $('authSwitch').onclick = () => {
   $('authSubmit').textContent = registering ? T('register') : T('login');
   $('authSwitch').textContent = registering ? T('have_account') : T('need_account');
   $('aNameRow').hidden = !registering;
+  $('aPassword').autocomplete = registering ? 'new-password' : 'current-password';
 };
 $('authClose').onclick = () => $('authDialog').close();
 $('authForgot').onclick = async () => {
@@ -544,6 +558,10 @@ $('authForm').onsubmit = async (e) => {
   if (!r.ok) { const m = $('authMsg'); m.className = 'msg err'; m.textContent = r.json.error || 'Failed'; return; }
   me = { email: r.json.email };
   $('authDialog').close(); renderAuth(); loadBoard(); loadProfile();
+  if (registering) {
+    document.querySelector('[data-tab=profile]').click();
+    flash(T('welcome_profile'), 'ok');
+  }
 };
 
 // ── Tabs ─────────────────────────────────────────────

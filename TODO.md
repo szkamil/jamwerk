@@ -60,6 +60,14 @@
       localized notifications). Liquidity caveat from PLAN.md still applies.
 - [ ] Later: rehearsal room listings; escrow payments (Stripe Connect) once gig liquidity exists
 
+## Auth
+
+- [ ] **Continue with Google** — one-tap sign-in would cut the biggest registration
+      friction, especially on phones. Needs YOUR action first: in Google Cloud Console,
+      add https://jamwerk.app/auth/google/callback as an authorized redirect URI on the
+      existing OAuth client (the one TrustAxis uses), or create a fresh client for
+      JamWerk. Then the flow gets ported from TrustAxis (src/routes/auth.ts there).
+
 ## Mobile (ladder — web-first, stores when justified)
 
 - [x] **PWA layer**: manifest + icons + service worker + iOS meta tags — jamwerk.app is
