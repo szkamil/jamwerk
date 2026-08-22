@@ -18,12 +18,12 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export async function sendEmail(env: Env, to: string, subject: string, text: string): Promise<boolean> {
+export async function sendEmail(env: Env, to: string, subject: string, text: string, opts: { replyTo?: string } = {}): Promise<boolean> {
   const key = env.MAILJET_API_KEY;
   const secret = env.MAILJET_SECRET_KEY;
   const from = env.EMAIL_FROM || 'gigwerk@hotmail.com';
   if (!key || !secret) {
-    console.log(`[EMAIL skipped — no Mailjet keys] to=${to} subject=${JSON.stringify(subject)} body=${JSON.stringify(text)}`);
+    console.log(`[EMAIL skipped — no Mailjet keys] to=${to} subject=${JSON.stringify(subject)}${opts.replyTo ? ` replyTo=${opts.replyTo}` : ''} body=${JSON.stringify(text)}`);
     return false;
   }
   try {
@@ -36,6 +36,7 @@ export async function sendEmail(env: Env, to: string, subject: string, text: str
       body: JSON.stringify({
         Messages: [{
           From: { Email: from, Name: 'JamWerk' },
+          ...(opts.replyTo ? { ReplyTo: { Email: opts.replyTo } } : {}),
           To: [{ Email: to }],
           Subject: subject,
           TextPart: text,
