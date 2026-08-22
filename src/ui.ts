@@ -111,6 +111,11 @@ export const PAGE = `<!doctype html>
   footer .brand span { color: var(--accent-light); }
   footer button { background: none; border: 0; padding: 0; font: inherit; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   header .who { font-size: 14px; opacity: .8; }
+  /* Language picker: custom chevron so the text/arrow padding is symmetric
+     across browsers (native arrows add uneven space). */
+  header #langSel { -webkit-appearance: none; appearance: none; width: auto; min-height: 40px; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 10px; padding: 7px 30px 7px 14px; font: inherit; font-size: 14px; font-weight: 500; line-height: 1; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+  header #langSel option { color: #1b1a16; background: #fff; }
   header #notifBtn.on { color: var(--accent-light) !important; border-color: var(--accent-light) !important; }
   nav { display: flex; gap: 6px; padding: 14px 20px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
   nav button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; }
@@ -145,7 +150,7 @@ export const PAGE = `<!doctype html>
     header { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
     header h1 { font-size: 22px; }
     header .tagline, header .who, header #howBtn { display: none; }
-    header #langSel { padding: 7px 4px 7px 8px; font-size: 13.5px; min-height: 40px; }
+    header #langSel { padding: 7px 26px 7px 11px; font-size: 13.5px; background-position: right 9px center; }
     header #notifBtn { padding: 7px 10px; min-width: 40px; justify-content: center; }
     header #notifBtn #notifLabel { display: none; }
     header #authBtn { padding: 7px 12px; white-space: nowrap; }
@@ -221,7 +226,7 @@ ${NOTES_LAYER}
   <span class="spacer"></span>
   <span class="who" id="who"></span>
   <button class="ghost small" id="howBtn" hidden style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35);" data-i18n="how_it_works">How it works</button>
-  <select id="langSel" style="width: auto; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 10px; padding: 7px 8px; font-size: 14px;">
+  <select id="langSel" aria-label="Language">
     <option value="en">EN</option>
     <option value="fr">FR</option>
     <option value="de">DE</option>
