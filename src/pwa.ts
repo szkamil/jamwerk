@@ -21,7 +21,7 @@ const MANIFEST = JSON.stringify({
 
 // Network-first for navigations so deploys land immediately; the last good
 // shell is cached as an offline fallback. API calls are never intercepted.
-const SW = `const VERSION = 'jamwerk-v2';
+const SW = `const VERSION = 'jamwerk-v3';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {

@@ -382,6 +382,7 @@ ${NOTES_LAYER}
 <dialog id="fbDialog">
   <form id="fbForm">
     <h2 style="margin-top:0" data-i18n="feedback">Feedback</h2>
+    <div class="msg" id="fbMsg"></div>
     <div class="row"><label data-i18n="fb_label">What should we improve?</label><textarea id="fbBody" required minlength="5" maxlength="2000" rows="5"></textarea></div>
     <div class="row" id="fbEmailRow"><label data-i18n="fb_email_label">Your email (optional, if you want a reply)</label><input type="email" id="fbEmail"></div>
     <div class="row"><div id="tsFb"></div></div>
@@ -598,6 +599,7 @@ $('footLogo').onclick = () => $('logoHome').onclick();
 $('footHow').onclick = () => $('howBtn').onclick();
 $('footFeedback').onclick = () => {
   $('fbEmailRow').hidden = !!me;
+  $('fbMsg').className = 'msg';
   $('fbDialog').showModal();
   if (tsFb === null) tsFb = tsRender('tsFb');
 };
@@ -611,7 +613,9 @@ $('fbForm').onsubmit = async (e) => {
     $('fbBody').value = '';
     flash(T('fb_thanks'), 'ok');
   } else {
-    flash(r.json.error || T('fb_fail'), 'err');
+    const m = $('fbMsg');
+    m.className = 'msg err';
+    m.textContent = r.json.error || T('fb_fail');
   }
 };
 $('ctaJoin').onclick = () => {
