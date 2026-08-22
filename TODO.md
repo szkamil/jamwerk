@@ -113,6 +113,7 @@
       profile page. Needs an anti-spam story first (Turnstile above, plus maybe
       first-message limits or recipient opt-out). Extending src/messages.ts with a third
       thread_type is cheap once decided.
+- [ ] **EUR fees** for French-side (Grand Genève) gigs — currency field on gigs, CHF default; show both when the musician's country differs
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
 - [ ] **Musicians on a map** — a map view (alongside the list) showing where musicians
       are, so a bandleader can see at a glance who plays what near the venue. Data is
