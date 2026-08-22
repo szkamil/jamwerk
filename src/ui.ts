@@ -335,10 +335,12 @@ ${NOTES_LAYER}
     <div class="row"><label data-i18n="email">Email</label><input type="email" id="aEmail" required autocomplete="username"></div>
     <div class="row"><label data-i18n="password">Password</label><input type="password" id="aPassword" required minlength="8" autocomplete="current-password"></div>
     <div class="row" id="aNameRow" hidden><label data-i18n="name_label">Name (shown to bandleaders)</label><input type="text" id="aName"></div>
-    <button class="primary" id="authSubmit">Log in</button>
-    <button type="button" class="ghost" id="authSwitch">Need an account? Register</button>
-    <button type="button" class="ghost" id="authForgot" data-i18n="forgot">Forgot password?</button>
-    <button type="button" class="ghost" id="authClose" data-i18n="close">Close</button>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px;">
+      <button class="primary" id="authSubmit">Log in</button>
+      <button type="button" class="ghost" id="authSwitch">Need an account? Register</button>
+      <button type="button" class="ghost" id="authForgot" data-i18n="forgot">Forgot password?</button>
+      <button type="button" class="ghost" id="authClose" data-i18n="close">Close</button>
+    </div>
   </form>
 </dialog>
 
