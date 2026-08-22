@@ -111,6 +111,7 @@ export const PAGE = `<!doctype html>
   footer .brand span { color: var(--accent-light); }
   footer button { background: none; border: 0; padding: 0; font: inherit; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   header .who { font-size: 14px; opacity: .8; }
+  header #notifBtn.on { color: var(--accent-light) !important; border-color: var(--accent-light) !important; }
   nav { display: flex; gap: 6px; padding: 14px 20px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
   nav button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; }
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
@@ -134,6 +135,22 @@ export const PAGE = `<!doctype html>
   textarea { min-height: 90px; resize: vertical; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+  /* Phones: header collapses to one row (logo · lang · bell · login); the
+     tab strip scrolls sideways instead of wrapping into three lines. */
+  @media (max-width: 640px) {
+    header { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+    header h1 { font-size: 22px; }
+    header .tagline, header .who, header #howBtn { display: none; }
+    header #langSel { padding: 7px 4px 7px 8px; font-size: 13.5px; min-height: 40px; }
+    header #notifBtn { padding: 7px 10px; min-width: 40px; justify-content: center; }
+    header #notifBtn #notifLabel { display: none; }
+    header #authBtn { padding: 7px 12px; white-space: nowrap; }
+    nav { flex-wrap: nowrap; overflow-x: auto; padding: 12px 14px 4px; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; scroll-padding: 0 14px;
+      mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+    nav::-webkit-scrollbar { display: none; }
+    nav button { flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap; }
+    nav button:last-child { margin-right: 28px; }
+  }
   button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 600; cursor: pointer; min-height: 46px; }
   button.primary:hover { background: var(--accent-deep); }
   button.ghost { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font: inherit; cursor: pointer; }
@@ -180,7 +197,7 @@ ${NOTES_LAYER}
 <header>
   ${WAVE_SVG}
   <h1 id="logoHome">Jam<span>Werk</span></h1>
-  <span style="color: rgba(255,255,255,0.55); font-size: 13.5px;" data-i18n="tagline">gigs · jams · bands</span>
+  <span class="tagline" style="color: rgba(255,255,255,0.55); font-size: 13.5px;" data-i18n="tagline">gigs · jams · bands</span>
   <span class="spacer"></span>
   <span class="who" id="who"></span>
   <button class="ghost small" id="howBtn" hidden style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35);" data-i18n="how_it_works">How it works</button>
@@ -190,7 +207,7 @@ ${NOTES_LAYER}
     <option value="de">DE</option>
     <option value="it">IT</option>
   </select>
-  <button class="ghost small" id="notifBtn" hidden style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
+  <button class="ghost small" id="notifBtn" hidden aria-label="Alerts" title="Alerts" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 6px;">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
     <span id="notifLabel">Alerts</span>
   </button>
@@ -738,6 +755,7 @@ document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
     b.classList.add('active');
+    if (b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     ['board','post','mine','bands','msgs','profile'].forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
     if (b.dataset.tab === 'mine') loadMine();
     if (b.dataset.tab === 'bands') loadBands();
@@ -1265,6 +1283,9 @@ async function refreshNotifBtn() {
   if (!vapidKey) { $('notifBtn').hidden = true; return; }
   const sub = await currentSub().catch(() => null);
   $('notifLabel').textContent = sub ? T('alerts_on') : T('alerts');
+  $('notifBtn').classList.toggle('on', !!sub);
+  $('notifBtn').setAttribute('aria-label', sub ? T('alerts_on') : T('alerts'));
+  $('notifBtn').title = sub ? T('alerts_on') : T('alerts');
   $('notifBtn').hidden = false;
 }
 async function subscribeAlerts() {
