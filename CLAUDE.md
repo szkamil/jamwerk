@@ -66,13 +66,13 @@ BEFORE deploying code that needs it.
 
 ## Production configuration (state as of 2026-08-22)
 
-Worker secrets already set (do NOT re-create blindly; values live only in
-Cloudflare): `MAILJET_API_KEY`, `MAILJET_SECRET_KEY`, `TURNSTILE_SECRET_KEY`.
+Worker secrets (values live only in Cloudflare; set with `wrangler secret put`):
+`JWT_SECRET`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_JWK` (moved out of
+wrangler.toml and rotated 2026-08-22), `MAILJET_API_KEY`, `MAILJET_SECRET_KEY`,
+`TURNSTILE_SECRET_KEY`. Tests get throwaway values from vitest.config.mts.
 
-Vars in `wrangler.toml`: `BASE_URL`, `EMAIL_FROM=notify@jamwerk.app`,
-`FEEDBACK_EMAIL=rupert.szewczyk@gmail.com`, plus POC-only plaintext
-`JWT_SECRET` and VAPID keys (moving them to `wrangler secret put` is an open
-hardening TODO — rotating VAPID re-prompts all alert subscribers).
+Vars in `wrangler.toml`: `BASE_URL`, `EMAIL_FROM`, `FEEDBACK_EMAIL`,
+`VAPID_SUBJECT`.
 
 **Mailjet**: JamWerk uses its OWN dedicated Mailjet account — login
 **gigwerk@hotmail.com**, account name "Gig Werk" — NOT the TrustAxis account

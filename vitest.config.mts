@@ -30,6 +30,11 @@ export default defineWorkersConfig({
 						TEST_SCHEMA_STATEMENTS: schemaStatements,
 						// Never hit Nominatim from tests; specs seed geocode_cache instead.
 						GEOCODE_OFF: '1',
+						// Prod holds these as Worker secrets (not in wrangler.toml); tests get
+						// throwaway values. The VAPID pair below is test-only.
+						JWT_SECRET: 'test-only-jwt-secret',
+						VAPID_PUBLIC_KEY: 'BEXySTx39yeCLrveVmWNTmUw3Yt7DXTblNdBZSOqEUijrDAG1X522TprfPl9iT0WbStZdbQYDJkObAK0FptPWgI',
+						VAPID_PRIVATE_JWK: '{"key_ops":["sign"],"ext":true,"kty":"EC","x":"RfJJPHf3J4Iuu95WZY1OZTDdi3sNdNuU10FlI6oRSKM","y":"rDAG1X522TprfPl9iT0WbStZdbQYDJkObAK0FptPWgI","crv":"P-256","d":"lqx_doXiyKD-S2JJ3T3XjarzLqL6pvHNp8ArAgavTZE"}',
 					},
 				},
 			},
