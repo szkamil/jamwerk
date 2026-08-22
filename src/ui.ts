@@ -132,6 +132,9 @@ export const PAGE = `<!doctype html>
   .msg { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 14.5px; display: none; }
   .msg.err { display: block; background: #fdecea; color: var(--warn); }
   .msg.ok { display: block; background: #e7f6ef; color: var(--ok); }
+  /* The page-level toast floats above the content so confirmations are seen
+     wherever the user is scrolled (e.g. the footer feedback form). */
+  #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3000; margin: 0; max-width: min(92vw, 480px); box-shadow: 0 8px 28px rgba(20,19,26,0.25); }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
   .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; }
   .filters select {
