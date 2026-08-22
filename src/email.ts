@@ -2,9 +2,9 @@
 //
 // ACCOUNT NOTE (see README "Email"): the owner has SEVERAL separate Mailjet
 // accounts. JamWerk uses its OWN dedicated account — the one linked to
-// mailwerk@hotmail.com — NOT the TrustAxis account. The MAILJET_API_KEY /
+// gigwerk@hotmail.com — NOT the TrustAxis account. The MAILJET_API_KEY /
 // MAILJET_SECRET_KEY Worker secrets must be that account's pair; don't mix
-// them up. Default sender: mailwerk@hotmail.com (displayed as "JamWerk").
+// them up. Default sender: notify@jamwerk.app (displayed as "JamWerk").
 // Once the jamwerk.app domain is verified in that account, switch the sender
 // via EMAIL_FROM=notify@jamwerk.app for proper DKIM/deliverability.
 //
@@ -21,7 +21,7 @@ function escapeHtml(s: string): string {
 export async function sendEmail(env: Env, to: string, subject: string, text: string): Promise<boolean> {
   const key = env.MAILJET_API_KEY;
   const secret = env.MAILJET_SECRET_KEY;
-  const from = env.EMAIL_FROM || 'mailwerk@hotmail.com';
+  const from = env.EMAIL_FROM || 'gigwerk@hotmail.com';
   if (!key || !secret) {
     console.log(`[EMAIL skipped — no Mailjet keys] to=${to} subject=${JSON.stringify(subject)} body=${JSON.stringify(text)}`);
     return false;

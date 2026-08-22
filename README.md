@@ -63,19 +63,17 @@ runs; sends are skipped and logged.
 
 **Account: dedicated JamWerk Mailjet account.** The owner has SEVERAL separate
 Mailjet accounts — JamWerk uses its **own brand-new account, the one linked to
-`mailwerk@hotmail.com`** (NOT the TrustAxis account; do not mix up the key
-pairs). The default sender is `mailwerk@hotmail.com`, displayed as "JamWerk".
+`gigwerk@hotmail.com`** (NOT the TrustAxis account; do not mix up the key
+pairs). The default sender is `notify@jamwerk.app` (domain authenticated), displayed as "JamWerk".
 
-Deliverability upgrade (recommended once traffic is real): verify the
-`jamwerk.app` domain in that same Mailjet account (SPF/DKIM DNS records in
-Cloudflare), then switch the sender by setting the `EMAIL_FROM` var/secret to
-`notify@jamwerk.app` — a hotmail.com From-address can't carry JamWerk's own
-DKIM signature, so inbox placement is second-rate until then.
+The `jamwerk.app` domain is validated and authenticated in that account
+(SPF, DKIM, DMARC records in Cloudflare DNS), so mail is DKIM-signed as
+JamWerk. `gigwerk@hotmail.com` remains a validated fallback sender.
 
 The API key pair lives only as encrypted Worker secrets, never in this repo:
 
 ```
-npx wrangler secret put MAILJET_API_KEY     # the mailwerk@hotmail.com account's API key
+npx wrangler secret put MAILJET_API_KEY     # the gigwerk@hotmail.com account's API key
 npx wrangler secret put MAILJET_SECRET_KEY  # its secret key
 ```
 

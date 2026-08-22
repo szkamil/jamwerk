@@ -2,12 +2,12 @@
 
 ## ⚡ Pending YOUR action (blockers first)
 
-1. [ ] **Validate the Mailjet sender** — click the validation link Mailjet sent to
-       the mailwerk@hotmail.com inbox (or resend from Senders & domains). Keys are
-       already live on the Worker; until validation every email is held by Mailjet.
-2. [ ] **Verify jamwerk.app domain in Mailjet** (after 1): add the domain in the
-       Mailjet dashboard; the SPF/DKIM DNS records can then be pushed to Cloudflare
-       via API, and `EMAIL_FROM` switches to notify@jamwerk.app for real deliverability.
+1. [x] **Mailjet sender** — fixed 2026-08-22: the account's validated sender is
+       gigwerk@hotmail.com (mailwerk@hotmail.com never existed as a validated sender);
+       EMAIL_FROM switched, test feedback email delivered + opened. The stray pending
+       sender "mailwerk@hotmail.com" can be deleted in Mailjet → Senders.
+2. [x] **notify@jamwerk.app** — done 2026-08-22: jamwerk.app validated in Mailjet with
+       SPF/DKIM/DMARC (p=none) records in Cloudflare DNS; EMAIL_FROM switched.
 3. [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` to this repo's Actions
        secrets → its own deploy.yml takes over; then delete the bridge workflow in poc-poc.
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
@@ -27,7 +27,7 @@
   "Find a dep. Join a jam. Start a band.", title/manifest/profile footer)
 - Filter bar: uniform 46px pills (custom select chevron), radius steps 5–100 km
 - Auth dialog button spacing; floating page toast (fixed, top of viewport)
-- **Mailjet**: dedicated account (mailwerk@hotmail.com) wired — keys set as Worker
+- **Mailjet**: dedicated account (gigwerk@hotmail.com) wired — keys set as Worker
   secrets via Cloudflare API, sender/account notes in code+README
 - **Turnstile**: widget created via API, secret on Worker, protects register+feedback
 - Deploys #13–#30, all green; migrations applied to prod through 010
@@ -37,7 +37,7 @@
 1. [x] **Notifications batch** — shipped 2026-08-21: Mailjet sending (src/email.ts),
        signup confirmation, password reset, per-IP rate limits on register/login/apply/forgot.
        ⚠ Remaining one-time step: set the Mailjet keys as Worker secrets — from
-       JamWerk's OWN dedicated Mailjet account (login: mailwerk@hotmail.com), NOT the
+       JamWerk's OWN dedicated Mailjet account (login: gigwerk@hotmail.com), NOT the
        TrustAxis account. Until then sends are logged, not delivered. Then: verify the
        jamwerk.app domain in Mailjet and switch EMAIL_FROM to notify@jamwerk.app.
        Account note in README "Email".
@@ -95,6 +95,15 @@
       first-message limits or recipient opt-out). Extending src/messages.ts with a third
       thread_type is cheap once decided.
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
+- [ ] **Musicians on a map** — a map view (alongside the list) showing where musicians
+      are, so a bandleader can see at a glance who plays what near the venue. Data is
+      already there: musician_details home city is geocoded (lat/lng in D1), instruments
+      + level on the profile. Plot one pin per musician at *city* precision (never a
+      street address — privacy rule), jitter pins within the city so overlaps are visible,
+      pin popup = display name, instruments, level, link to /m/:handle. Filters shared
+      with the board (instrument, radius from the city input). Leaflet + OSM tiles
+      (no API key), loaded lazily only when the map tab opens so the SPA shell stays light.
+      Later: same map for gigs / practice listings / band seats (toggle layers).
 
 ## Growth features (sequenced — see "Product ladder" below)
 
