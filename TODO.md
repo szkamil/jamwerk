@@ -73,6 +73,11 @@
 
 ## Before real users (hardening)
 
+- [ ] **Hard email confirmation** — today confirmation is *soft*: accounts work immediately,
+      only posting a **paid gig** requires a confirmed address (gate shipped 2026-08-22 with a
+      resend-link banner). Revisit once mail reliably lands in the inbox (domain-validated
+      sender): require confirmation for applying/messaging too, or for everything.
+
 - [ ] **Rethink where feedback goes** — today `POST /feedback` stores the message in the D1
       `feedback` table and emails a copy to the `FEEDBACK_EMAIL` var in wrangler.toml
       (= rupert.szewczyk@gmail.com, sent from the Mailjet sender). Problems: a personal

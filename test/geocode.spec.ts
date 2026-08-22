@@ -36,7 +36,7 @@ const bernGig = {
 };
 
 beforeAll(async () => {
-	await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(poster).run();
+	await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, confirmed) VALUES (?, 'x', 1)").bind(poster).run();
 	// Bern and Thun are ~25 km apart.
 	await env.DB.batch([
 		env.DB.prepare("INSERT OR REPLACE INTO geocode_cache (city_key, lat, lng) VALUES ('bern', 46.948, 7.4474)"),
