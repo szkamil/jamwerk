@@ -4,9 +4,11 @@
 
 1. [x] **Notifications batch** — shipped 2026-08-21: Mailjet sending (src/email.ts),
        signup confirmation, password reset, per-IP rate limits on register/login/apply/forgot.
-       ⚠ Remaining one-time step: set the TrustAxis Mailjet keys as Worker secrets
-       (`npx wrangler secret put MAILJET_API_KEY` / `MAILJET_SECRET_KEY`) — until then
-       sends are logged, not delivered. Shared-account note in README "Email".
+       ⚠ Remaining one-time step: set the Mailjet keys as Worker secrets — from
+       JamWerk's OWN dedicated Mailjet account (login: mailwerk@hotmail.com), NOT the
+       TrustAxis account. Until then sends are logged, not delivered. Then: verify the
+       jamwerk.app domain in Mailjet and switch EMAIL_FROM to notify@jamwerk.app.
+       Account note in README "Email".
 2. [x] **Applicant cards with names + ratings** — shipped 2026-08-21: display name with
        avatar initials, star average + review count, gigs played, home city, instruments;
        contact email revealed only after booking

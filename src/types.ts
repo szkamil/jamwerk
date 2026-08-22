@@ -4,8 +4,9 @@ export interface Env {
   JWT_SECRET: string;
   // Set to '1' to skip Nominatim lookups (tests); cache reads still work.
   GEOCODE_OFF?: string;
-  // Mailjet credentials (Worker secrets). Currently the shared TrustAxis
-  // account — see src/email.ts and README "Email". Absent: sends are logged.
+  // Mailjet credentials (Worker secrets) — from JamWerk's OWN dedicated
+  // Mailjet account (login: mailwerk@hotmail.com), NOT the TrustAxis one.
+  // See src/email.ts and README "Email". Absent: sends are logged.
   MAILJET_API_KEY?: string;
   MAILJET_SECRET_KEY?: string;
   EMAIL_FROM?: string;
