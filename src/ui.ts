@@ -133,6 +133,11 @@ export const PAGE = `<!doctype html>
   .msg.ok { display: block; background: #e7f6ef; color: var(--ok); }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
   .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; }
+  .filters select {
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2314131a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 15px center; padding-right: 38px;
+  }
   .filters #fRadius { flex: 0 1 auto; min-width: 106px; }
   .filters button.ghost { min-height: 46px; border-radius: 999px; }
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
