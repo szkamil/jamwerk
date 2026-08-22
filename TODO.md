@@ -22,7 +22,10 @@
        landing block on the board (hero, how-it-works, alerts pitch with the bell), plus the
        tip already in the signup confirmation email. Still open: dedicated marketing page
        when there is real traction.
-7. [x] **Localization: FR / DE / IT / EN** — shipped 2026-08-21: full app UI (client
+7. [ ] **In-app messaging** between poster and applicant — thread per application/seat so
+       questions ("can you bring an amp?") happen on-platform before booking; contact
+       exchange stays booking-gated. Pairs with existing email+push notifications.
+8. [x] **Localization: FR / DE / IT / EN** — shipped 2026-08-21: full app UI (client
        dictionary + header language picker, browser-language default, choice persisted
        per user), all emails and push notifications in the recipient's language, and
        public profile pages in the visitor's browser language.
@@ -44,7 +47,6 @@
 - [x] Geocode city names on gig post + musician profile (Nominatim, D1-cached) — the board's
       city filter is now "within 25/50/100 km", cards show distance; shipped 2026-08-21
 - [ ] Show musician display_name + reviews/rating on applicant cards (data exists, UI shows email)
-- [ ] In-app messaging between poster and applicant (currently contact is exchanged on booking)
 - [ ] Push/email digest: "new gigs for your instrument within your radius"
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
 
