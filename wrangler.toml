@@ -33,16 +33,13 @@ BASE_URL = "https://jamwerk.app"
 # notify@jamwerk.app was silently dropped. Keep the validated address sender
 # until the domain row shows Active, then set EMAIL_FROM = "notify@jamwerk.app".
 EMAIL_FROM = "gigwerk@hotmail.com"
-# POC only: plaintext var so the workers.dev deploy needs no secret setup.
-# Before this app gets a real domain and real users, move it to
-# `wrangler secret put JWT_SECRET` and rotate.
-JWT_SECRET = "jamwerk-poc-fb42e697ffab16f5f43ed3e097fe7817"
-
-# Web Push VAPID keys. POC only: like JWT_SECRET above, kept as plaintext vars
-# for the workers.dev-era deploy; move both to `wrangler secret put` before
-# real users (rotating them just re-prompts everyone to re-enable alerts).
-VAPID_PUBLIC_KEY = "BNfGECx3PmeosUqaIXYTczj4LiKUIMfr7y-65lCgP8fxOmWeN2xiqZELdHC04zWL883xEgESnfGN9cas_XEA2-o"
-VAPID_PRIVATE_JWK = '{"key_ops":["sign"],"ext":true,"kty":"EC","x":"18YQLHc-Z6ixSpohdhNzOPguIpQgx-vvL7rmUKA_x_E","y":"OmWeN2xiqZELdHC04zWL883xEgESnfGN9cas_XEA2-o","crv":"P-256","d":"bNwu0WkiUbXr7CMi0M8zPfC4wfE5PUs2Tq7sR1iNC7Q"}'
+# Secrets (set with `npx wrangler secret put NAME`, never in this file):
+#   JWT_SECRET          — session cookie signing key (rotated 2026-08-22)
+#   VAPID_PUBLIC_KEY    — Web Push VAPID public key (base64url, P-256 raw)
+#   VAPID_PRIVATE_JWK   — matching private key as a JWK string
+#   MAILJET_API_KEY / MAILJET_SECRET_KEY / TURNSTILE_SECRET_KEY
+# Rotating the VAPID pair invalidates existing push subscriptions (users just
+# re-enable alerts).
 VAPID_SUBJECT = "mailto:rupert.szewczyk@gmail.com"
 
 # Footer feedback form submissions are stored in D1 and forwarded here by

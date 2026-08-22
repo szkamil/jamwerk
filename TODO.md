@@ -90,7 +90,7 @@
       the TURNSTILE_SECRET_KEY Worker secret, widget rendered in the register form and
       feedback dialog, token verified server-side (src/turnstile.ts) on /auth/register
       and /feedback. Rate limits stay as the second layer.
-- [ ] Move `JWT_SECRET` out of `wrangler.toml` to `wrangler secret put JWT_SECRET`, rotate the value
+- [x] `JWT_SECRET` + VAPID keys moved to Worker secrets and rotated — 2026-08-22
 - [x] `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repo secrets — done 2026-08-22, CI deploys on push to main; poc-poc bridge still to delete
 - [ ] Custom 404 / error pages; favicon; OG meta for link sharing
 
