@@ -113,7 +113,7 @@
       profile page. Needs an anti-spam story first (Turnstile above, plus maybe
       first-message limits or recipient opt-out). Extending src/messages.ts with a third
       thread_type is cheap once decided.
-- [ ] **EUR fees** for French-side (Grand Genève) gigs — currency field on gigs, CHF default; show both when the musician's country differs
+- [x] **EUR fees** — shipped 2026-08-22: `currency` (CHF default / EUR) on gigs and bookings (migration 011), CHF/EUR selector in the post form (remembered per browser), shown as posted on cards, alerts and booking mails. No conversion — a fee is a contract figure. Later, if useful: '≈ CHF' hint with a fixed weekly rate.
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
 - [ ] **Musicians on a map** — PARKED 2026-08-22, not before a city has ~100+ profiles or a
       second region needs a coverage view. Reasoning: with <50 musicians a map is an empty

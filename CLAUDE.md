@@ -24,7 +24,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 - `schema.sql` — full-schema mirror; `migrations/NNN_*.sql` — incremental
   patches for the already-provisioned prod DB. Keep BOTH in sync for any
   schema change. Prod D1: `jamwerk-db`, id `9b956c5a-b8e2-41e4-930c-8a647501b6cb`.
-  Migrations 001–010 are applied to prod.
+  Migrations 001–011 are applied to prod.
 - `test/*.spec.ts` — @cloudflare/vitest-pool-workers. 44 tests. Run:
   `CI=true npx vitest run`. Isolated per-test D1 storage: multi-step
   lifecycle flows must live in a SINGLE `it` block. Schema is replayed from
