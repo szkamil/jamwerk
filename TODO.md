@@ -22,9 +22,10 @@
        landing block on the board (hero, how-it-works, alerts pitch with the bell), plus the
        tip already in the signup confirmation email. Still open: dedicated marketing page
        when there is real traction.
-7. [ ] **In-app messaging** between poster and applicant — thread per application/seat so
-       questions ("can you bring an amp?") happen on-platform before booking; contact
-       exchange stays booking-gated. Pairs with existing email+push notifications.
+7. [x] **In-app messaging** — shipped 2026-08-22: thread per gig/seat application,
+       participants only, names shown (never emails), Messages tab with unread badge,
+       one email+push nudge per catch-up (not per message), Message buttons on applicant
+       cards and applications.
 8. [x] **Localization: FR / DE / IT / EN** — shipped 2026-08-21: full app UI (client
        dictionary + header language picker, browser-language default, choice persisted
        per user), all emails and push notifications in the recipient's language, and

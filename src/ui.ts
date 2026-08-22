@@ -129,6 +129,13 @@ export const PAGE = `<!doctype html>
   dialog { border: 1px solid var(--line); border-radius: var(--r); padding: 20px; max-width: 420px; width: 92%; background: var(--card); }
   dialog::backdrop { background: rgba(20,19,26,.5); }
   .application { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+  .thread { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; margin-bottom: 8px; font-size: 14.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .bubble.mine { background: var(--accent-tint); border: 1px solid var(--accent-tint-line); margin-left: auto; border-bottom-right-radius: 4px; }
+  .bubble.theirs { background: var(--card); border: 1px solid var(--line); margin-right: auto; border-bottom-left-radius: 4px; }
+  .bubble time { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .composer { display: flex; gap: 8px; margin-top: 12px; }
+  .composer textarea { flex: 1; min-height: 48px; }
   .applicant-head { display: flex; align-items: center; gap: 10px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
   .applicant-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
@@ -161,6 +168,7 @@ ${NOTES_LAYER}
   <button data-tab="post" data-i18n="nav_post">Post a gig</button>
   <button data-tab="mine" data-i18n="nav_mine">My gigs</button>
   <button data-tab="bands" data-i18n="nav_bands">Bands</button>
+  <button data-tab="msgs"><span data-i18n="nav_msgs">Messages</span><span id="msgBadge" hidden style="background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px;"></span></button>
   <button data-tab="profile" data-i18n="nav_profile">Musician profile</button>
 </nav>
 <main>
@@ -274,6 +282,8 @@ ${NOTES_LAYER}
 
   <section id="tab-mine" hidden><div id="mine"></div></section>
 
+  <section id="tab-msgs" hidden><div id="msgArea"></div></section>
+
   <section id="tab-bands" hidden>
     <div class="card"><form id="bandForm">
       <div class="grid2">
@@ -338,6 +348,7 @@ const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion'
 const I18N = {
   en: {
     nav_board: 'Gig board',
+    nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Send', msg_placeholder: 'Write a message\u2026', no_threads: 'No conversations yet — they start from an application.', thread_empty: 'No messages yet — say hello.', back: 'Back',
     cta_jam: 'Find jam partners', cta_gigs: 'See paid gigs', land_d_board: 'Every open gig and jam near you — public fees, filtered by instrument and distance.', land_d_post: 'Need a dep or jam partners? Post in two minutes — matching musicians nearby get alerted.', land_d_mine: 'Track your posts and applications, book musicians, leave reviews after the gig.', land_d_bands: 'Start a band with open seats, or join one — with members\u2019 real track records.', land_d_profile: 'Your instruments, demos, and reviews — plus a public page you can share anywhere.',
     how_it_works: 'How it works', welcome_profile: 'Welcome aboard! Set up your musician profile — it is what lets you apply to gigs and jams.',
     land_head: 'Find a dep. Fill a gig. Start a band.', land_sub: 'JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
@@ -377,6 +388,7 @@ const I18N = {
   },
   fr: {
     nav_board: 'Tableau des concerts',
+    nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Envoyer', msg_placeholder: '\u00c9crivez un message\u2026', no_threads: 'Pas encore de conversations — elles commencent par une candidature.', thread_empty: 'Pas encore de messages — dites bonjour.', back: 'Retour',
     cta_jam: 'Trouver des partenaires de jam', cta_gigs: 'Voir les concerts pay\u00e9s', land_d_board: 'Tous les concerts et jams ouverts pr\u00e8s de chez vous — cachets publics, filtr\u00e9s par instrument et distance.', land_d_post: 'Besoin d\u2019un rempla\u00e7ant ou de partenaires de jam ? Publiez en deux minutes — les musiciens correspondants sont alert\u00e9s.', land_d_mine: 'Suivez vos annonces et candidatures, engagez des musiciens, laissez des avis apr\u00e8s le concert.', land_d_bands: 'Montez un groupe avec des places ouvertes, ou rejoignez-en un — avec le vrai parcours des membres.', land_d_profile: 'Vos instruments, d\u00e9mos et avis — plus une page publique \u00e0 partager partout.',
     how_it_works: 'Comment \u00e7a marche', welcome_profile: 'Bienvenue ! Cr\u00e9ez votre profil musicien — c\u2019est lui qui vous permet de postuler aux concerts et aux jams.',
     land_head: 'Trouvez un rempla\u00e7ant. Remplissez un concert. Montez un groupe.', land_sub: 'JamWerk connecte les musiciens locaux : concerts pay\u00e9s aux cachets publics, partenaires de jam gratuits et places de groupe ouvertes — selon votre instrument et votre r\u00e9gion.', land_s1: 'Cr\u00e9ez votre profil musicien gratuit : instruments, ville, rayon de d\u00e9placement.', land_s2: 'Parcourez ou publiez : concerts pay\u00e9s, jams, places de groupe. Activez les alertes et les annonces arrivent sur votre t\u00e9l\u00e9phone.', land_s3: 'R\u00e9servez ou connectez-vous. Les concerts effectu\u00e9s g\u00e9n\u00e8rent des avis qui construisent votre r\u00e9putation publique.', aud_jam_t: 'Envie de jammer ?', aud_jam_p: 'Les annonces de jam sont gratuites et d\u00e9contract\u00e9es — pas de cachet, pas de notes, pas de pression. Trouvez des gens de votre niveau, du d\u00e9butant au groupe du week-end.', aud_pro_t: 'Musicien professionnel ?', aud_pro_p: 'Concerts pay\u00e9s avec le cachet annonc\u00e9 d\u2019avance, en CHF. Les avis de vrais concerts construisent une r\u00e9putation partageable.', land_alerts: 'Touchez la cloche apr\u00e8s l\u2019inscription — les concerts pour votre instrument pr\u00e8s de chez vous arrivent sur votre t\u00e9l\u00e9phone d\u00e8s leur publication.', cta_join: 'Cr\u00e9er un profil gratuit', cta_browse: 'Voir les annonces', lvl_label: 'Niveau', whos_welcome: 'Qui est bienvenu', lvl_any: 'ouvert \u00e0 tous', lvl_hobby: 'amateur', lvl_semi: 'semi-pro', lvl_pro: 'pro',
@@ -416,6 +428,7 @@ const I18N = {
   },
   de: {
     nav_board: 'Gig-Board',
+    nav_msgs: 'Nachrichten', msg_btn: 'Nachricht', msg_send: 'Senden', msg_placeholder: 'Nachricht schreiben\u2026', no_threads: 'Noch keine Unterhaltungen — sie beginnen mit einer Bewerbung.', thread_empty: 'Noch keine Nachrichten — sag hallo.', back: 'Zur\u00fcck',
     cta_jam: 'Jam-Partner finden', cta_gigs: 'Bezahlte Gigs ansehen', land_d_board: 'Alle offenen Gigs und Jams in deiner N\u00e4he — \u00f6ffentliche Gagen, gefiltert nach Instrument und Distanz.', land_d_post: 'Ersatz oder Jam-Partner gesucht? In zwei Minuten inseriert — passende Musiker:innen in der N\u00e4he werden benachrichtigt.', land_d_mine: 'Behalte Anzeigen und Bewerbungen im Blick, buche Musiker:innen, bewerte nach dem Gig.', land_d_bands: 'Gr\u00fcnde eine Band mit offenen Pl\u00e4tzen oder tritt einer bei — mit echtem Leistungsausweis der Mitglieder.', land_d_profile: 'Deine Instrumente, Demos und Bewertungen — plus eine \u00f6ffentliche Seite zum Teilen.',
     how_it_works: 'So funktioniert\u2019s', welcome_profile: 'Willkommen! Richte dein Musikerprofil ein — damit kannst du dich auf Gigs und Jams bewerben.',
     land_head: 'Finde einen Ersatz. Besetze einen Gig. Gr\u00fcnde eine Band.', land_sub: 'JamWerk verbindet lokale Musiker:innen: bezahlte Gigs mit \u00f6ffentlichen Gagen, kostenlose Jam-Partner und offene Bandpl\u00e4tze — passend zu Instrument und Region.', land_s1: 'Erstelle dein gratis Musikerprofil: Instrumente, Stadt, Reiseradius.', land_s2: 'St\u00f6bern oder inserieren: bezahlte Gigs, Jams, Bandpl\u00e4tze. Alerts an, und Treffer erreichen dein Handy.', land_s3: 'Buchen oder verbinden. Abgeschlossene Gigs bringen Bewertungen f\u00fcr deinen \u00f6ffentlichen Leistungsausweis.', aud_jam_t: 'Einfach nur jammen?', aud_jam_p: 'Jam-Anzeigen sind gratis und locker — keine Gagen, keine Bewertungen, kein Druck. Finde Leute auf deinem Niveau, vom Anf\u00e4nger bis zur Wochenendband.', aud_pro_t: 'Berufsmusiker:in?', aud_pro_p: 'Bezahlte Ersatz-Gigs mit vorab genannter Gage in CHF. Bewertungen aus echten Gigs bauen einen teilbaren Leistungsausweis auf.', land_alerts: 'Tippe nach der Anmeldung auf die Glocke — Gigs f\u00fcr dein Instrument in deiner N\u00e4he erreichen dein Handy, sobald sie erscheinen.', cta_join: 'Gratis Profil erstellen', cta_browse: 'Anzeigen ansehen', lvl_label: 'Erfahrungsstufe', whos_welcome: 'Wer ist willkommen', lvl_any: 'alle willkommen', lvl_hobby: 'Hobby', lvl_semi: 'semiprofessionell', lvl_pro: 'Profi',
@@ -455,6 +468,7 @@ const I18N = {
   },
   it: {
     nav_board: 'Bacheca concerti',
+    nav_msgs: 'Messaggi', msg_btn: 'Messaggio', msg_send: 'Invia', msg_placeholder: 'Scrivi un messaggio\u2026', no_threads: 'Ancora nessuna conversazione — iniziano da una candidatura.', thread_empty: 'Ancora nessun messaggio — saluta.', back: 'Indietro',
     cta_jam: 'Trova partner per jam', cta_gigs: 'Vedi i concerti pagati', land_d_board: 'Tutti i concerti e le jam aperti vicino a te — cachet pubblici, filtrati per strumento e distanza.', land_d_post: 'Cerchi un sostituto o partner per una jam? Pubblica in due minuti — i musicisti compatibili nelle vicinanze ricevono un avviso.', land_d_mine: 'Segui annunci e candidature, ingaggia musicisti, lascia recensioni dopo il concerto.', land_d_bands: 'Crea un gruppo con posti aperti o unisciti a uno — con il vero percorso dei membri.', land_d_profile: 'I tuoi strumenti, demo e recensioni — pi\u00f9 una pagina pubblica da condividere ovunque.',
     how_it_works: 'Come funziona', welcome_profile: 'Benvenuto/a! Crea il tuo profilo musicista — \u00e8 ci\u00f2 che ti permette di candidarti a concerti e jam.',
     land_head: 'Trova un sostituto. Riempi un concerto. Crea un gruppo.', land_sub: 'JamWerk collega i musicisti locali: concerti pagati con cachet pubblici, partner di jam gratuiti e posti nei gruppi — in base al tuo strumento e alla tua zona.', land_s1: 'Crea il tuo profilo musicista gratuito: strumenti, citt\u00e0, raggio di spostamento.', land_s2: 'Sfoglia o pubblica: concerti pagati, jam, posti nei gruppi. Attiva gli avvisi e le corrispondenze arrivano sul telefono.', land_s3: 'Prenota o connettiti. I concerti completati generano recensioni che costruiscono la tua reputazione pubblica.', aud_jam_t: 'Vuoi solo suonare?', aud_jam_p: 'Gli annunci di prova sono gratuiti e informali — niente cachet, niente voti, niente pressione. Trova persone del tuo livello, dai principianti alle band del weekend.', aud_pro_t: 'Musicista professionista?', aud_pro_p: 'Concerti pagati con il cachet dichiarato in anticipo, in CHF. Le recensioni di concerti reali costruiscono una reputazione condivisibile.', land_alerts: 'Tocca la campanella dopo la registrazione — i concerti per il tuo strumento vicino a te arrivano sul telefono appena pubblicati.', cta_join: 'Crea il tuo profilo gratuito', cta_browse: 'Guarda gli annunci', lvl_label: 'Livello', whos_welcome: 'Chi \u00e8 benvenuto', lvl_any: 'aperto a tutti', lvl_hobby: 'amatoriale', lvl_semi: 'semi-pro', lvl_pro: 'pro',
@@ -559,6 +573,7 @@ let registering = false;
 function renderAuth() {
   $('landing').hidden = !!me || landingDismissed;
   $('howBtn').hidden = !!me;
+  refreshMsgBadge();
   $('who').textContent = me ? me.email : '';
   $('authBtn').textContent = me ? T('logout') : T('login');
   refreshNotifBtn();
@@ -606,9 +621,10 @@ document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
     b.classList.add('active');
-    ['board','post','mine','bands','profile'].forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
+    ['board','post','mine','bands','msgs','profile'].forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
     if (b.dataset.tab === 'mine') loadMine();
     if (b.dataset.tab === 'bands') loadBands();
+    if (b.dataset.tab === 'msgs') loadThreads();
     if (b.dataset.tab === 'board') loadBoard();
   };
 });
@@ -740,6 +756,9 @@ async function loadMine() {
     wrap.append(gigCard(g, (gig) => {
       const bar = el('div');
       bar.append(el('span', 'tag', T('application_st', TS(gig.application_status))));
+      const msgBtn = el('button', 'ghost small', T('msg_btn'));
+      msgBtn.onclick = () => openThread('gig', gig.application_id, '');
+      bar.append(msgBtn);
       if (gig.status === 'completed' && gig.application_status === 'accepted') {
         const rev = el('button', 'ghost small', T('review_bandleader'));
         rev.onclick = () => submitReview(gig.id);
@@ -769,6 +788,9 @@ async function showManage(gigId, bar) {
     who.append(meta);
     head.append(who, el('span', 'tag', TS(a.status)));
     row.append(head);
+    const msgBtn = el('button', 'ghost small', T('msg_btn'));
+    msgBtn.onclick = () => openThread('gig', a.id, a.display_name);
+    row.append(msgBtn);
     if (a.handle) {
       const prof = el('a', 'muted', T('view_profile'));
       prof.href = '/m/' + a.handle;
@@ -887,6 +909,87 @@ for (const i of INSTRUMENTS) {
 }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
+// ── Messages ─────────────────────────────────────────
+async function refreshMsgBadge() {
+  if (!me) { $('msgBadge').hidden = true; return; }
+  const r = await api('/messages/threads');
+  const n = r.ok ? r.json.unread_total : 0;
+  $('msgBadge').textContent = n;
+  $('msgBadge').hidden = !n;
+}
+async function loadThreads() {
+  const wrap = $('msgArea');
+  wrap.replaceChildren();
+  if (!me) { wrap.append(el('div', 'empty', T('login_to_see'))); return; }
+  const r = await api('/messages/threads');
+  refreshMsgBadge();
+  if (!r.ok || !r.json.threads.length) { wrap.append(el('div', 'empty', T('no_threads'))); return; }
+  for (const th of r.json.threads) {
+    const card = el('div', 'card thread');
+    const initials = th.counterpart.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    card.append(el('div', 'avatar', initials));
+    const mid = el('div');
+    mid.style.flex = '1'; mid.style.minWidth = '0';
+    mid.append(el('strong', '', th.counterpart));
+    mid.append(el('div', 'muted', th.context));
+    if (th.last_body) {
+      const prev = el('div', 'muted', th.last_body.slice(0, 60));
+      prev.style.overflow = 'hidden'; prev.style.textOverflow = 'ellipsis'; prev.style.whiteSpace = 'nowrap';
+      mid.append(prev);
+    }
+    card.append(mid);
+    if (th.unread) card.append(el('span', 'tag status-booked', String(th.unread)));
+    card.onclick = () => openThread(th.thread_type, th.thread_id, th.counterpart);
+    wrap.append(card);
+  }
+}
+async function openThread(type, id, title) {
+  document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === 'msgs'));
+  ['board','post','mine','bands','msgs','profile'].forEach((t) => { $('tab-' + t).hidden = t !== 'msgs'; });
+  const wrap = $('msgArea');
+  wrap.replaceChildren();
+  const r = await api('/messages/' + type + '/' + id);
+  if (!r.ok) { flash(r.json.error || T('failed'), 'err'); loadThreads(); return; }
+  refreshMsgBadge();
+
+  const head = el('div', 'card');
+  const bar = el('div');
+  bar.style.display = 'flex'; bar.style.alignItems = 'center'; bar.style.gap = '10px';
+  const back = el('button', 'ghost small', '\u2190 ' + T('back'));
+  back.onclick = loadThreads;
+  bar.append(back, el('strong', '', title || ''), el('span', 'muted', r.json.context));
+  head.append(bar);
+
+  const list = el('div');
+  list.style.display = 'flex'; list.style.flexDirection = 'column'; list.style.margin = '14px 0';
+  if (!r.json.messages.length) list.append(el('div', 'empty', T('thread_empty')));
+  for (const m of r.json.messages) {
+    const b = el('div', 'bubble ' + (m.mine ? 'mine' : 'theirs'), m.body);
+    const ts = el('time', '', m.created_at.slice(0, 16).replace('T', ' '));
+    b.append(ts);
+    list.append(b);
+  }
+  head.append(list);
+
+  const composer = el('div', 'composer');
+  const input = el('textarea');
+  input.placeholder = T('msg_placeholder');
+  const send = el('button', 'primary', T('msg_send'));
+  send.onclick = async () => {
+    const text = input.value.trim();
+    if (!text) return;
+    send.disabled = true;
+    const res = await api('/messages/' + type + '/' + id, { method: 'POST', body: { body: text } });
+    send.disabled = false;
+    if (res.ok) { input.value = ''; openThread(type, id, title); }
+    else flash(res.json.error || T('failed'), 'err');
+  };
+  composer.append(input, send);
+  head.append(composer);
+  wrap.append(head);
+  window.scrollTo({ top: 0 });
+}
+
 // ── Bands ────────────────────────────────────────────
 $('bandForm').onsubmit = async (e) => {
   e.preventDefault();
@@ -971,6 +1074,9 @@ async function showBandManage(bandId, card) {
           prof.href = '/m/' + a.handle; prof.target = '_blank'; prof.rel = 'noopener noreferrer';
           line.append(prof);
         }
+        const msgB = el('button', 'ghost small', T('msg_btn'));
+        msgB.onclick = () => openThread('seat', a.id, a.display_name);
+        line.append(msgB);
         const acc = el('button', 'primary small', T('book', a.display_name));
         acc.onclick = async () => {
           const res = await api('/bands/seats/' + s.id + '/applications/' + a.id + '/accept', { method: 'POST' });

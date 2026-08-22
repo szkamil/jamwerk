@@ -176,3 +176,16 @@ CREATE TABLE IF NOT EXISTS seat_applications (
   FOREIGN KEY (musician_email) REFERENCES users(email) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_seat_applications_seat ON seat_applications(seat_id);
+
+-- In-app messaging (mirrors migrations/009)
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  thread_type TEXT NOT NULL CHECK(thread_type IN ('gig','seat')),
+  thread_id INTEGER NOT NULL,
+  sender_email TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  is_read INTEGER NOT NULL DEFAULT 0,
+  FOREIGN KEY (sender_email) REFERENCES users(email) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_type, thread_id, id);

@@ -7,6 +7,7 @@ import pwaRoutes from './pwa';
 import profilePage from './profile-page';
 import pushRoutes from './push';
 import bandRoutes from './bands';
+import messageRoutes from './messages';
 import { PAGE } from './ui';
 import type { AppEnv, Env } from './types';
 
@@ -41,6 +42,7 @@ app.route('/gigs', gigRoutes);
 app.route('/m', profilePage);
 app.route('/push', pushRoutes);
 app.route('/bands', bandRoutes);
+app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
 
 // Daily housekeeping: flip stale open listings past their expiry to 'expired'
