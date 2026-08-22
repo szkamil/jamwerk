@@ -28,7 +28,12 @@ app.post('/', async (c) => {
   const from = c.get('user')?.email || email;
   await c.env.DB.prepare('INSERT INTO feedback (email, body) VALUES (?, ?)').bind(from, message).run();
   if (c.env.FEEDBACK_EMAIL) {
-    const task = sendEmail(c.env, c.env.FEEDBACK_EMAIL, 'JamWerk feedback', `${message}\n\nFrom: ${from || 'anonymous'}`);
+    // Subject carries a snippet so the inbox is scannable; Reply-To points at
+    // the submitter so a plain "Reply" in the mail client answers them.
+    const snippet = message.replace(/\s+/g, ' ').slice(0, 60) + (message.length > 60 ? '…' : '');
+    const replyTo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from) ? from : undefined;
+    const task = sendEmail(c.env, c.env.FEEDBACK_EMAIL, `JamWerk feedback: ${snippet}`,
+      `${message}\n\nFrom: ${from || 'anonymous (no email given)'}`, { replyTo });
     try {
       c.executionCtx.waitUntil(task);
     } catch {
