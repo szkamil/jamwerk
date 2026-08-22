@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { WAVE_SVG, NOTES_LAYER } from './ui';
 import { pickLang, t } from './i18n';
 import type { AppEnv } from './types';
+import { notFoundPage } from './not-found';
 
 function esc(s: unknown): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -69,13 +70,14 @@ profilePage.get('/:handle', async (c) => {
   if (!/^[a-z0-9-]{1,50}$/.test(handle)) return c.notFound();
 
   const lang = pickLang(c.req.header('Accept-Language'));
+  const baseUrl = c.env.BASE_URL || 'https://jamwerk.app';
   const m = await c.env.DB.prepare(
     `SELECT m.*, u.display_name, u.created_at AS member_since
      FROM musician_details m JOIN users u ON u.email = m.owner
      WHERE m.handle = ?`
   ).bind(handle).first<any>();
   if (!m) {
-    return c.html('<!doctype html><meta charset="utf-8"><title>Not found — JamWerk</title><p style="font-family:system-ui;padding:40px">No such musician. <a href="/">Back to JamWerk</a></p>', 404);
+    return c.html(notFoundPage(lang, t(lang, { en: 'No such musician.', fr: 'Ce musicien n’existe pas.', de: 'Diesen Musiker gibt es nicht.', it: 'Questo musicista non esiste.' })), 404);
   }
 
   const stats = await c.env.DB.prepare(
@@ -145,7 +147,13 @@ profilePage.get('/:handle', async (c) => {
 <title>${esc(title)}</title>
 <meta property="og:title" content="${esc(name)} on JamWerk">
 <meta property="og:description" content="${esc(instruments.map(label).join(', '))}${m.home_city ? ' · ' + esc(m.home_city) : ''} · ${m.gigs_played} gigs played">
-<meta property="og:image" content="/icons/icon-512.png">
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="JamWerk">
+<meta property="og:url" content="${esc(baseUrl)}/m/${esc(m.handle)}">
+<meta property="og:image" content="${esc(baseUrl)}/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
