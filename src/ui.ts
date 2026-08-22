@@ -84,7 +84,7 @@ export const PAGE = `<!doctype html>
     position: relative; z-index: 0; overflow: hidden;
   }
   header .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
-  header h1 { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 25px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+  header h1 { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 25px; font-weight: 800; margin: 0; letter-spacing: -0.5px; cursor: pointer; }
   header h1 span { color: var(--accent-light); }
   header .spacer { flex: 1; }
   header .who { font-size: 14px; opacity: .8; }
@@ -146,7 +146,7 @@ export const PAGE = `<!doctype html>
 ${NOTES_LAYER}
 <header>
   ${WAVE_SVG}
-  <h1>Jam<span>Werk</span></h1>
+  <h1 id="logoHome">Jam<span>Werk</span></h1>
   <span style="color: rgba(255,255,255,0.55); font-size: 13.5px;">find a dep, fill a gig</span>
   <span class="spacer"></span>
   <span class="who" id="who"></span>
@@ -538,6 +538,12 @@ $('howBtn').onclick = () => {
   landingDismissed = false;
   document.querySelector('[data-tab=board]').click();
   $('landing').hidden = false;
+  window.scrollTo({ top: 0 });
+};
+$('logoHome').onclick = () => {
+  landingDismissed = false;
+  document.querySelector('[data-tab=board]').click();
+  if (!me) $('landing').hidden = false;
   window.scrollTo({ top: 0 });
 };
 $('ctaJoin').onclick = () => {
