@@ -15,8 +15,9 @@
        `EMAIL_FROM = "notify@jamwerk.app"` and deploy.
 3. [x] Repo Actions secrets `CLOUDFLARE_API_TOKEN` (token "jamwerk-github-deploy", account +
        jamwerk.app zone scoped) + `CLOUDFLARE_ACCOUNT_ID` added 2026-08-22; deploy.yml now
-       deploys on every push to main (first green run: version d39cc810). poc-poc bridge
-       workflow deleted.
+       deploys on every push to main (first green run: version d39cc810). Still to do:
+       delete `.github/workflows/deploy-jamwerk.yml` on poc-poc branch
+       `claude/musician-matching-app-wefw3d` (the old bridge).
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
        URI → then port "Continue with Google" (see Auth section).
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
@@ -90,7 +91,7 @@
       feedback dialog, token verified server-side (src/turnstile.ts) on /auth/register
       and /feedback. Rate limits stay as the second layer.
 - [ ] Move `JWT_SECRET` out of `wrangler.toml` to `wrangler secret put JWT_SECRET`, rotate the value
-- [x] `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repo secrets — done 2026-08-22, CI deploys on push to main; poc-poc bridge removed
+- [x] `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` repo secrets — done 2026-08-22, CI deploys on push to main; poc-poc bridge still to delete
 - [ ] Custom 404 / error pages; favicon; OG meta for link sharing
 
 ## Core loop improvements

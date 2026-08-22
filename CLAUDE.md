@@ -57,7 +57,8 @@ deploys on every push to `main` (repo secrets `CLOUDFLARE_API_TOKEN` — token
 "jamwerk-github-deploy", scoped to the account + jamwerk.app zone — and
 `CLOUDFLARE_ACCOUNT_ID`; set 2026-08-22). So: merge to main = deploy. From an
 authenticated machine `npx wrangler deploy` still works for hotfixes; Worker
-secrets survive deploys. The old poc-poc bridge workflow is gone.
+secrets survive deploys. The old poc-poc bridge workflow (`deploy-jamwerk.yml` on branch
+`claude/musician-matching-app-wefw3d`) is obsolete and should be deleted.
 
 Prod schema changes: run the new migration against prod D1 (dashboard, MCP
 `d1_database_query`, or `npx wrangler d1 execute jamwerk-db --remote --file …`)
