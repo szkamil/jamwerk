@@ -95,6 +95,15 @@
       first-message limits or recipient opt-out). Extending src/messages.ts with a third
       thread_type is cheap once decided.
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
+- [ ] **Musicians on a map** — a map view (alongside the list) showing where musicians
+      are, so a bandleader can see at a glance who plays what near the venue. Data is
+      already there: musician_details home city is geocoded (lat/lng in D1), instruments
+      + level on the profile. Plot one pin per musician at *city* precision (never a
+      street address — privacy rule), jitter pins within the city so overlaps are visible,
+      pin popup = display name, instruments, level, link to /m/:handle. Filters shared
+      with the board (instrument, radius from the city input). Leaflet + OSM tiles
+      (no API key), loaded lazily only when the map tab opens so the SPA shell stays light.
+      Later: same map for gigs / practice listings / band seats (toggle layers).
 
 ## Growth features (sequenced — see "Product ladder" below)
 
