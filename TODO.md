@@ -19,7 +19,7 @@
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
        URI → then port "Continue with Google" (see Auth section).
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
-6. [ ] DECIDE: open musician-to-musician DMs (see Core loop improvements).
+6. [x] DECIDE: open musician-to-musician DMs — decided 2026-08-22: not during seeding; plan + trigger + anti-abuse rules in PLAN.md "Messaging".
 
 ## Shipped 2026-08-22 (session log)
 

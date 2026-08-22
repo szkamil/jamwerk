@@ -61,6 +61,37 @@ So the forum arrives bottom-up, in three steps, each useful even with 10 users:
 Moderation minimum before step 2: report button, poster-owner delete, simple
 rate limit. (Reddit-ness — votes, nesting — only at step 3, if ever.)
 
+## Messaging — from application threads to direct messages (decided 2026-08-22)
+
+**Today (shipped):** a conversation exists only once someone applies to a gig,
+practice listing or band seat — participants only, display names never
+emails, unread badge, one email+push nudge per catch-up. That covers the paid
+loop end to end and gives spammers nothing to abuse.
+
+**Deliberately missing:** cold DMs ("saw your profile, want to jam?"). An open
+DM channel is the first thing abuse finds, and a 50-person community cannot
+absorb it. Stay with "apply first, then talk" through the seeding phase.
+
+**Trigger to build DMs:** a seeded city has ~50 active profiles *and* the first
+"how do I contact X?" feedback arrives. Not before.
+
+**Shape when built:**
+1. "Message" button on public profile pages → a third thread type `profile`
+   in `src/messages.ts` (the thread / notify / unread machinery is already
+   generic; this is a small change).
+2. Anti-abuse from day one, all server-side:
+   - only confirmed emails can *start* a thread;
+   - max 3 new conversations per day per account until the sender has one
+     completed gig or one accepted application (then the cap lifts);
+   - recipient can block; block + report hides the sender's future messages;
+   - per-profile "accept messages" toggle — default on for semi-pro/pro,
+     off for hobby players.
+3. Nudges keep the existing rule: one email/push per catch-up, never per
+   message.
+4. Later, only if cold messages turn out low-quality: first-message templates
+   ("Looking for a drummer for …") and the phase-4 city scene boards as the
+   public alternative to DMs.
+
 ## Mobile strategy (asked 2026-08: iOS/Android apps?)
 
 Web-first, deliberately. Store apps are the most expensive commitment available
