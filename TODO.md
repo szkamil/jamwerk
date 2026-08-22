@@ -55,6 +55,12 @@
       city filter is now "within 25/50/100 km", cards show distance; shipped 2026-08-21
 - [ ] Show musician display_name + reviews/rating on applicant cards (data exists, UI shows email)
 - [ ] Push/email digest: "new gigs for your instrument within your radius"
+- [ ] **DECIDE: open musician-to-musician DMs** — today a message thread only exists once
+      someone applies to a gig/practice listing or band seat (deliberate: no cold-DM spam
+      channel). Option: let any logged-in musician message another from their public
+      profile page. Needs an anti-spam story first (Turnstile above, plus maybe
+      first-message limits or recipient opt-out). Extending src/messages.ts with a third
+      thread_type is cheap once decided.
 - [ ] Musician availability calendar (block dates; hide gigs that clash with a confirmed booking)
 
 ## Growth features (sequenced — see "Product ladder" below)
