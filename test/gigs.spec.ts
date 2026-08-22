@@ -306,3 +306,21 @@ describe('Email confirmation gate', () => {
 		expect(typeof row.confirm_token).toBe('string');
 	});
 });
+
+describe('Fee currency', () => {
+	it('defaults to CHF, accepts EUR, rejects anything else', async () => {
+		const who = 'fr-bandleader@example.com';
+		await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, confirmed) VALUES (?, 'x', 1)").bind(who).run();
+		const base = { instrument: 'bass', genres: ['jazz'], venue_city: 'Annemasse', gig_date: '2099-01-01', fee_chf: 250, description: 'Bal de mariage, grilles fournies' };
+		const chf = await call('/gigs', { method: 'POST', as: who, body: base });
+		expect(chf.status).toBe(201);
+		const eur = await call('/gigs', { method: 'POST', as: who, body: { ...base, currency: 'EUR' } });
+		expect(eur.status).toBe(201);
+		const bad = await call('/gigs', { method: 'POST', as: who, body: { ...base, currency: 'USD' } });
+		expect(bad.status).toBe(400);
+		const list = await call('/gigs?kind=gig');
+		const byId = Object.fromEntries(list.json.gigs.map((g: any) => [g.id, g]));
+		expect(byId[chf.json.id].currency).toBe('CHF');
+		expect(byId[eur.json.id].currency).toBe('EUR');
+	});
+});

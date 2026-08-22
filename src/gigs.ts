@@ -133,6 +133,7 @@ interface GigRow {
   venue_lat: number | null;
   venue_lng: number | null;
   fee_chf: number | null;
+  currency: 'CHF' | 'EUR';
   requirements: string;
   setlist_link: string | null;
   description: string;
@@ -276,7 +277,10 @@ gigs.post('/', async (c) => {
     if (!isIsoDate(body.gig_date)) errors.push('gig_date must be YYYY-MM-DD');
     else if (body.gig_date < today) errors.push('gig_date must not be in the past');
     if (!Number.isInteger(body.fee_chf) || body.fee_chf <= 0 || body.fee_chf > 100000) {
-      errors.push('fee_chf must be a positive integer (CHF for the whole gig)');
+      errors.push('fee_chf must be a positive integer (the whole-gig fee, in the chosen currency)');
+    }
+    if (body.currency !== undefined && body.currency !== 'CHF' && body.currency !== 'EUR') {
+      errors.push("currency must be 'CHF' or 'EUR'");
     }
   } else {
     if (body.fee_chf !== undefined && body.fee_chf !== null) {
@@ -310,15 +314,17 @@ gigs.post('/', async (c) => {
     ? new Date(Date.parse(body.gig_date) + 86400000).toISOString().slice(0, 10)
     : new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
 
+  // Fee currency: CHF by default; EUR for gigs on the French side of the border.
+  const currency: 'CHF' | 'EUR' = kind === 'gig' && body.currency === 'EUR' ? 'EUR' : 'CHF';
   const result = await c.env.DB.prepare(
     `INSERT INTO gigs (poster_email, kind, instrument, genres, gig_date, call_time, end_time,
-                       venue_city, venue_lat, venue_lng, fee_chf, requirements, setlist_link,
+                       venue_city, venue_lat, venue_lng, fee_chf, currency, requirements, setlist_link,
                        description, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     user.email, kind, body.instrument, JSON.stringify(genres),
     isIsoDate(body.gig_date) ? body.gig_date : null, callTime, endTime,
-    body.venue_city.trim().slice(0, 100), lat, lng, kind === 'gig' ? body.fee_chf : null,
+    body.venue_city.trim().slice(0, 100), lat, lng, kind === 'gig' ? body.fee_chf : null, currency,
     JSON.stringify(requirements), setlist && setlist[0] ? setlist[0] : null,
     body.description.trim(), expiresAt
   ).run();
@@ -349,10 +355,10 @@ gigs.post('/', async (c) => {
               it: `Jam: cercasi ${body.instrument} a ${body.venue_city}`,
             })
           : t(lang, {
-              en: `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`,
-              fr: `Concert : ${body.instrument} à ${body.venue_city} — CHF ${body.fee_chf}`,
-              de: `Gig: ${body.instrument} in ${body.venue_city} — CHF ${body.fee_chf}`,
-              it: `Concerto: ${body.instrument} a ${body.venue_city} — CHF ${body.fee_chf}`,
+              en: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
+              fr: `Concert : ${body.instrument} à ${body.venue_city} — ${currency} ${body.fee_chf}`,
+              de: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
+              it: `Concerto: ${body.instrument} a ${body.venue_city} — ${currency} ${body.fee_chf}`,
             }),
         body: `${body.gig_date ?? t(lang, { en: 'flexible', fr: 'flexible', de: 'flexibel', it: 'flessibile' })} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`,
       }), target.lang);
@@ -578,8 +584,8 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
   if (!claim.meta.changes) return c.json({ error: 'Gig is no longer open' }, 409);
 
   await c.env.DB.batch([
-    c.env.DB.prepare('INSERT INTO bookings (gig_id, musician_email, agreed_fee_chf) VALUES (?, ?, ?)')
-      .bind(gig.id, application.musician_email, gig.fee_chf),
+    c.env.DB.prepare('INSERT INTO bookings (gig_id, musician_email, agreed_fee_chf, currency) VALUES (?, ?, ?, ?)')
+      .bind(gig.id, application.musician_email, gig.fee_chf, gig.currency || 'CHF'),
     c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?")
       .bind(application.id),
     c.env.DB.prepare(
@@ -594,7 +600,7 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
       de: `Du bist gebucht! Gig am ${gig.gig_date} in ${gig.venue_city}`,
       it: `Sei ingaggiato! Concerto il ${gig.gig_date} a ${gig.venue_city}`,
     }),
-    body: `CHF ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\n` +
+    body: `${gig.currency || 'CHF'} ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\n` +
       t(lang, { en: 'Contact', fr: 'Contact', de: 'Kontakt', it: 'Contatto' }) + `: ${gig.poster_email}`,
   }));
   return c.json({ ok: true, musician_email: application.musician_email });

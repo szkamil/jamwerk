@@ -269,7 +269,7 @@ ${NOTES_LAYER}
         </div>
         <div class="card" style="display: flex; flex-direction: column;">
           <div class="display" style="font-size: 17px; font-weight: 700; margin-bottom: 6px;" data-i18n="aud_pro_t">Working musician?</div>
-          <p class="muted" style="margin: 0 0 12px; flex: 1;" data-i18n="aud_pro_p">Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.</p>
+          <p class="muted" style="margin: 0 0 12px; flex: 1;" data-i18n="aud_pro_p">Paid dep gigs with the fee stated up front, in CHF or EUR. Reviews from real completed gigs build a track record you can share.</p>
           <button class="primary" id="ctaGigs" style="align-self: flex-start;" data-i18n="cta_gigs">See paid gigs</button>
         </div>
       </div>
@@ -342,7 +342,9 @@ ${NOTES_LAYER}
         <div class="row"><label data-i18n="instrument_needed">Instrument needed</label><select id="pInstrument" required></select></div>
         <div class="row" id="pDateRow"><label data-i18n="date">Date</label><input type="date" id="pDate" required></div>
         <div class="row"><label data-i18n="city">City</label><input type="text" id="pCity" required placeholder="Bern"></div>
-        <div class="row" id="pFeeRow"><label data-i18n="fee">Fee (CHF, whole gig)</label><input type="number" id="pFee" min="1" required placeholder="300"></div>
+        <div class="row" id="pFeeRow"><label data-i18n="fee">Fee (whole gig)</label>
+          <div style="display: flex; gap: 8px;"><select id="pCurrency" style="width: auto; flex: 0 0 auto;" aria-label="Currency"><option value="CHF">CHF</option><option value="EUR">EUR</option></select><input type="number" id="pFee" min="1" required placeholder="300" style="flex: 1;"></div>
+        </div>
         <div class="row"><label data-i18n="call_time">Call time</label><input type="time" id="pCall"></div>
         <div class="row"><label data-i18n="end_time">End time</label><input type="time" id="pEnd"></div>
       </div>
@@ -473,14 +475,14 @@ const I18N = {
     nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Send', msg_sent: 'Message sent.', msg_placeholder: 'Write a message\u2026', no_threads: 'No conversations yet — they start from an application.', thread_empty: 'No messages yet — say hello.', back: 'Back',
     cta_jam: 'Find jam partners', cta_gigs: 'See paid gigs', land_d_board: 'Every open gig and jam near you — public fees, filtered by instrument and distance.', land_d_post: 'Need a dep or jam partners? Post in two minutes — matching musicians nearby get alerted.', land_d_mine: 'Track your posts and applications, book musicians, leave reviews after the gig.', land_d_bands: 'Start a band with open seats, or join one — with members\u2019 real track records.', land_d_profile: 'Your instruments, demos, and reviews — plus a public page you can share anywhere.',
     how_it_works: 'How it works', tagline: 'gigs · jams · bands', feedback: 'Feedback', fb_label: 'What should we improve?', fb_email_label: 'Your email (optional, if you want a reply)', fb_send: 'Send', fb_sent_t: 'Message sent', fb_thanks: 'Thanks — your feedback reached us.', fb_fail: 'Could not send feedback', welcome_profile: 'Welcome aboard! We sent you a confirmation email — if it is not in your inbox, check the spam folder. Then set up your musician profile — it is what lets you apply to gigs and jams.',
-    land_head: 'Find a dep. Join a jam. Start a band.', land_sub: 'JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    land_head: 'Find a dep. Join a jam. Start a band.', land_sub: 'JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF or EUR. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_gigs: 'Paid gigs', seg_practice: 'Practice partners', all_instruments: 'All instruments', ph_city: 'City', btn_filter: 'Filter',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
     email: 'Email', password: 'Password', password2: 'Repeat password', pw_mismatch: 'The two passwords do not match.', name_label: 'Name (shown to bandleaders)',
     need_account: 'Need an account? Register', have_account: 'Have an account? Log in', forgot: 'Forgot password?', close: 'Close',
     listing_type: 'Listing type', opt_gig: 'Paid gig — dated, fixed fee', opt_practice: 'Practice partner — free, open-ended',
-    instrument_needed: 'Instrument needed', date: 'Date', date_opt: 'Date (optional)', city: 'City', fee: 'Fee (CHF, whole gig)',
+    instrument_needed: 'Instrument needed', date: 'Date', date_opt: 'Date (optional)', city: 'City', fee: 'Fee (whole gig)',
     call_time: 'Call time', end_time: 'End time', genres_csv: 'Genres (comma-separated)', description: 'Description',
     req_charts: 'must read charts', req_rehearsal: 'one rehearsal', post_gig_btn: 'Post gig',
     instruments_l: 'Instruments', home_city: 'Home city', radius: 'Travel radius (km)',
@@ -520,7 +522,7 @@ const I18N = {
     email: 'E-mail', password: 'Mot de passe', password2: 'Répétez le mot de passe', pw_mismatch: 'Les deux mots de passe ne correspondent pas.', name_label: 'Nom (visible par les chefs de groupe)',
     need_account: 'Pas de compte ? Créez-en un', have_account: 'Déjà un compte ? Connexion', forgot: 'Mot de passe oublié ?', close: 'Fermer',
     listing_type: 'Type d\u2019annonce', opt_gig: 'Concert payé — daté, cachet fixe', opt_practice: 'Partenaire de répétition — gratuit, sans date',
-    instrument_needed: 'Instrument recherché', date: 'Date', date_opt: 'Date (facultatif)', city: 'Ville', fee: 'Cachet (CHF, concert entier)',
+    instrument_needed: 'Instrument recherché', date: 'Date', date_opt: 'Date (facultatif)', city: 'Ville', fee: 'Cachet (concert entier)',
     call_time: 'Heure d\u2019arrivée', end_time: 'Heure de fin', genres_csv: 'Genres (séparés par des virgules)', description: 'Description',
     req_charts: 'lecture de partitions exigée', req_rehearsal: 'une répétition', post_gig_btn: 'Publier',
     instruments_l: 'Instruments', home_city: 'Ville de résidence', radius: 'Rayon de déplacement (km)',
@@ -560,7 +562,7 @@ const I18N = {
     email: 'E-Mail', password: 'Passwort', password2: 'Passwort wiederholen', pw_mismatch: 'Die beiden Passwörter stimmen nicht überein.', name_label: 'Name (für Bandleader sichtbar)',
     need_account: 'Kein Konto? Registrieren', have_account: 'Schon ein Konto? Anmelden', forgot: 'Passwort vergessen?', close: 'Schliessen',
     listing_type: 'Anzeigentyp', opt_gig: 'Bezahlter Gig — mit Datum, fixe Gage', opt_practice: 'Übungspartner — gratis, offen',
-    instrument_needed: 'Gesuchtes Instrument', date: 'Datum', date_opt: 'Datum (optional)', city: 'Stadt', fee: 'Gage (CHF, ganzer Gig)',
+    instrument_needed: 'Gesuchtes Instrument', date: 'Datum', date_opt: 'Datum (optional)', city: 'Stadt', fee: 'Gage (ganzer Gig)',
     call_time: 'Treffzeit', end_time: 'Ende', genres_csv: 'Genres (kommagetrennt)', description: 'Beschreibung',
     req_charts: 'Notenlesen erforderlich', req_rehearsal: 'eine Probe', post_gig_btn: 'Veröffentlichen',
     instruments_l: 'Instrumente', home_city: 'Wohnort', radius: 'Reiseradius (km)',
@@ -600,7 +602,7 @@ const I18N = {
     email: 'E-mail', password: 'Password', password2: 'Ripeti la password', pw_mismatch: 'Le due password non coincidono.', name_label: 'Nome (visibile ai bandleader)',
     need_account: 'Nessun account? Registrati', have_account: 'Hai già un account? Accedi', forgot: 'Password dimenticata?', close: 'Chiudi',
     listing_type: 'Tipo di annuncio', opt_gig: 'Concerto pagato — con data, cachet fisso', opt_practice: 'Partner di prova — gratuito, senza data',
-    instrument_needed: 'Strumento cercato', date: 'Data', date_opt: 'Data (facoltativa)', city: 'Città', fee: 'Cachet (CHF, intero concerto)',
+    instrument_needed: 'Strumento cercato', date: 'Data', date_opt: 'Data (facoltativa)', city: 'Città', fee: 'Cachet (intero concerto)',
     call_time: 'Orario di ritrovo', end_time: 'Orario di fine', genres_csv: 'Generi (separati da virgole)', description: 'Descrizione',
     req_charts: 'lettura spartiti richiesta', req_rehearsal: 'una prova', post_gig_btn: 'Pubblica',
     instruments_l: 'Strumenti', home_city: 'Città di residenza', radius: 'Raggio di spostamento (km)',
@@ -823,7 +825,7 @@ function gigCard(g, actions) {
   head.append(el('strong', '', label(g.instrument)));
   head.append(el('span', 'tag status-' + g.status, TS(g.status)));
   head.append(el('span', 'muted', (g.gig_date || T('flexible')) + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
-  head.append(el('span', 'fee', g.kind === 'practice' ? T('jam') : 'CHF ' + g.fee_chf));
+  head.append(el('span', 'fee', g.kind === 'practice' ? T('jam') : (g.currency || 'CHF') + ' ' + g.fee_chf));
   c.append(head);
   const tags = el('div');
   (g.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
@@ -913,6 +915,8 @@ $('resendConfirmBtn').onclick = async () => {
   const r = await api('/auth/resend-confirm', { method: 'POST' });
   flash(r.ok ? T('resend_done') : (r.json.error || T('failed')), r.ok ? 'ok' : 'err');
 };
+try { $('pCurrency').value = localStorage.getItem('currency') || 'CHF'; } catch (e) {}
+$('pCurrency').onchange = () => { try { localStorage.setItem('currency', $('pCurrency').value); } catch (e) {} };
 $('postForm').onsubmit = async (e) => {
   e.preventDefault();
   if (!me) { $('authDialog').showModal(); return; }
@@ -924,6 +928,7 @@ $('postForm').onsubmit = async (e) => {
     gig_date: $('pDate').value || undefined,
     venue_city: $('pCity').value,
     fee_chf: practice ? undefined : parseInt($('pFee').value, 10),
+    currency: practice ? undefined : $('pCurrency').value,
     call_time: $('pCall').value || undefined,
     end_time: $('pEnd').value || undefined,
     description: $('pDesc').value,
