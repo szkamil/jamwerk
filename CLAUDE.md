@@ -76,11 +76,11 @@ Vars in `wrangler.toml`: `BASE_URL`, `EMAIL_FROM`, `FEEDBACK_EMAIL`,
 
 **Mailjet**: JamWerk uses its OWN dedicated Mailjet account — login
 **gigwerk@hotmail.com**, account name "Gig Werk" — NOT the TrustAxis account
-(the owner has several; do not mix key pairs). The `jamwerk.app` domain is
-validated and authenticated there (2026-08-22): ownership TXT
-`mailjet._c9430416`, SPF on the apex, DKIM `mailjet._domainkey`, DMARC
-`_dmarc` (p=none) all live in the Cloudflare zone. Sender is
-`notify@jamwerk.app`; `gigwerk@hotmail.com` stays a validated fallback.
+(the owner has several; do not mix key pairs). `jamwerk.app` is validated
+(ownership, DNS record) and authenticated (SPF/DKIM OK, DMARC p=none) there
+since 2026-08-22; sender is `notify@jamwerk.app`, `gigwerk@hotmail.com` is a
+validated fallback. Lesson: Mailjet's UI "Validate" button may silently do
+nothing — `scripts/mailjet-check.sh APIKEY SECRET` validates through the API.
 
 **Turnstile**: widget "jamwerk.app forms" (managed mode), sitekey
 `0x4AAAAAAEYYdK6F0t8OOUQr` hardcoded in `src/ui.ts`; protects

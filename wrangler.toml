@@ -27,12 +27,11 @@ database_id = "9b956c5a-b8e2-41e4-930c-8a647501b6cb"
 BASE_URL = "https://jamwerk.app"
 # Sender for Mailjet — JamWerk's own dedicated Mailjet account (login
 # gigwerk@hotmail.com, account name "Gig Werk"), NOT the TrustAxis account.
-# jamwerk.app is validated + SPF/DKIM/DMARC-authenticated in that account
-# (SPF OK / DKIM OK; records in the Cloudflare zone) but Mailjet's domain
-# OWNERSHIP check still shows Pending (2026-08-22) and mail from
-# notify@jamwerk.app was silently dropped. Keep the validated address sender
-# until the domain row shows Active, then set EMAIL_FROM = "notify@jamwerk.app".
-EMAIL_FROM = "gigwerk@hotmail.com"
+# jamwerk.app is validated (ownership via DNS record, 2026-08-22) and
+# authenticated (SPF/DKIM OK, DMARC p=none) in that account, so mail goes out
+# DKIM-signed from notify@jamwerk.app. gigwerk@hotmail.com stays a validated
+# fallback sender if the domain ever needs re-validation.
+EMAIL_FROM = "notify@jamwerk.app"
 # Secrets (set with `npx wrangler secret put NAME`, never in this file):
 #   JWT_SECRET          — session cookie signing key (rotated 2026-08-22)
 #   VAPID_PUBLIC_KEY    — Web Push VAPID public key (base64url, P-256 raw)

@@ -6,13 +6,11 @@
        gigwerk@hotmail.com (mailwerk@hotmail.com never existed as a validated sender);
        EMAIL_FROM switched, test feedback email delivered + opened. The stray pending
        sender "mailwerk@hotmail.com" can be deleted in Mailjet → Senders.
-2. [ ] **notify@jamwerk.app** — blocked on Mailjet (2026-08-22): SPF OK, DKIM OK, DMARC
-       live, ownership TXT `mailjet._c9430416` AND the Option-1 file
-       `/c9430416e4605ac213d863a7ff83f3f8.txt` both in place, yet Mailjet's domain row stays
-       "Pending" and a test mail from notify@jamwerk.app was silently dropped (never reached
-       Mailjet stats). Reverted to gigwerk@hotmail.com. Next: retry *Validate* in Senders &
-       domains later / ask Mailjet support; when the row is Active set
-       `EMAIL_FROM = "notify@jamwerk.app"` and deploy.
+2. [x] **notify@jamwerk.app** — done 2026-08-22. The Mailjet UI "Validate" button never ran a
+       check; `POST /v3/REST/sender/<id>/validate` via the API (scripts/mailjet-check.sh) validated
+       the domain instantly (ownership by DNS record; SPF/DKIM OK). EMAIL_FROM switched.
+       ⚠ The API key pair used for that was pasted in chat — rotate it in Mailjet → API Key
+       Management and `wrangler secret put MAILJET_API_KEY / MAILJET_SECRET_KEY` again.
 3. [x] Repo Actions secrets `CLOUDFLARE_API_TOKEN` (token "jamwerk-github-deploy", account +
        jamwerk.app zone scoped) + `CLOUDFLARE_ACCOUNT_ID` added 2026-08-22; deploy.yml now
        deploys on every push to main (first green run: version d39cc810). Still to do:
