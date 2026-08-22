@@ -74,15 +74,15 @@ BEFORE deploying code that needs it.
 Worker secrets already set (do NOT re-create blindly; values live only in
 Cloudflare): `MAILJET_API_KEY`, `MAILJET_SECRET_KEY`, `TURNSTILE_SECRET_KEY`.
 
-Vars in `wrangler.toml`: `BASE_URL`, `EMAIL_FROM=mailwerk@hotmail.com`,
+Vars in `wrangler.toml`: `BASE_URL`, `EMAIL_FROM=gigwerk@hotmail.com`,
 `FEEDBACK_EMAIL=rupert.szewczyk@gmail.com`, plus POC-only plaintext
 `JWT_SECRET` and VAPID keys (moving them to `wrangler secret put` is an open
 hardening TODO — rotating VAPID re-prompts all alert subscribers).
 
 **Mailjet**: JamWerk uses its OWN dedicated Mailjet account — the one whose
-login is **mailwerk@hotmail.com** — NOT the TrustAxis account (the owner has
+login is **gigwerk@hotmail.com** — NOT the TrustAxis account (the owner has
 several; do not mix key pairs). ⚠ The sender address still awaits validation:
-click the link Mailjet sent to the mailwerk@hotmail.com inbox, else sends are
+click the link Mailjet sent to the gigwerk@hotmail.com inbox, else sends are
 held. Later: verify the jamwerk.app domain in Mailjet (SPF/DKIM records into
 Cloudflare DNS) and switch `EMAIL_FROM` to `notify@jamwerk.app`.
 

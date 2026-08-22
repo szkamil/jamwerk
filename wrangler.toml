@@ -26,11 +26,12 @@ database_id = "9b956c5a-b8e2-41e4-930c-8a647501b6cb"
 [vars]
 BASE_URL = "https://jamwerk.app"
 # Sender for Mailjet — JamWerk's own dedicated Mailjet account (login
-# mailwerk@hotmail.com), NOT the TrustAxis account. The jamwerk.app domain is
-# validated + SPF/DKIM/DMARC-authenticated in that account (DNS records live
-# in the Cloudflare zone), so any @jamwerk.app sender works without
-# per-address validation.
-EMAIL_FROM = "notify@jamwerk.app"
+# gigwerk@hotmail.com, account name "Gig Werk"), NOT the TrustAxis account.
+# gigwerk@hotmail.com is the validated (Active) sender in that account.
+# The jamwerk.app domain is added there with SPF/DKIM/DMARC records already
+# in Cloudflare DNS; once Mailjet shows the domain as validated, switch to
+# EMAIL_FROM = "notify@jamwerk.app" for DKIM-signed delivery.
+EMAIL_FROM = "gigwerk@hotmail.com"
 # POC only: plaintext var so the workers.dev deploy needs no secret setup.
 # Before this app gets a real domain and real users, move it to
 # `wrangler secret put JWT_SECRET` and rotate.

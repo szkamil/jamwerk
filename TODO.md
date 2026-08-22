@@ -3,7 +3,7 @@
 ## ⚡ Pending YOUR action (blockers first)
 
 1. [ ] **Validate the Mailjet sender** — click the validation link Mailjet sent to
-       the mailwerk@hotmail.com inbox (or resend from Senders & domains). Keys are
+       the gigwerk@hotmail.com inbox (or resend from Senders & domains). Keys are
        already live on the Worker; until validation every email is held by Mailjet.
 2. [ ] **Verify jamwerk.app domain in Mailjet** (after 1): add the domain in the
        Mailjet dashboard; the SPF/DKIM DNS records can then be pushed to Cloudflare
@@ -27,7 +27,7 @@
   "Find a dep. Join a jam. Start a band.", title/manifest/profile footer)
 - Filter bar: uniform 46px pills (custom select chevron), radius steps 5–100 km
 - Auth dialog button spacing; floating page toast (fixed, top of viewport)
-- **Mailjet**: dedicated account (mailwerk@hotmail.com) wired — keys set as Worker
+- **Mailjet**: dedicated account (gigwerk@hotmail.com) wired — keys set as Worker
   secrets via Cloudflare API, sender/account notes in code+README
 - **Turnstile**: widget created via API, secret on Worker, protects register+feedback
 - Deploys #13–#30, all green; migrations applied to prod through 010
@@ -37,7 +37,7 @@
 1. [x] **Notifications batch** — shipped 2026-08-21: Mailjet sending (src/email.ts),
        signup confirmation, password reset, per-IP rate limits on register/login/apply/forgot.
        ⚠ Remaining one-time step: set the Mailjet keys as Worker secrets — from
-       JamWerk's OWN dedicated Mailjet account (login: mailwerk@hotmail.com), NOT the
+       JamWerk's OWN dedicated Mailjet account (login: gigwerk@hotmail.com), NOT the
        TrustAxis account. Until then sends are logged, not delivered. Then: verify the
        jamwerk.app domain in Mailjet and switch EMAIL_FROM to notify@jamwerk.app.
        Account note in README "Email".
