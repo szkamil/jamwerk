@@ -4,7 +4,7 @@
 // accounts. JamWerk uses its OWN dedicated account — the one linked to
 // gigwerk@hotmail.com — NOT the TrustAxis account. The MAILJET_API_KEY /
 // MAILJET_SECRET_KEY Worker secrets must be that account's pair; don't mix
-// them up. Default sender: notify@jamwerk.app (displayed as "JamWerk").
+// them up. Default sender: notify@jamwerk.app (domain validated + DKIM-signed; displayed as "JamWerk").
 // Once the jamwerk.app domain is verified in that account, switch the sender
 // via EMAIL_FROM=notify@jamwerk.app for proper DKIM/deliverability.
 //
