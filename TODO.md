@@ -2,12 +2,16 @@
 
 ## ⚡ Pending YOUR action (blockers first)
 
-1. [ ] **Validate the Mailjet sender** — click the validation link Mailjet sent to
-       the gigwerk@hotmail.com inbox (or resend from Senders & domains). Keys are
-       already live on the Worker; until validation every email is held by Mailjet.
-2. [ ] **Verify jamwerk.app domain in Mailjet** (after 1): add the domain in the
-       Mailjet dashboard; the SPF/DKIM DNS records can then be pushed to Cloudflare
-       via API, and `EMAIL_FROM` switches to notify@jamwerk.app for real deliverability.
+1. [x] **Mailjet sender** — fixed 2026-08-22: the account's validated sender is
+       gigwerk@hotmail.com (mailwerk@hotmail.com never existed as a validated sender);
+       EMAIL_FROM switched, test feedback email delivered + opened. The stray pending
+       sender "mailwerk@hotmail.com" can be deleted in Mailjet → Senders.
+2. [ ] **Switch to notify@jamwerk.app** — jamwerk.app is added in Mailjet and the ownership
+       TXT (`mailjet._c9430416`), SPF, DKIM (`mailjet._domainkey`) and DMARC (`_dmarc`, p=none)
+       records are live in Cloudflare DNS (2026-08-22). Mailjet still showed the domain
+       "Pending" / SPF "Missing" right after — its DNS cache. Re-click *Validate* on the
+       domain in Senders & domains; once Active, set `EMAIL_FROM = "notify@jamwerk.app"`
+       in wrangler.toml and deploy.
 3. [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` to this repo's Actions
        secrets → its own deploy.yml takes over; then delete the bridge workflow in poc-poc.
 4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
