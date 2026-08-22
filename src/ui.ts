@@ -57,6 +57,7 @@ export const PAGE = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>JamWerk — paid gigs, jam partners & bands for local musicians</title>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
@@ -368,6 +369,7 @@ ${NOTES_LAYER}
     <div class="row"><label data-i18n="email">Email</label><input type="email" id="aEmail" required autocomplete="username"></div>
     <div class="row"><label data-i18n="password">Password</label><input type="password" id="aPassword" required minlength="8" autocomplete="current-password"></div>
     <div class="row" id="aNameRow" hidden><label data-i18n="name_label">Name (shown to bandleaders)</label><input type="text" id="aName"></div>
+    <div class="row" id="tsAuthRow" hidden><div id="tsAuth"></div></div>
     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px;">
       <button class="primary" id="authSubmit">Log in</button>
       <button type="button" class="ghost" id="authSwitch">Need an account? Register</button>
@@ -382,6 +384,7 @@ ${NOTES_LAYER}
     <h2 style="margin-top:0" data-i18n="feedback">Feedback</h2>
     <div class="row"><label data-i18n="fb_label">What should we improve?</label><textarea id="fbBody" required minlength="5" maxlength="2000" rows="5"></textarea></div>
     <div class="row" id="fbEmailRow"><label data-i18n="fb_email_label">Your email (optional, if you want a reply)</label><input type="email" id="fbEmail"></div>
+    <div class="row"><div id="tsFb"></div></div>
     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px;">
       <button class="primary" data-i18n="fb_send">Send</button>
       <button type="button" class="ghost" id="fbClose" data-i18n="close">Close</button>
@@ -593,11 +596,16 @@ $('logoHome').onclick = () => {
 };
 $('footLogo').onclick = () => $('logoHome').onclick();
 $('footHow').onclick = () => $('howBtn').onclick();
-$('footFeedback').onclick = () => { $('fbEmailRow').hidden = !!me; $('fbDialog').showModal(); };
+$('footFeedback').onclick = () => {
+  $('fbEmailRow').hidden = !!me;
+  $('fbDialog').showModal();
+  if (tsFb === null) tsFb = tsRender('tsFb');
+};
 $('fbClose').onclick = () => $('fbDialog').close();
 $('fbForm').onsubmit = async (e) => {
   e.preventDefault();
-  const r = await api('/feedback', { method: 'POST', body: { message: $('fbBody').value.trim(), email: me ? '' : $('fbEmail').value.trim() } });
+  const r = await api('/feedback', { method: 'POST', body: { message: $('fbBody').value.trim(), email: me ? '' : $('fbEmail').value.trim(), turnstile_token: tsToken(tsFb) } });
+  tsReset(tsFb);
   if (r.ok) {
     $('fbDialog').close();
     $('fbBody').value = '';
@@ -636,6 +644,16 @@ const flash = (text, kind) => {
 const label = (i) => (I18N[lang].inst && I18N[lang].inst[i]) || i.replace(/_/g, ' ');
 const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
 
+// ── Turnstile (bot protection) ───────────────────────
+// Public sitekey of the "jamwerk.app forms" widget; the server verifies
+// tokens on /auth/register and /feedback (src/turnstile.ts). If the widget
+// script is blocked, tokens are empty and those submits fail server-side.
+const TS_KEY = '0x4AAAAAAEYYdK6F0t8OOUQr';
+const tsRender = (id) => (window.turnstile ? turnstile.render('#' + id, { sitekey: TS_KEY }) : null);
+const tsToken = (w) => (w !== null && window.turnstile ? turnstile.getResponse(w) || '' : '');
+const tsReset = (w) => { if (w !== null && window.turnstile) turnstile.reset(w); };
+let tsAuth = null, tsFb = null;
+
 // ── Auth ─────────────────────────────────────────────
 let registering = false;
 function renderAuth() {
@@ -660,6 +678,8 @@ $('authSwitch').onclick = () => {
   $('authSubmit').textContent = registering ? T('register') : T('login');
   $('authSwitch').textContent = registering ? T('have_account') : T('need_account');
   $('aNameRow').hidden = !registering;
+  $('tsAuthRow').hidden = !registering;
+  if (registering && tsAuth === null) tsAuth = tsRender('tsAuth');
   $('aPassword').autocomplete = registering ? 'new-password' : 'current-password';
 };
 $('authClose').onclick = () => $('authDialog').close();
@@ -673,9 +693,9 @@ $('authForgot').onclick = async () => {
 $('authForm').onsubmit = async (e) => {
   e.preventDefault();
   const body = { email: $('aEmail').value, password: $('aPassword').value };
-  if (registering) { body.display_name = $('aName').value; body.lang = lang; }
+  if (registering) { body.display_name = $('aName').value; body.lang = lang; body.turnstile_token = tsToken(tsAuth); }
   const r = await api(registering ? '/auth/register' : '/auth/login', { method: 'POST', body });
-  if (!r.ok) { const m = $('authMsg'); m.className = 'msg err'; m.textContent = r.json.error || 'Failed'; return; }
+  if (!r.ok) { const m = $('authMsg'); m.className = 'msg err'; m.textContent = r.json.error || 'Failed'; if (registering) tsReset(tsAuth); return; }
   me = { email: r.json.email };
   $('authDialog').close(); renderAuth(); loadBoard(); loadProfile();
   if (registering) {

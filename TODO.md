@@ -35,12 +35,11 @@
 
 ## Before real users (hardening)
 
-- [ ] **Bot protection on public forms** (feedback + registration): Cloudflare Turnstile —
-      create a Turnstile widget for jamwerk.app in the Cloudflare dashboard (needs YOUR
-      action: site key + secret key), then wire the invisible widget into the feedback
-      dialog and register form and verify the token server-side. Today both endpoints
-      rely on per-IP rate limits only (feedback: 5/h, register: limited too) — fine for
-      the POC, not enough against IP-rotating bots.
+- [x] **Bot protection on public forms** — shipped 2026-08-22: Cloudflare Turnstile
+      widget "jamwerk.app forms" (managed mode) created via the API, secret stored as
+      the TURNSTILE_SECRET_KEY Worker secret, widget rendered in the register form and
+      feedback dialog, token verified server-side (src/turnstile.ts) on /auth/register
+      and /feedback. Rate limits stay as the second layer.
 - [ ] Move `JWT_SECRET` out of `wrangler.toml` to `wrangler secret put JWT_SECRET`, rotate the value
 - [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets to this repo so
       `.github/workflows/deploy.yml` deploys on push to main; then delete the temporary

@@ -7,6 +7,7 @@
 import { Hono } from 'hono';
 import { sendEmail } from './email';
 import { rateLimited, clientIp } from './ratelimit';
+import { turnstileOk } from './turnstile';
 import type { AppEnv } from './types';
 
 const app = new Hono<AppEnv>();
@@ -17,6 +18,9 @@ app.post('/', async (c) => {
   const email = typeof body.email === 'string' ? body.email.trim().slice(0, 254) : '';
   if (message.length < 5 || message.length > 2000) {
     return c.json({ error: 'Message must be 5-2000 characters' }, 400);
+  }
+  if (!(await turnstileOk(c.env, body.turnstile_token, clientIp(c)))) {
+    return c.json({ error: 'Verification failed — please try again' }, 403);
   }
   if (await rateLimited(c.env, clientIp(c), 'feedback', 5, 60)) {
     return c.json({ error: 'Too many submissions — try again later' }, 429);

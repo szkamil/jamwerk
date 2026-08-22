@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import { sendEmail } from './email';
 import { normLang, pickLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
+import { turnstileOk } from './turnstile';
 import type { AppEnv } from './types';
 
 const COOKIE = 'token';
@@ -51,6 +52,9 @@ auth.post('/register', async (c) => {
   const displayName = typeof body?.display_name === 'string' ? body.display_name.trim().slice(0, 100) : '';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return c.json({ error: 'Valid email required' }, 400);
   if (password.length < 8) return c.json({ error: 'Password must be at least 8 characters' }, 400);
+  if (!(await turnstileOk(c.env, body?.turnstile_token, clientIp(c)))) {
+    return c.json({ error: 'Verification failed — please try again' }, 403);
+  }
 
   const hash = await bcrypt.hash(password, 10);
   const confirmToken = crypto.randomUUID();
