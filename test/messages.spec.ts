@@ -33,7 +33,7 @@ const gigDate = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
 
 beforeAll(async () => {
 	await env.DB.batch([
-		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, display_name) VALUES (?, 'x', 'Paula Poster')").bind(poster),
+		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, display_name, confirmed) VALUES (?, 'x', 'Paula Poster', 1)").bind(poster),
 		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, display_name) VALUES (?, 'x', 'Mia Musician')").bind(musician),
 		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(stranger),
 	]);

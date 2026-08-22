@@ -174,6 +174,8 @@ export const PAGE = `<!doctype html>
   .msg { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 14.5px; display: none; }
   .msg.err { display: block; background: #fdecea; color: var(--warn); }
   .msg.ok { display: block; background: #e7f6ef; color: var(--ok); }
+  .msg.warn { background: #fff6e0; color: #7a5200; border: 1px solid #f3dfae; }
+  .msg.warn:not([hidden]) { display: flex !important; }
   /* The page-level toast floats above the content so confirmations are seen
      wherever the user is scrolled (e.g. the footer feedback form). */
   #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3000; margin: 0; max-width: min(92vw, 480px); box-shadow: 0 8px 28px rgba(20,19,26,0.25); }
@@ -316,6 +318,10 @@ ${NOTES_LAYER}
   </section>
 
   <section id="tab-post" hidden>
+    <div class="msg warn" id="confirmBanner" hidden style="display: none; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+      <span data-i18n="confirm_needed">Confirm your email address to post paid gigs — check your inbox (and spam folder).</span>
+      <button type="button" class="ghost small" id="resendConfirmBtn" data-i18n="resend_confirm">Resend the email</button>
+    </div>
     <div class="card"><form id="postForm">
       <div class="row"><label data-i18n="listing_type">Listing type</label>
         <select id="pKind">
@@ -476,7 +482,7 @@ const I18N = {
     gig_posted: 'Gig posted.', practice_posted: 'Practice listing posted.', profile_saved: 'Profile saved.', failed: 'Failed',
     review_saved: 'Review saved.', booked_ok: 'Booked {0}. Others were declined.', connected_ok: 'Connected with {0} — they got your contact.',
     gig_cancelled: 'Gig cancelled.', listing_closed: 'Listing closed.', gig_completed_ok: 'Gig completed — you can now leave a review.',
-    reset_sent: 'If that account exists, a reset link is on its way — check your spam folder if it does not show up.', email_confirmed: 'Email confirmed — welcome aboard.',
+    confirm_needed: 'Confirm your email address to post paid gigs — check your inbox (and spam folder).', resend_confirm: 'Resend the email', resend_done: 'Confirmation email sent — check your inbox and spam folder.', reset_sent: 'If that account exists, a reset link is on its way — check your spam folder if it does not show up.', email_confirmed: 'Email confirmed — welcome aboard.',
     confirm_invalid: 'That confirmation link is invalid or already used.', pw_updated: 'Password updated — you are logged in.', reset_failed: 'Reset failed',
     alerts_off: 'Alerts off.', alerts_on_msg: 'Alerts on — gigs near you will reach this device.',
     notif_blocked: 'Notifications are blocked in your browser settings.', alerts_error: 'Could not change alert settings.', alerts_enable_fail: 'Could not enable alerts',
@@ -516,7 +522,7 @@ const I18N = {
     gig_posted: 'Concert publié.', practice_posted: 'Annonce de répétition publiée.', profile_saved: 'Profil enregistré.', failed: 'Échec',
     review_saved: 'Avis enregistré.', booked_ok: '{0} engagé·e. Les autres ont été déclinés.', connected_ok: 'Mis en contact avec {0} — il/elle a reçu vos coordonnées.',
     gig_cancelled: 'Concert annulé.', listing_closed: 'Annonce fermée.', gig_completed_ok: 'Concert terminé — vous pouvez laisser un avis.',
-    reset_sent: 'Si ce compte existe, un lien de réinitialisation arrive — vérifiez le dossier spam s\u2019il n\u2019apparaît pas.', email_confirmed: 'E-mail confirmé — bienvenue !',
+    confirm_needed: 'Confirmez votre adresse e-mail pour publier des concerts payés — vérifiez votre boîte de réception (et le dossier spam).', resend_confirm: 'Renvoyer l\u2019e-mail', resend_done: 'E-mail de confirmation envoyé — vérifiez votre boîte de réception et le dossier spam.', reset_sent: 'Si ce compte existe, un lien de réinitialisation arrive — vérifiez le dossier spam s\u2019il n\u2019apparaît pas.', email_confirmed: 'E-mail confirmé — bienvenue !',
     confirm_invalid: 'Ce lien de confirmation est invalide ou déjà utilisé.', pw_updated: 'Mot de passe mis à jour — vous êtes connecté.', reset_failed: 'Échec de la réinitialisation',
     alerts_off: 'Alertes désactivées.', alerts_on_msg: 'Alertes activées — les concerts près de chez vous arriveront sur cet appareil.',
     notif_blocked: 'Les notifications sont bloquées dans votre navigateur.', alerts_error: 'Impossible de modifier les alertes.', alerts_enable_fail: 'Impossible d\u2019activer les alertes',
@@ -556,7 +562,7 @@ const I18N = {
     gig_posted: 'Gig veröffentlicht.', practice_posted: 'Übungs-Anzeige veröffentlicht.', profile_saved: 'Profil gespeichert.', failed: 'Fehlgeschlagen',
     review_saved: 'Bewertung gespeichert.', booked_ok: '{0} gebucht. Die anderen wurden abgesagt.', connected_ok: 'Mit {0} verbunden — deine Kontaktdaten wurden geteilt.',
     gig_cancelled: 'Gig abgesagt.', listing_closed: 'Anzeige geschlossen.', gig_completed_ok: 'Gig abgeschlossen — du kannst jetzt bewerten.',
-    reset_sent: 'Falls das Konto existiert, ist ein Reset-Link unterwegs — schau auch im Spam-Ordner nach.', email_confirmed: 'E-Mail bestätigt — willkommen an Bord.',
+    confirm_needed: 'Bestätige deine E-Mail-Adresse, um bezahlte Gigs einzustellen — schau in den Posteingang (und Spam-Ordner).', resend_confirm: 'E-Mail erneut senden', resend_done: 'Bestätigungs-E-Mail gesendet — schau in Posteingang und Spam-Ordner.', reset_sent: 'Falls das Konto existiert, ist ein Reset-Link unterwegs — schau auch im Spam-Ordner nach.', email_confirmed: 'E-Mail bestätigt — willkommen an Bord.',
     confirm_invalid: 'Dieser Bestätigungslink ist ungültig oder schon benutzt.', pw_updated: 'Passwort aktualisiert — du bist angemeldet.', reset_failed: 'Zurücksetzen fehlgeschlagen',
     alerts_off: 'Alerts aus.', alerts_on_msg: 'Alerts an — Gigs in deiner Nähe erreichen dieses Gerät.',
     notif_blocked: 'Benachrichtigungen sind im Browser blockiert.', alerts_error: 'Alert-Einstellungen konnten nicht geändert werden.', alerts_enable_fail: 'Alerts konnten nicht aktiviert werden',
@@ -596,7 +602,7 @@ const I18N = {
     gig_posted: 'Concerto pubblicato.', practice_posted: 'Annuncio di prova pubblicato.', profile_saved: 'Profilo salvato.', failed: 'Errore',
     review_saved: 'Recensione salvata.', booked_ok: '{0} ingaggiato/a. Gli altri sono stati declinati.', connected_ok: 'In contatto con {0} — ha ricevuto i tuoi recapiti.',
     gig_cancelled: 'Concerto annullato.', listing_closed: 'Annuncio chiuso.', gig_completed_ok: 'Concerto completato — ora puoi lasciare una recensione.',
-    reset_sent: 'Se l\u2019account esiste, un link di reimpostazione è in arrivo — controlla anche la cartella spam.', email_confirmed: 'E-mail confermata — benvenuto/a!',
+    confirm_needed: 'Conferma il tuo indirizzo e-mail per pubblicare concerti pagati — controlla la posta in arrivo (e la cartella spam).', resend_confirm: 'Reinvia l\u2019e-mail', resend_done: 'E-mail di conferma inviata — controlla posta in arrivo e cartella spam.', reset_sent: 'Se l\u2019account esiste, un link di reimpostazione è in arrivo — controlla anche la cartella spam.', email_confirmed: 'E-mail confermata — benvenuto/a!',
     confirm_invalid: 'Questo link di conferma non è valido o è già stato usato.', pw_updated: 'Password aggiornata — sei connesso.', reset_failed: 'Reimpostazione non riuscita',
     alerts_off: 'Avvisi disattivati.', alerts_on_msg: 'Avvisi attivi — i concerti vicino a te arriveranno su questo dispositivo.',
     notif_blocked: 'Le notifiche sono bloccate nel browser.', alerts_error: 'Impossibile modificare gli avvisi.', alerts_enable_fail: 'Impossibile attivare gli avvisi',
@@ -719,6 +725,7 @@ let tsAuth = null, tsFb = null;
 // ── Auth ─────────────────────────────────────────────
 let registering = false;
 function renderAuth() {
+  if (typeof refreshConfirmBanner === 'function') refreshConfirmBanner();
   $('landing').hidden = !!me || landingDismissed;
   $('howBtn').hidden = !!me;
   refreshMsgBadge();
@@ -765,7 +772,7 @@ $('authForm').onsubmit = async (e) => {
   if (registering) { body.display_name = $('aName').value; body.lang = lang; body.turnstile_token = tsToken(tsAuth); }
   const r = await api(registering ? '/auth/register' : '/auth/login', { method: 'POST', body });
   if (!r.ok) { const m = $('authMsg'); m.className = 'msg err'; m.textContent = r.json.error || 'Failed'; if (registering) tsReset(tsAuth); return; }
-  me = { email: r.json.email };
+  me = { email: r.json.email, confirmed: !!r.json.confirmed };
   $('authDialog').close(); renderAuth(); loadBoard(); loadProfile();
   if (registering) {
     document.querySelector('[data-tab=profile]').click();
@@ -866,6 +873,7 @@ document.querySelectorAll('#kindSeg button').forEach((b) => {
 
 // Practice listings have no fee and no fixed date.
 $('pKind').onchange = () => {
+  if (typeof refreshConfirmBanner === 'function') refreshConfirmBanner();
   const practice = $('pKind').value === 'practice';
   $('pFeeRow').hidden = practice;
   $('pLevelRow').hidden = !practice;
@@ -875,6 +883,14 @@ $('pKind').onchange = () => {
 };
 
 // ── Post ─────────────────────────────────────────────
+function refreshConfirmBanner() {
+  const show = !!me && !me.confirmed && $('pKind').value !== 'practice';
+  $('confirmBanner').hidden = !show;
+}
+$('resendConfirmBtn').onclick = async () => {
+  const r = await api('/auth/resend-confirm', { method: 'POST' });
+  flash(r.ok ? T('resend_done') : (r.json.error || T('failed')), r.ok ? 'ok' : 'err');
+};
 $('postForm').onsubmit = async (e) => {
   e.preventDefault();
   if (!me) { $('authDialog').showModal(); return; }
@@ -892,6 +908,7 @@ $('postForm').onsubmit = async (e) => {
     requirements: { reads_charts: $('pCharts').checked, rehearsal: $('pRehearsal').checked, level: practice ? $('pLevel').value : undefined },
   };
   const r = await api('/gigs', { method: 'POST', body });
+  if (!r.ok && r.json.code === 'email_unconfirmed') { if (me) me.confirmed = false; refreshConfirmBanner(); }
   if (r.ok) {
     flash(practice ? T('practice_posted') : T('gig_posted'), 'ok');
     $('postForm').reset(); $('pKind').onchange();
@@ -1353,13 +1370,13 @@ applyI18n();
     const pw = prompt(T('new_pw_prompt'));
     if (pw) {
       const r = await api('/auth/reset', { method: 'POST', body: { token: resetToken, password: pw } });
-      if (r.ok) { me = { email: r.json.email }; flash(T('pw_updated'), 'ok'); }
+      if (r.ok) { me = { email: r.json.email, confirmed: true }; flash(T('pw_updated'), 'ok'); }
       else flash(r.json.error || T('reset_failed'), 'err');
     }
   }
   if (q.toString()) history.replaceState(null, '', '/');
   const r = await api('/auth/me');
-  if (r.ok) me = { email: r.json.email };
+  if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed };
   renderAuth(); loadBoard(); loadProfile();
 })();
 </script>

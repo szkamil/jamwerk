@@ -58,7 +58,7 @@ const bassistProfile = {
 
 beforeAll(async () => {
 	await env.DB.batch([
-		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(poster),
+		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, confirmed) VALUES (?, 'x', 1)").bind(poster),
 		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash, display_name) VALUES (?, 'x', 'Luca Marchetti')").bind(bassist),
 		env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(drummer),
 	]);
@@ -280,5 +280,29 @@ describe('Practice partners', () => {
 		const late = await call('/musicians/me', { method: 'POST', as: drummer, body: { instruments: ['drums'], genres: ['rock'] } })
 			.then(() => call(`/gigs/${id}/apply`, { method: 'POST', as: drummer, body: {} }));
 		expect(late.status).toBe(409);
+	});
+});
+
+describe('Email confirmation gate', () => {
+	it('unconfirmed accounts can post practice listings but not paid gigs', async () => {
+		const who = 'fresh@example.com';
+		await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(who).run();
+		const gig = await call('/gigs', { method: 'POST', as: who, body: { instrument: 'bass', genres: ['jazz'], venue_city: 'Geneva', gig_date: '2099-01-01', fee_chf: 300, description: 'Wedding set, charts provided' } });
+		expect(gig.status).toBe(403);
+		expect(gig.json.code).toBe('email_unconfirmed');
+		const jam = await call('/gigs', { method: 'POST', as: who, body: { kind: 'practice', instrument: 'bass', genres: ['jazz'], venue_city: 'Geneva', description: 'weekly jam' } });
+		expect(jam.status).toBe(201);
+		await env.DB.prepare('UPDATE users SET confirmed = 1 WHERE email = ?').bind(who).run();
+		const gig2 = await call('/gigs', { method: 'POST', as: who, body: { instrument: 'bass', genres: ['jazz'], venue_city: 'Geneva', gig_date: '2099-01-01', fee_chf: 300, description: 'Wedding set, charts provided' } });
+		expect(gig2.status).toBe(201);
+	});
+
+	it('/auth/me reports confirmation state and resend answers ok', async () => {
+		const who = 'fresh2@example.com';
+		await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(who).run();
+		expect((await call('/auth/me', { as: who })).json.confirmed).toBe(false);
+		expect((await call('/auth/resend-confirm', { method: 'POST', as: who })).status).toBe(200);
+		const row = await env.DB.prepare('SELECT confirm_token FROM users WHERE email = ?').bind(who).first<any>();
+		expect(typeof row.confirm_token).toBe('string');
 	});
 });

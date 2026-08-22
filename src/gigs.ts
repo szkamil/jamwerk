@@ -257,6 +257,14 @@ gigs.post('/', async (c) => {
 
   // 'gig' is a dated, paid booking; 'practice' is a free, open-ended jam listing.
   const kind: 'gig' | 'practice' = body.kind === 'practice' ? 'practice' : 'gig';
+  // Paid gigs fan out email + push to every matching musician nearby, so they
+  // need a confirmed email address; free practice listings stay open.
+  if (kind === 'gig') {
+    const row = await c.env.DB.prepare('SELECT confirmed FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number }>();
+    if (!row?.confirmed) {
+      return c.json({ error: 'Confirm your email address before posting a paid gig', code: 'email_unconfirmed' }, 403);
+    }
+  }
   const errors: string[] = [];
   if (typeof body.instrument !== 'string' || !(INSTRUMENTS as readonly string[]).includes(body.instrument)) {
     errors.push(`instrument must be one of: ${INSTRUMENTS.join(', ')}`);

@@ -7,7 +7,7 @@ import { getCookie, setCookie } from 'hono/cookie';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { sendEmail } from './email';
-import { normLang, pickLang, t } from './i18n';
+import { normLang, pickLang, t, type Lang } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import { turnstileOk } from './turnstile';
 import type { AppEnv } from './types';
@@ -42,6 +42,17 @@ function baseUrl(c: Context<AppEnv>): string {
 
 const auth = new Hono<AppEnv>();
 
+function sendConfirmEmail(c: Context<AppEnv>, email: string, lang: Lang, confirmToken: string): Promise<boolean> {
+  return sendEmail(c.env, email,
+    t(lang, { en: 'Confirm your JamWerk account', fr: 'Confirmez votre compte JamWerk', de: 'Bestätige dein JamWerk-Konto', it: 'Conferma il tuo account JamWerk' }),
+    t(lang, {
+      en: `Welcome to JamWerk!\n\nConfirm your email address:\n{link}\n\nTip: tap the bell in the app header to get gig alerts for your instrument near you.\n\nIf you did not sign up, ignore this message.`,
+      fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : touchez la cloche dans l'en-tête de l'app pour recevoir les alertes de concerts près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
+      de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Tippe auf die Glocke in der App, um Gig-Alerts für dein Instrument in deiner Nähe zu erhalten.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
+      it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: tocca la campanella nell'app per ricevere avvisi sui concerti vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
+    }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`));
+}
+
 auth.post('/register', async (c) => {
   if (await rateLimited(c.env, clientIp(c), 'register', 5, 60)) {
     return c.json({ error: 'Too many sign-ups from this address — try again later' }, 429);
@@ -71,14 +82,7 @@ auth.post('/register', async (c) => {
     }
     throw err;
   }
-  const task = sendEmail(c.env, email,
-    t(lang, { en: 'Confirm your JamWerk account', fr: 'Confirmez votre compte JamWerk', de: 'Bestätige dein JamWerk-Konto', it: 'Conferma il tuo account JamWerk' }),
-    t(lang, {
-      en: `Welcome to JamWerk!\n\nConfirm your email address:\n{link}\n\nTip: tap the bell in the app header to get gig alerts for your instrument near you.\n\nIf you did not sign up, ignore this message.`,
-      fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : touchez la cloche dans l'en-tête de l'app pour recevoir les alertes de concerts près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
-      de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Tippe auf die Glocke in der App, um Gig-Alerts für dein Instrument in deiner Nähe zu erhalten.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
-      it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: tocca la campanella nell'app per ricevere avvisi sui concerti vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
-    }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`));
+  const task = sendConfirmEmail(c, email, lang, confirmToken);
   try { c.executionCtx.waitUntil(task); } catch { /* no execution context in some test setups */ }
   setSession(c, email);
   return c.json({ ok: true, email }, 201);
@@ -173,9 +177,29 @@ auth.post('/logout', (c) => {
   return c.json({ ok: true });
 });
 
-auth.get('/me', (c) => {
+auth.get('/me', async (c) => {
   const user = c.get('user');
-  return user ? c.json({ email: user.email }) : c.json({ error: 'Not logged in' }, 401);
+  if (!user) return c.json({ error: 'Not logged in' }, 401);
+  const row = await c.env.DB.prepare('SELECT confirmed FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number }>();
+  return c.json({ email: user.email, confirmed: !!row?.confirmed });
+});
+
+// Re-send the confirmation link (soft confirmation: only paid-gig posting is
+// gated on it). Always answers ok to avoid leaking account state.
+auth.post('/resend-confirm', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  if (await rateLimited(c.env, clientIp(c), 'resend', 3, 60)) {
+    return c.json({ error: 'Too many requests — try again later' }, 429);
+  }
+  const row = await c.env.DB.prepare('SELECT confirmed, lang FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; lang: string }>();
+  if (row && !row.confirmed) {
+    const confirmToken = crypto.randomUUID();
+    await c.env.DB.prepare('UPDATE users SET confirm_token = ? WHERE email = ?').bind(confirmToken, user.email).run();
+    const task = sendConfirmEmail(c, user.email, normLang(row.lang), confirmToken);
+    try { c.executionCtx.waitUntil(task); } catch { /* tests */ }
+  }
+  return c.json({ ok: true });
 });
 
 export default auth;
