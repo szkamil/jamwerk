@@ -57,6 +57,17 @@ export const PAGE = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>JamWerk — paid gigs, jam partners & bands for local musicians</title>
+<meta name="description" content="JamWerk connects local musicians: paid dep gigs with public CHF fees, free jam partners and bands with open seats — filtered by your instrument and region. Swiss, in EN/FR/DE/IT.">
+<link rel="canonical" href="https://jamwerk.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JamWerk">
+<meta property="og:title" content="JamWerk — paid gigs, jam partners & bands for local musicians">
+<meta property="og:description" content="Find a dep. Join a jam. Start a band. Local musicians, public fees, alerts for your instrument near you.">
+<meta property="og:url" content="https://jamwerk.app/">
+<meta property="og:image" content="https://jamwerk.app/icons/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:card" content="summary">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

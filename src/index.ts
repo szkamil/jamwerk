@@ -11,6 +11,7 @@ import messageRoutes from './messages';
 import feedbackRoutes from './feedback';
 import { PAGE } from './ui';
 import type { AppEnv, Env } from './types';
+import { notFound } from './not-found';
 
 const app = new Hono<AppEnv>();
 
@@ -50,6 +51,7 @@ app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
 app.route('/feedback', feedbackRoutes);
+app.notFound(notFound);
 
 // Daily housekeeping: flip stale open listings past their expiry to 'expired'
 // (paid gigs expire the day after the date, practice listings after 60 days),
