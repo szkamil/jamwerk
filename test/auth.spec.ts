@@ -53,5 +53,8 @@ describe('Auth', () => {
 		const html = await response.text();
 		expect(html).toContain('JamWerk');
 		expect(html).toContain('Gig board');
+		// logged-out landing pitch is part of the page
+		expect(html).toContain('Just here to jam?');
+		expect(html).toContain('Create your free profile');
 	});
 });

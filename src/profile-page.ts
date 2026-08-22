@@ -100,7 +100,13 @@ profilePage.get('/:handle', async (c) => {
   const label = (s: string) => s.replace(/_/g, ' ');
   const avg = stats?.avg_rating != null ? Math.round(stats.avg_rating * 10) / 10 : null;
 
+  const levelNames: Record<string, { en: string; fr: string; de: string; it: string }> = {
+    hobby: { en: 'hobby musician', fr: 'musicien amateur', de: 'Hobbymusiker:in', it: 'musicista amatoriale' },
+    semi_pro: { en: 'semi-pro', fr: 'semi-pro', de: 'semiprofessionell', it: 'semi-professionista' },
+    pro: { en: 'professional', fr: 'professionnel', de: 'professionell', it: 'professionista' },
+  };
   const flagChips = [
+    m.level && levelNames[m.level] ? `<span class="chip hot">${t(lang, levelNames[m.level])}</span>` : '',
     m.reads_charts ? '<span class="chip hot">reads charts</span>' : '',
     m.sings_backing ? '<span class="chip">backing vocals</span>' : '',
     m.own_transport ? '<span class="chip">own transport</span>' : '',

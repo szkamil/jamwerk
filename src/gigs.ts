@@ -210,6 +210,7 @@ musicians.post('/me', async (c) => {
     }
   }
 
+  const level = ['hobby', 'semi_pro', 'pro'].includes(body.level) ? body.level : null;
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
   let homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
   let homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
@@ -222,10 +223,11 @@ musicians.post('/me', async (c) => {
   await c.env.DB.prepare(
     `INSERT INTO musician_details
        (owner, instruments, genres, reads_charts, sings_backing, own_transport, own_pa,
-        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(owner) DO UPDATE SET
        handle = COALESCE(musician_details.handle, excluded.handle),
+       level = excluded.level,
        instruments = excluded.instruments, genres = excluded.genres,
        reads_charts = excluded.reads_charts, sings_backing = excluded.sings_backing,
        own_transport = excluded.own_transport, own_pa = excluded.own_pa,
@@ -237,7 +239,7 @@ musicians.post('/me', async (c) => {
   ).bind(
     user.email, JSON.stringify(instruments), JSON.stringify(genres),
     flag(body.reads_charts), flag(body.sings_backing), flag(body.own_transport), flag(body.own_pa),
-    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle
+    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level
   ).run();
 
   return c.json({ ok: true, handle });
@@ -447,7 +449,7 @@ gigs.get('/:id', async (c) => {
     const { results } = await c.env.DB.prepare(
       `SELECT a.id, a.musician_email, a.note, a.status, a.created_at,
               u.display_name,
-              m.handle,
+              m.handle, m.level,
               m.instruments, m.genres, m.demo_links, m.gigs_played, m.reads_charts, m.rate_min, m.rate_max, m.home_city,
               (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS avg_rating,
               (SELECT COUNT(*) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS review_count

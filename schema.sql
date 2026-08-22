@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS musician_details (
   demo_links TEXT NOT NULL DEFAULT '[]',
   gigs_played INTEGER DEFAULT 0,
   handle TEXT,
+  level TEXT,
   home_city TEXT,
   home_lat REAL,
   home_lng REAL,

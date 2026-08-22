@@ -29,6 +29,11 @@ Cloudflare Worker (Hono) + D1, JSON API + single-page UI, all in this repo.
   with the bell button in the header; works on Android/desktop browsers and on
   iOS once the PWA is installed to the home screen.
 - **Installable PWA** with offline shell.
+- **Logged-out landing** on the front page: what JamWerk is, how it works, one pitch per
+  audience (casual jammers vs working musicians), and the alerts feature tout.
+- **Experience levels**: musicians can set hobby / semi-pro / pro on their profile (shown on
+  applicant cards and public pages), and practice listings state who is welcome — casual
+  players are a first-class audience, not an afterthought.
 
 ⚠ These features are invisible until someone tells users about them — see the
 "Advertise the notification features" item in TODO.md.

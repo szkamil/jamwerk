@@ -28,7 +28,7 @@ async function registerAndProfile(email: string, displayName: string) {
 	const cookie = (reg.headers.get('set-cookie') || '').split(';')[0];
 	const prof = await call('/musicians/me', {
 		method: 'POST', cookie,
-		body: { instruments: ['bass'], genres: ['jazz'], home_city: 'Bern', demo_links: ['https://youtube.com/watch?v=abc'] },
+		body: { instruments: ['bass'], genres: ['jazz'], home_city: 'Bern', level: 'hobby', demo_links: ['https://youtube.com/watch?v=abc'] },
 	});
 	return ((await prof.json()) as any).handle as string;
 }
@@ -44,6 +44,7 @@ describe('Public musician pages', () => {
 		expect(html).toContain('Luca Marchetti');
 		expect(html).toContain('bass');
 		expect(html).toContain('youtube.com');
+		expect(html).toContain('hobby musician');
 		// email is never exposed publicly
 		expect(html).not.toContain('luca@example.com');
 	});

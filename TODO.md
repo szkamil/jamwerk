@@ -18,11 +18,10 @@
        and new gigs fan out to matching musicians within their travel radius
 5. [x] **Expiry cron** — shipped 2026-08-21: daily scheduled Worker run (03:17 UTC)
        expires stale open listings and prunes old rate-limit rows
-6. [ ] **Advertise the notification features in-product** — users will not discover them
-       alone: first-run onboarding tout ("Enable alerts — gigs for your instrument near you
-       reach your phone"), an empty-board prompt to turn on alerts, a line in the signup
-       confirmation email, and landing-page copy once there is a landing page. The Alerts
-       bell alone is not discoverable enough.
+6. [x] **Advertise the notification features in-product** — shipped 2026-08-21: logged-out
+       landing block on the board (hero, how-it-works, alerts pitch with the bell), plus the
+       tip already in the signup confirmation email. Still open: dedicated marketing page
+       when there is real traction.
 7. [x] **Localization: FR / DE / IT / EN** — shipped 2026-08-21: full app UI (client
        dictionary + header language picker, browser-language default, choice persisted
        per user), all emails and push notifications in the recipient's language, and
