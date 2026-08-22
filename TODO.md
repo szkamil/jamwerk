@@ -1,5 +1,37 @@
 # JamWerk — TODO
 
+## ⚡ Pending YOUR action (blockers first)
+
+1. [ ] **Validate the Mailjet sender** — click the validation link Mailjet sent to
+       the mailwerk@hotmail.com inbox (or resend from Senders & domains). Keys are
+       already live on the Worker; until validation every email is held by Mailjet.
+2. [ ] **Verify jamwerk.app domain in Mailjet** (after 1): add the domain in the
+       Mailjet dashboard; the SPF/DKIM DNS records can then be pushed to Cloudflare
+       via API, and `EMAIL_FROM` switches to notify@jamwerk.app for real deliverability.
+3. [ ] Add `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` to this repo's Actions
+       secrets → its own deploy.yml takes over; then delete the bridge workflow in poc-poc.
+4. [ ] Google Cloud Console: add https://jamwerk.app/auth/google/callback as redirect
+       URI → then port "Continue with Google" (see Auth section).
+5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
+6. [ ] DECIDE: open musician-to-musician DMs (see Core loop improvements).
+
+## Shipped 2026-08-22 (session log)
+
+- In-app messaging (threads per gig/seat application, unread badge, one nudge per
+  catch-up) + "Message sent." toast on send
+- Landing: balanced primary CTAs, actionable empty boards ("no gigs/jam partners
+  found — enable alerts / register / post"), logo → home link, site footer
+- Footer feedback form → D1 `feedback` table + email forward to FEEDBACK_EMAIL;
+  in-dialog errors and a green-tick "Message sent" success state replacing the form
+- Taglines now cover all three pillars (ribbon "gigs · jams · bands", hero
+  "Find a dep. Join a jam. Start a band.", title/manifest/profile footer)
+- Filter bar: uniform 46px pills (custom select chevron), radius steps 5–100 km
+- Auth dialog button spacing; floating page toast (fixed, top of viewport)
+- **Mailjet**: dedicated account (mailwerk@hotmail.com) wired — keys set as Worker
+  secrets via Cloudflare API, sender/account notes in code+README
+- **Turnstile**: widget created via API, secret on Worker, protects register+feedback
+- Deploys #13–#30, all green; migrations applied to prod through 010
+
 ## Next up (priority order, agreed 2026-08-21)
 
 1. [x] **Notifications batch** — shipped 2026-08-21: Mailjet sending (src/email.ts),
