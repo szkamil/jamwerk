@@ -6,7 +6,7 @@ import type { AppEnv } from './types';
 const MANIFEST = JSON.stringify({
   name: 'JamWerk',
   short_name: 'JamWerk',
-  description: 'Find a dep, fill a gig — local paid dep booking for musicians.',
+  description: 'Paid dep gigs, free jam partners and open band seats — local musician matching.',
   start_url: '/',
   scope: '/',
   display: 'standalone',

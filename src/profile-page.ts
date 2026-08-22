@@ -181,7 +181,7 @@ ${NOTES_LAYER}
   <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}</h2>
   ${reviewHtml}
 </main>
-<footer>${t(lang, { en: 'Booked through', fr: 'Réservé via', de: 'Gebucht über', it: 'Prenotato tramite' })} <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — find a dep, fill a gig.</footer>
+<footer>${t(lang, { en: 'Booked through', fr: 'Réservé via', de: 'Gebucht über', it: 'Prenotato tramite' })} <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — ${t(lang, { en: 'gigs · jams · bands', fr: 'concerts · jams · groupes', de: 'Gigs · Jams · Bands', it: 'concerti · jam · band' })}</footer>
 </body>
 </html>`);
 });
