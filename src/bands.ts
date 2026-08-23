@@ -96,10 +96,12 @@ bands.post('/', async (c) => {
     return c.json({ error: 'seats must be known instruments', known: INSTRUMENTS }, 400);
   }
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
-  let lat: number | null = null, lng: number | null = null;
-  if (homeCity) {
+  let lat: number | null = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
+  let lng: number | null = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
+  if (homeCity && (lat === null || lng === null)) {
     const geo = await geocodeCity(c.env, homeCity);
     if (geo) { lat = geo.lat; lng = geo.lng; }
+    else return c.json({ error: 'City not recognised — pick one from the list', code: 'city_unknown' }, 400);
   }
 
   const result = await c.env.DB.prepare(

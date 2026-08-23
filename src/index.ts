@@ -12,6 +12,7 @@ import feedbackRoutes from './feedback';
 import { PAGE } from './ui';
 import type { AppEnv, Env } from './types';
 import { notFound } from './not-found';
+import placesRoutes from './places-api';
 
 const app = new Hono<AppEnv>();
 
@@ -59,6 +60,7 @@ app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
 app.route('/feedback', feedbackRoutes);
+app.route('/places', placesRoutes);
 // Photos from R2. Keys are immutable (uuid), so cache hard.
 app.get('/img/:folder/:file', async (c) => {
   const key = `${c.req.param('folder')}/${c.req.param('file')}`;

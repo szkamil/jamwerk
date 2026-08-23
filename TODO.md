@@ -99,6 +99,7 @@
 
 ## Core loop improvements
 
+- [x] **Typo-proof cities** — shipped 2026-08-23: city fields are a typeahead (bundled list of ~70 places with Genf/Geneva/Ginebra-style aliases, Photon for the rest, biased to Geneva); unknown cities are refused instead of saved without coordinates. Nominatim fallback now biased to CH/FR/DE/IT/AT + Geneva viewbox.
 - [x] **Profile photo** — shipped 2026-08-23: R2 bucket `jamwerk-media`, client-side 512px crop/resize, shown on applicant cards, public page (also as og:image) and the header avatar; remove button. No moderation yet (fine at POC scale — every new profile is visible to the owner).
 - [x] **Media embeds** — shipped 2026-08-23: demo/promo links on public musician pages and band
       cards render as inline players (YouTube, Vimeo, Spotify, SoundCloud) or link cards

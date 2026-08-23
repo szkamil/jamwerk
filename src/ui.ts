@@ -6,6 +6,7 @@
 // an audio-waveform strip along the header's bottom edge, and a faint violet
 // scatter of notation behind the page. Deterministic — same field every load.
 import { MEDIA_CSS } from './media';
+import { PLACES_JSON } from './places';
 
 export const WAVE_SVG = (() => {
   const heights = [8, 14, 10, 22, 30, 18, 12, 26, 36, 24, 14, 20, 32, 16, 10, 24, 34, 28, 16, 12, 22, 38, 26, 14, 18, 30, 20, 10, 16, 28, 36, 22, 12, 20, 26, 18, 32, 14, 8];
@@ -201,6 +202,15 @@ ${MEDIA_CSS}
      wherever the user is scrolled (e.g. the footer feedback form). */
   #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3000; margin: 0; max-width: min(92vw, 480px); box-shadow: 0 8px 28px rgba(20,19,26,0.25); }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
+  /* City typeahead (see attachPlaces) */
+  .place-wrap { position: relative; }
+  .filters .place-wrap { flex: 1 1 150px; display: flex; }
+  .filters .place-wrap input { width: 100%; }
+  .places { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(20,19,26,0.12); max-height: 260px; overflow: auto; }
+  .places div { padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; font-size: 14.5px; }
+  .places div.on, .places div:hover { background: var(--accent-tint); }
+  .places small { color: var(--muted); white-space: nowrap; }
+  .place-hint { color: var(--warn); font-size: 13px; margin-top: 4px; }
   .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; color: inherit; }
   .filters select {
     appearance: none; -webkit-appearance: none;
@@ -513,7 +523,7 @@ const I18N = {
     email: 'Email', password: 'Password', password2: 'Repeat password', pw_mismatch: 'The two passwords do not match.', name_label: 'Name (shown to bandleaders)',
     need_account: 'Need an account? Register', have_account: 'Have an account? Log in', forgot: 'Forgot password?', close: 'Close',
     listing_type: 'Listing type', opt_gig: 'Paid gig — dated, fixed fee', opt_practice: 'Practice partner — free, open-ended',
-    instrument_needed: 'Instrument needed', date: 'Date', date_opt: 'Date (optional)', city: 'City', fee: 'Fee (whole gig)',
+    instrument_needed: 'Instrument needed', date: 'Date', date_opt: 'Date (optional)', city_unknown: 'City not recognised \u2014 pick one from the list.', city: 'City', fee: 'Fee (whole gig)',
     call_time: 'Call time', end_time: 'End time', genres_csv: 'Genres (comma-separated)', description: 'Description',
     req_charts: 'must read charts', req_rehearsal: 'one rehearsal', post_gig_btn: 'Post gig',
     instruments_l: 'Instruments', home_city: 'Home city', radius: 'Travel radius (km)',
@@ -553,7 +563,7 @@ const I18N = {
     email: 'E-mail', password: 'Mot de passe', password2: 'Répétez le mot de passe', pw_mismatch: 'Les deux mots de passe ne correspondent pas.', name_label: 'Nom (visible par les chefs de groupe)',
     need_account: 'Pas de compte ? Créez-en un', have_account: 'Déjà un compte ? Connexion', forgot: 'Mot de passe oublié ?', close: 'Fermer',
     listing_type: 'Type d\u2019annonce', opt_gig: 'Concert payé — daté, cachet fixe', opt_practice: 'Partenaire de répétition — gratuit, sans date',
-    instrument_needed: 'Instrument recherché', date: 'Date', date_opt: 'Date (facultatif)', city: 'Ville', fee: 'Cachet (concert entier)',
+    instrument_needed: 'Instrument recherché', date: 'Date', date_opt: 'Date (facultatif)', city_unknown: 'Ville non reconnue \u2014 choisissez-la dans la liste.', city: 'Ville', fee: 'Cachet (concert entier)',
     call_time: 'Heure d\u2019arrivée', end_time: 'Heure de fin', genres_csv: 'Genres (séparés par des virgules)', description: 'Description',
     req_charts: 'lecture de partitions exigée', req_rehearsal: 'une répétition', post_gig_btn: 'Publier',
     instruments_l: 'Instruments', home_city: 'Ville de résidence', radius: 'Rayon de déplacement (km)',
@@ -593,7 +603,7 @@ const I18N = {
     email: 'E-Mail', password: 'Passwort', password2: 'Passwort wiederholen', pw_mismatch: 'Die beiden Passwörter stimmen nicht überein.', name_label: 'Name (für Bandleader sichtbar)',
     need_account: 'Kein Konto? Registrieren', have_account: 'Schon ein Konto? Anmelden', forgot: 'Passwort vergessen?', close: 'Schliessen',
     listing_type: 'Anzeigentyp', opt_gig: 'Bezahlter Gig — mit Datum, fixe Gage', opt_practice: 'Übungspartner — gratis, offen',
-    instrument_needed: 'Gesuchtes Instrument', date: 'Datum', date_opt: 'Datum (optional)', city: 'Stadt', fee: 'Gage (ganzer Gig)',
+    instrument_needed: 'Gesuchtes Instrument', date: 'Datum', date_opt: 'Datum (optional)', city_unknown: 'Ort nicht erkannt \u2014 bitte aus der Liste w\u00e4hlen.', city: 'Stadt', fee: 'Gage (ganzer Gig)',
     call_time: 'Treffzeit', end_time: 'Ende', genres_csv: 'Genres (kommagetrennt)', description: 'Beschreibung',
     req_charts: 'Notenlesen erforderlich', req_rehearsal: 'eine Probe', post_gig_btn: 'Veröffentlichen',
     instruments_l: 'Instrumente', home_city: 'Wohnort', radius: 'Reiseradius (km)',
@@ -633,7 +643,7 @@ const I18N = {
     email: 'E-mail', password: 'Password', password2: 'Ripeti la password', pw_mismatch: 'Le due password non coincidono.', name_label: 'Nome (visibile ai bandleader)',
     need_account: 'Nessun account? Registrati', have_account: 'Hai già un account? Accedi', forgot: 'Password dimenticata?', close: 'Chiudi',
     listing_type: 'Tipo di annuncio', opt_gig: 'Concerto pagato — con data, cachet fisso', opt_practice: 'Partner di prova — gratuito, senza data',
-    instrument_needed: 'Strumento cercato', date: 'Data', date_opt: 'Data (facoltativa)', city: 'Città', fee: 'Cachet (intero concerto)',
+    instrument_needed: 'Strumento cercato', date: 'Data', date_opt: 'Data (facoltativa)', city_unknown: 'Citt\u00e0 non riconosciuta \u2014 scegline una dalla lista.', city: 'Città', fee: 'Cachet (intero concerto)',
     call_time: 'Orario di ritrovo', end_time: 'Orario di fine', genres_csv: 'Generi (separati da virgole)', description: 'Descrizione',
     req_charts: 'lettura spartiti richiesta', req_rehearsal: 'una prova', post_gig_btn: 'Pubblica',
     instruments_l: 'Strumenti', home_city: 'Città di residenza', radius: 'Raggio di spostamento (km)',
@@ -1041,6 +1051,84 @@ $('photoRemove').onclick = async () => {
   const r = await api('/auth/photo', { method: 'DELETE' });
   if (r.ok) { if (me) me.photo = null; renderAuth(); flash(T('photo_removed'), 'ok'); } else flash(r.json.error || T('failed'), 'err');
 };
+// ── City typeahead ───────────────────────────────────
+// Free text never reaches the geocoder unconfirmed: the user picks a place
+// (bundled list answers instantly; /places adds OSM suggestions). The server
+// refuses unknown cities (code city_unknown) so nothing is saved invisibly.
+const PLACES = ${PLACES_JSON}.map((p) => ({ name: p[0], region: p[1], country: p[2], lat: p[3], lng: p[4], aliases: p[5] }));
+const normPlace = (s) => s.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[-_./]/g, ' ').replace(/\\s+/g, ' ').trim();
+function findLocalPlace(q) {
+  const k = normPlace(q); if (!k) return null;
+  return PLACES.find((p) => normPlace(p.name) === k || p.aliases.some((a) => normPlace(a) === k)) || null;
+}
+function localPlaces(q, limit = 6) {
+  const k = normPlace(q); if (!k) return [];
+  const scored = [];
+  for (const p of PLACES) {
+    let best = 0;
+    for (const n of [p.name, ...p.aliases].map(normPlace)) {
+      if (n === k) best = Math.max(best, 3); else if (n.startsWith(k)) best = Math.max(best, 2);
+      else if (n.split(' ').some((w) => w.startsWith(k))) best = Math.max(best, 1);
+    }
+    if (best) scored.push([best, p]);
+  }
+  return scored.sort((x, y) => y[0] - x[0] || x[1].name.localeCompare(y[1].name)).slice(0, limit).map((x) => x[1]);
+}
+function attachPlaces(input, strict) {
+  const wrap = document.createElement('div'); wrap.className = 'place-wrap';
+  input.replaceWith(wrap); wrap.append(input);
+  input.autocomplete = 'off';
+  const list = el('div', 'places'); list.hidden = true; wrap.append(list);
+  const hint = el('div', 'place-hint'); hint.hidden = true; wrap.append(hint);
+  let items = [], active = -1, timer = null, seq = 0;
+  const pick = (p) => { input.value = p.name; input.dataset.lat = p.lat; input.dataset.lng = p.lng; input.dataset.picked = p.name; hint.hidden = true; list.hidden = true; input.dispatchEvent(new Event('picked')); };
+  const render = () => {
+    list.textContent = ''; active = -1;
+    if (!items.length) { list.hidden = true; return; }
+    items.forEach((p) => {
+      const row = el('div'); row.append(el('span', '', p.name), el('small', '', [p.region, p.country].filter(Boolean).join(' · ')));
+      row.onmousedown = (e) => e.preventDefault(); row.onclick = () => pick(p);
+      list.append(row);
+    });
+    list.hidden = false;
+  };
+  input.addEventListener('input', () => {
+    delete input.dataset.picked; input.dataset.lat = ''; input.dataset.lng = ''; hint.hidden = true;
+    const q = input.value.trim(); clearTimeout(timer);
+    if (q.length < 2) { items = []; list.hidden = true; return; }
+    items = localPlaces(q); render();
+    if (items.length < 5 && q.length >= 3) {
+      const my = ++seq;
+      timer = setTimeout(async () => {
+        const r = await api('/places?q=' + encodeURIComponent(q));
+        if (my !== seq || !r.ok) return;
+        const merged = items.slice();
+        for (const p of r.json.places) if (!merged.some((m) => m.name.toLowerCase() === p.name.toLowerCase())) merged.push(p);
+        items = merged.slice(0, 8); render();
+      }, 300);
+    }
+  });
+  input.addEventListener('keydown', (e) => {
+    if (list.hidden) return;
+    const rows = list.children;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); active = (active + (e.key === 'ArrowDown' ? 1 : -1) + rows.length) % rows.length; [...rows].forEach((r, i) => r.classList.toggle('on', i === active)); }
+    else if (e.key === 'Enter' && active >= 0) { e.preventDefault(); pick(items[active]); }
+    else if (e.key === 'Escape') list.hidden = true;
+  });
+  input.addEventListener('blur', () => setTimeout(() => {
+    list.hidden = true;
+    if (input.dataset.picked || !input.value.trim()) return;
+    const lp = findLocalPlace(input.value);
+    if (lp) pick(lp); else if (strict) hint.hidden = false;
+  }, 150));
+  hint.textContent = T('city_unknown');
+  return {
+    coords: () => (input.dataset.lat ? { lat: +input.dataset.lat, lng: +input.dataset.lng } : null),
+    markPicked: () => { input.dataset.picked = input.value; hint.hidden = true; },
+    showUnknown: () => { hint.hidden = false; input.focus(); },
+  };
+}
+const taCity = attachPlaces($('pCity'), true), taHome = attachPlaces($('mCity'), true), taBand = attachPlaces($('bCity'), true), taFilter = attachPlaces($('fCity'), false);
 $('postForm').onsubmit = async (e) => {
   e.preventDefault();
   if (!me) { $('authDialog').showModal(); return; }
@@ -1051,6 +1139,7 @@ $('postForm').onsubmit = async (e) => {
     genres: parseCsv($('pGenres').value),
     gig_date: $('pDate').value || undefined,
     venue_city: $('pCity').value,
+    ...(taCity.coords() ? { venue_lat: taCity.coords().lat, venue_lng: taCity.coords().lng } : {}),
     fee_chf: practice ? undefined : parseInt($('pFee').value, 10),
     currency: practice ? undefined : $('pCurrency').value,
     call_time: $('pCall').value || undefined,
@@ -1067,6 +1156,7 @@ $('postForm').onsubmit = async (e) => {
     document.querySelectorAll('#kindSeg button').forEach((x) => x.classList.toggle('active', x.dataset.kind === boardKind));
     document.querySelector('[data-tab=board]').click();
   }
+  else if (r.json.code === 'city_unknown') { taCity.showUnknown(); flash(T('city_unknown'), 'err'); }
   else flash((r.json.details || [r.json.error]).join(' · '), 'err');
 };
 
@@ -1207,6 +1297,7 @@ async function loadProfile() {
   document.querySelectorAll('#mInstruments input').forEach((cb) => { cb.checked = r.json.instruments.includes(cb.value); });
   $('mGenres').value = r.json.genres.join(', ');
   $('mCity').value = r.json.home_city || '';
+  taHome.markPicked();
   $('mRadius').value = r.json.travel_radius_km;
   $('mLevel').value = r.json.level || '';
   $('mCharts').checked = !!r.json.reads_charts;
@@ -1227,6 +1318,7 @@ $('profileForm').onsubmit = async (e) => {
     instruments: [...document.querySelectorAll('#mInstruments input:checked')].map((x) => x.value),
     genres: parseCsv($('mGenres').value),
     home_city: $('mCity').value || undefined,
+    ...(taHome.coords() ? { home_lat: taHome.coords().lat, home_lng: taHome.coords().lng } : {}),
     travel_radius_km: parseInt($('mRadius').value, 10) || 30,
     level: $('mLevel').value || undefined,
     reads_charts: $('mCharts').checked,
@@ -1236,7 +1328,9 @@ $('profileForm').onsubmit = async (e) => {
     demo_links: $('mDemos').value.split('\\n').map((x) => x.trim()).filter(Boolean),
   };
   const r = await api('/musicians/me', { method: 'POST', body });
-  if (r.ok) { flash(T('profile_saved'), 'ok'); loadProfile(); } else flash(r.json.error || T('failed'), 'err');
+  if (r.ok) { flash(T('profile_saved'), 'ok'); loadProfile(); }
+  else if (r.json.code === 'city_unknown') { taHome.showUnknown(); flash(T('city_unknown'), 'err'); }
+  else flash(r.json.error || T('failed'), 'err');
 };
 
 // ── Init ─────────────────────────────────────────────
@@ -1342,13 +1436,15 @@ $('bandForm').onsubmit = async (e) => {
   const body = {
     name: $('bName').value,
     home_city: $('bCity').value || undefined,
+    ...(taBand.coords() ? { home_lat: taBand.coords().lat, home_lng: taBand.coords().lng } : {}),
     genres: parseCsv($('bGenres').value),
     description: $('bDesc').value,
-    links: $('bLinks').value.split('\n').map((x) => x.trim()).filter(Boolean),
+    links: $('bLinks').value.split('\\n').map((x) => x.trim()).filter(Boolean),
     seats: [...document.querySelectorAll('#bSeats input:checked')].map((x) => x.value),
   };
   const r = await api('/bands', { method: 'POST', body });
   if (r.ok) { flash(T('band_created'), 'ok'); $('bandForm').reset(); loadBands(); }
+  else if (r.json.code === 'city_unknown') { taBand.showUnknown(); flash(T('city_unknown'), 'err'); }
   else flash(r.json.error || T('failed'), 'err');
 };
 async function loadBands() {

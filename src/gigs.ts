@@ -23,6 +23,7 @@ import { notify } from './email';
 import { Lang, normLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
+import { findPlace } from './places';
 
 export const INSTRUMENTS = [
   'vocals', 'guitar', 'bass', 'double_bass', 'drums', 'percussion', 'keys',
@@ -89,6 +90,9 @@ export function haversineKm(lat1: number, lng1: number, lat2: number, lng2: numb
 export async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string }, city: string): Promise<{ lat: number; lng: number } | null> {
   const key = city.trim().toLowerCase();
   if (!key) return null;
+  // Curated list first: instant, deterministic, multilingual (Genf = Genève).
+  const local = findPlace(city);
+  if (local) return { lat: local.lat, lng: local.lng };
   const cached = await env.DB.prepare('SELECT lat, lng FROM geocode_cache WHERE city_key = ?')
     .bind(key).first<{ lat: number | null; lng: number | null }>();
   if (cached) return cached.lat !== null && cached.lng !== null ? { lat: cached.lat, lng: cached.lng } : null;
@@ -98,7 +102,9 @@ export async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string },
   let display: string | null = null;
   try {
     const res = await fetch(
-      'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(city.trim()),
+      // Biased to the countries we serve and to the Geneva area (viewbox, unbounded) so
+      // short names resolve to the nearby place, not the most famous one on Earth.
+      'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ch,fr,de,it,at&accept-language=fr&viewbox=5.5,47.2,7.6,45.4&q=' + encodeURIComponent(city.trim()),
       { headers: { 'User-Agent': 'JamWerk/0.1 (https://jamwerk.app)' }, signal: AbortSignal.timeout(4000) }
     );
     if (res.ok) {
@@ -119,6 +125,7 @@ export async function geocodeCity(env: { DB: D1Database; GEOCODE_OFF?: string },
     .bind(key, lat, lng, display).run();
   return lat !== null && lng !== null ? { lat, lng } : null;
 }
+
 
 interface GigRow {
   id: number;
@@ -218,6 +225,7 @@ musicians.post('/me', async (c) => {
   if (homeCity && (homeLat === null || homeLng === null)) {
     const geo = await geocodeCity(c.env, homeCity);
     if (geo) { homeLat = geo.lat; homeLng = geo.lng; }
+    else return c.json({ error: 'City not recognised — pick one from the list', code: 'city_unknown' }, 400);
   }
   const flag = (v: unknown) => (v ? 1 : 0);
 
@@ -304,6 +312,11 @@ gigs.post('/', async (c) => {
   if (lat === null || lng === null) {
     const geo = await geocodeCity(c.env, body.venue_city);
     if (geo) { lat = geo.lat; lng = geo.lng; }
+  }
+  // A listing without coordinates would never match a radius search or an
+  // alert — refuse instead of saving something invisible.
+  if (lat === null || lng === null) {
+    return c.json({ error: 'City not recognised — pick one from the list', code: 'city_unknown' }, 400);
   }
   const setlist = parseHttpUrlArray(body.setlist_link ? [body.setlist_link] : undefined);
   const requirements = body.requirements && typeof body.requirements === 'object' && !Array.isArray(body.requirements)
