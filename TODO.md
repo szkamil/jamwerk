@@ -99,6 +99,10 @@
 
 ## Core loop improvements
 
+- [x] **Media embeds** — shipped 2026-08-23: demo/promo links on public musician pages and band
+      cards render as inline players (YouTube, Vimeo, Spotify, SoundCloud) or link cards
+      (Bandcamp, anything else); bands got a `links` field (migration 012). Never host media.
+
 - [x] UI refresh: "backstage editorial" direction from the design canvas (Bricolage
       Grotesque + Instrument Sans, ink/violet/paper palette, header waveform + glow,
       violet note-scatter background, segmented board toggle) — shipped 2026-08-21
