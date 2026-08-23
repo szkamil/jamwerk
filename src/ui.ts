@@ -646,8 +646,24 @@ const I18N = {
     inst: { vocals: 'voce', guitar: 'chitarra', bass: 'basso', double_bass: 'contrabbasso', drums: 'batteria', percussion: 'percussioni (congas, cajón, pandeiro…)', keys: 'tastiere', piano: 'pianoforte', accordion: 'fisarmonica', violin: 'violino', viola: 'viola', cello: 'violoncello', trumpet: 'tromba', trombone: 'trombone', saxophone: 'sassofono', clarinet: 'clarinetto', flute: 'flauto', harmonica: 'armonica', cavaquinho: 'cavaquinho', dj: 'dj', other: 'altro' },
   },
 };
-let lang = localStorage.getItem('lang') || (navigator.language || 'en').slice(0, 2);
-if (!I18N[lang]) lang = 'en';
+// Language: stored choice → browser language → (only if neither is supported)
+// a guess from Cloudflare's geolocation hint → English.
+function geoLang() {
+  const geo = document.documentElement.dataset.geo || '';
+  const [cc, region] = geo.split(':');
+  if (!cc) return null;
+  if (cc === 'CH') {
+    if (/gen[eè]v|vaud|valais|neuch|jura|fribourg/i.test(region)) return 'fr';
+    if (/ticino|tessin/i.test(region)) return 'it';
+    return 'de';
+  }
+  if (['FR', 'BE', 'LU', 'MC'].includes(cc)) return 'fr';
+  if (['DE', 'AT', 'LI'].includes(cc)) return 'de';
+  if (cc === 'IT') return 'it';
+  return null;
+}
+let lang = localStorage.getItem('lang') || (navigator.language || '').slice(0, 2);
+if (!I18N[lang]) lang = geoLang() || 'en';
 const T = (k, a) => {
   const v = I18N[lang][k] !== undefined ? I18N[lang][k] : I18N.en[k];
   return v === undefined ? k : String(v).replace('{0}', a === undefined ? '' : a);
