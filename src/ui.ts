@@ -151,9 +151,10 @@ export const PAGE = `<!doctype html>
      the section tabs become a fixed bottom bar with icons + short labels so
      nothing is hidden behind a sideways scroll. Profile lives behind the
      header avatar; its tab button is hidden from the bar. */
+  @media (max-width: 380px) { header h1 { font-size: 24px !important; } }
   @media (max-width: 640px) {
     header { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
-    header h1 { font-size: 22px; }
+    header h1 { font-size: 27px; letter-spacing: -0.6px; }
     header .tagline, header .who, header #howBtn { display: none; }
     header #langSel { padding: 7px 26px 7px 11px; font-size: 13.5px; background-position: right 9px center; }
     header #notifBtn { padding: 7px 10px; min-width: 40px; justify-content: center; }
