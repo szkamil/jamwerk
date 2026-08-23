@@ -462,7 +462,7 @@ gigs.get('/:id', async (c) => {
   if (user && gig.poster_email === user.email) {
     const { results } = await c.env.DB.prepare(
       `SELECT a.id, a.musician_email, a.note, a.status, a.created_at,
-              u.display_name,
+              u.display_name, u.photo_key,
               m.handle, m.level,
               m.instruments, m.genres, m.demo_links, m.gigs_played, m.reads_charts, m.rate_min, m.rate_max, m.home_city,
               (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS avg_rating,
@@ -478,6 +478,7 @@ gigs.get('/:id', async (c) => {
       // contact stays private until the poster books this musician
       musician_email: a.status === 'accepted' ? a.musician_email : undefined,
       display_name: a.display_name || a.musician_email.split('@')[0],
+      photo: a.photo_key ? `/img/${a.photo_key}` : null,
       avg_rating: a.avg_rating !== null ? Math.round(a.avg_rating * 10) / 10 : null,
       instruments: JSON.parse(a.instruments || '[]'),
       genres: JSON.parse(a.genres || '[]'),

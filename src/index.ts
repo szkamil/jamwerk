@@ -59,6 +59,14 @@ app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
 app.route('/feedback', feedbackRoutes);
+// Photos from R2. Keys are immutable (uuid), so cache hard.
+app.get('/img/:folder/:file', async (c) => {
+  const key = `${c.req.param('folder')}/${c.req.param('file')}`;
+  if (!c.env.MEDIA || !/^avatars\/[a-f0-9-]{36}\.(jpg|png|webp)$/.test(key)) return c.notFound();
+  const obj = await c.env.MEDIA.get(key);
+  if (!obj) return c.notFound();
+  return new Response(obj.body, { headers: { 'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg', 'Cache-Control': 'public, max-age=31536000, immutable', 'ETag': obj.httpEtag } });
+});
 app.notFound(notFound);
 
 // Daily housekeeping: flip stale open listings past their expiry to 'expired'
