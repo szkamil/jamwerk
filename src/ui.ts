@@ -1102,7 +1102,7 @@ function attachPlaces(input, strict) {
   const list = el('div', 'places'); list.hidden = true; wrap.append(list);
   const hint = el('div', 'place-hint'); hint.hidden = true; wrap.append(hint);
   let items = [], active = -1, timer = null, seq = 0;
-  const pick = (p) => { input.value = p.name; input.dataset.lat = p.lat; input.dataset.lng = p.lng; input.dataset.picked = p.name; hint.hidden = true; list.hidden = true; input.dispatchEvent(new Event('picked')); };
+  const pick = (p) => { seq++; clearTimeout(timer); items = []; input.value = p.name; input.dataset.lat = p.lat; input.dataset.lng = p.lng; input.dataset.picked = p.name; hint.hidden = true; list.hidden = true; input.dispatchEvent(new Event('picked')); };
   const render = () => {
     list.textContent = ''; active = -1;
     if (!items.length) { list.hidden = true; return; }
