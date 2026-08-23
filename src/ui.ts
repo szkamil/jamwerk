@@ -148,6 +148,13 @@ ${MEDIA_CSS}
   }
   input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
   textarea { min-height: 90px; resize: vertical; }
+  /* iOS Safari: date/time inputs keep an intrinsic width and ignore width:100%
+     unless the native appearance is reset; grid cells must allow shrinking. */
+  input[type=date], input[type=time] { -webkit-appearance: none; appearance: none; display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 46px; }
+  input[type=date]::-webkit-date-and-time-value, input[type=time]::-webkit-date-and-time-value { text-align: left; }
+  .grid2 > *, .row, .place-wrap { min-width: 0; }
+  .place-wrap input { width: 100%; max-width: 100%; }
+  input, select, textarea { max-width: 100%; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .aud-cta { align-self: flex-start; }
   @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
