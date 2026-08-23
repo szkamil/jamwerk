@@ -112,7 +112,8 @@ export const PAGE = `<!doctype html>
     color: rgba(255,255,255,0.65); padding: 24px 20px 28px; margin-top: 48px;
     position: relative; overflow: hidden; z-index: 0; font-size: 13.5px;
   }
-  footer .wave { position: absolute; left: 0; right: 0; top: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; transform: scaleY(-1); }
+  /* Same orientation as the header: bars stand on the footer's bottom edge. */
+  footer .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
   footer .inner { max-width: 860px; margin: 0 auto; display: flex; gap: 8px 18px; align-items: center; flex-wrap: wrap; }
   footer .brand { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.4px; color: #fff; cursor: pointer; }
   footer .brand span { color: var(--accent-light); }
@@ -185,6 +186,7 @@ ${MEDIA_CSS}
     nav button[data-tab=profile] { display: none; }
     nav #msgBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
     footer { padding-bottom: calc(84px + env(safe-area-inset-bottom)); margin-top: 32px; }
+    footer .wave { bottom: calc(82px + env(safe-area-inset-bottom)); }
     .actions { flex-direction: column; }
     .actions > button { width: 100%; }
     .aud-cta { align-self: stretch; width: 100%; }
