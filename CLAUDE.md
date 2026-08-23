@@ -21,10 +21,12 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
   VAPID ES256 + aes128gcm on WebCrypto), `src/email.ts` (Mailjet),
   `src/turnstile.ts` (bot check), `src/ratelimit.ts`, `src/i18n.ts`,
   `src/pwa.ts` (manifest/icons/service worker)
+- `src/media.ts` — demo/promo URL → embed descriptor (YouTube/Vimeo/Spotify/SoundCloud), used by the public profile page and the bands API
+- Profile photos: client resizes to a 512px JPEG, `POST /auth/photo` stores it in the R2 bucket `jamwerk-media` (binding `MEDIA`), served at `/img/avatars/<uuid>.<ext>` with immutable caching; `users.photo_key`
 - `schema.sql` — full-schema mirror; `migrations/NNN_*.sql` — incremental
   patches for the already-provisioned prod DB. Keep BOTH in sync for any
   schema change. Prod D1: `jamwerk-db`, id `9b956c5a-b8e2-41e4-930c-8a647501b6cb`.
-  Migrations 001–012 are applied to prod.
+  Migrations 001–013 are applied to prod.
 - `test/*.spec.ts` — @cloudflare/vitest-pool-workers. 44 tests. Run:
   `CI=true npx vitest run`. Isolated per-test D1 storage: multi-step
   lifecycle flows must live in a SINGLE `it` block. Schema is replayed from

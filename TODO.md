@@ -99,6 +99,7 @@
 
 ## Core loop improvements
 
+- [x] **Profile photo** — shipped 2026-08-23: R2 bucket `jamwerk-media`, client-side 512px crop/resize, shown on applicant cards, public page (also as og:image) and the header avatar; remove button. No moderation yet (fine at POC scale — every new profile is visible to the owner).
 - [x] **Media embeds** — shipped 2026-08-23: demo/promo links on public musician pages and band
       cards render as inline players (YouTube, Vimeo, Spotify, SoundCloud) or link cards
       (Bandcamp, anything else); bands got a `links` field (migration 012). Never host media.

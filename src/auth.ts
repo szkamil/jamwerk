@@ -180,9 +180,43 @@ auth.post('/logout', (c) => {
 auth.get('/me', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Not logged in' }, 401);
-  const row = await c.env.DB.prepare('SELECT confirmed FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number }>();
-  return c.json({ email: user.email, confirmed: !!row?.confirmed });
+  const row = await c.env.DB.prepare('SELECT confirmed, photo_key FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null }>();
+  return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key) });
 });
+
+// Profile photo: the client resizes to a 512px JPEG before upload (see ui.ts),
+// we just bound the size, store it in R2 and remember the key on the user.
+const PHOTO_MAX = 600 * 1024;
+auth.post('/photo', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  if (!c.env.MEDIA) return c.json({ error: 'Photo storage is not configured' }, 503);
+  const type = (c.req.header('content-type') || '').split(';')[0].trim();
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(type)) return c.json({ error: 'Send a JPEG, PNG or WebP image' }, 415);
+  const bytes = await c.req.arrayBuffer();
+  if (bytes.byteLength < 100 || bytes.byteLength > PHOTO_MAX) return c.json({ error: `Image must be under ${Math.round(PHOTO_MAX / 1024)} KB` }, 413);
+  const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+  const key = `avatars/${crypto.randomUUID()}.${ext}`;
+  await c.env.MEDIA.put(key, bytes, { httpMetadata: { contentType: type, cacheControl: 'public, max-age=31536000, immutable' } });
+  const prev = await c.env.DB.prepare('SELECT photo_key FROM users WHERE email = ?').bind(user.email).first<{ photo_key: string | null }>();
+  await c.env.DB.prepare('UPDATE users SET photo_key = ? WHERE email = ?').bind(key, user.email).run();
+  if (prev?.photo_key) { try { await c.env.MEDIA.delete(prev.photo_key); } catch { /* best effort */ } }
+  return c.json({ ok: true, photo: photoUrl(key) });
+});
+
+auth.delete('/photo', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const prev = await c.env.DB.prepare('SELECT photo_key FROM users WHERE email = ?').bind(user.email).first<{ photo_key: string | null }>();
+  await c.env.DB.prepare('UPDATE users SET photo_key = NULL WHERE email = ?').bind(user.email).run();
+  if (prev?.photo_key && c.env.MEDIA) { try { await c.env.MEDIA.delete(prev.photo_key); } catch { /* best effort */ } }
+  return c.json({ ok: true });
+});
+
+/** Public URL for a stored photo key (null when none). */
+export function photoUrl(key: string | null | undefined): string | null {
+  return key ? `/img/${key}` : null;
+}
 
 // Re-send the confirmation link (soft confirmation: only paid-gig posting is
 // gated on it). Always answers ok to avoid leaking account state.

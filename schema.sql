@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   display_name TEXT NOT NULL DEFAULT '',
   confirmed INTEGER DEFAULT 0,
+  photo_key TEXT,
   confirm_token TEXT,
   reset_token TEXT,
   reset_expires TEXT,

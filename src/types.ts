@@ -1,6 +1,8 @@
 // src/types.ts
 export interface Env {
   DB: D1Database;
+  // R2 bucket for profile photos; absent in some test setups → uploads return 503.
+  MEDIA?: R2Bucket;
   JWT_SECRET: string;
   // Set to '1' to skip Nominatim lookups (tests); cache reads still work.
   GEOCODE_OFF?: string;

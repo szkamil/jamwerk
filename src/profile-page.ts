@@ -73,7 +73,7 @@ profilePage.get('/:handle', async (c) => {
   const lang = pickLang(c.req.header('Accept-Language'));
   const baseUrl = c.env.BASE_URL || 'https://jamwerk.app';
   const m = await c.env.DB.prepare(
-    `SELECT m.*, u.display_name, u.created_at AS member_since
+    `SELECT m.*, u.display_name, u.photo_key, u.created_at AS member_since
      FROM musician_details m JOIN users u ON u.email = m.owner
      WHERE m.handle = ?`
   ).bind(handle).first<any>();
@@ -144,7 +144,7 @@ profilePage.get('/:handle', async (c) => {
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="JamWerk">
 <meta property="og:url" content="${esc(baseUrl)}/m/${esc(m.handle)}">
-<meta property="og:image" content="${esc(baseUrl)}/icons/icon-512.png">
+<meta property="og:image" content="${esc(baseUrl)}${m.photo_key ? `/img/${esc(m.photo_key)}` : '/icons/icon-512.png'}">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary">
@@ -162,7 +162,7 @@ ${NOTES_LAYER}
   <div class="inner">
     <a class="back" href="/">&larr; JamWerk</a>
     <div class="hero">
-      <div class="avatar">${esc(initials)}</div>
+      <div class="avatar">${m.photo_key ? `<img src="/img/${esc(m.photo_key)}" alt="" width="64" height="64" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">` : esc(initials)}</div>
       <div>
         <h1 class="display">${esc(name)}</h1>
         <div class="sub">${esc(m.home_city || '')}${m.home_city ? ' · ' : ''}${t(lang, { en: 'travels', fr: 'se déplace jusqu\u2019à', de: 'reist bis', it: 'si sposta fino a' })} ${m.travel_radius_km} km</div>

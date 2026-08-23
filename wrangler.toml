@@ -18,6 +18,11 @@ crons = ["17 3 * * *"]
 [observability]
 enabled = true
 
+# Profile photos (client-resized JPEGs, served at /img/<key>).
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "jamwerk-media"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "jamwerk-db"
