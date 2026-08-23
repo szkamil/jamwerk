@@ -27,7 +27,7 @@ import type { AppEnv } from './types';
 export const INSTRUMENTS = [
   'vocals', 'guitar', 'bass', 'double_bass', 'drums', 'percussion', 'keys',
   'piano', 'accordion', 'violin', 'viola', 'cello', 'trumpet', 'trombone',
-  'saxophone', 'clarinet', 'flute', 'harmonica', 'dj', 'other',
+  'saxophone', 'clarinet', 'flute', 'harmonica', 'cavaquinho', 'dj', 'other',
 ] as const;
 
 const MAX_TEXT = 4000;

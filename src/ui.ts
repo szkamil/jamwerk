@@ -348,7 +348,7 @@ ${NOTES_LAYER}
         <div class="row"><label data-i18n="call_time">Call time</label><input type="time" id="pCall"></div>
         <div class="row"><label data-i18n="end_time">End time</label><input type="time" id="pEnd"></div>
       </div>
-      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="pGenres" required placeholder="jazz, funk"></div>
+      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="pGenres" required placeholder="jazz, funk, samba"></div>
       <div class="row"><label data-i18n="description">Description</label><textarea id="pDesc" required placeholder="Two 45min sets, charts provided, backline on site…"></textarea></div>
       <div class="row" id="pLevelRow" hidden><label data-i18n="whos_welcome">Who&#8217;s welcome</label>
         <select id="pLevel">
@@ -388,7 +388,7 @@ ${NOTES_LAYER}
     <div class="mobile-only" style="display: flex; justify-content: flex-end; margin-bottom: 8px;"><button class="ghost small" id="logoutBtn2" data-i18n="logout">Log out</button></div>
     <div class="card"><form id="profileForm">
       <div class="row"><label data-i18n="instruments_l">Instruments</label><div class="checks" id="mInstruments"></div></div>
-      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="mGenres" required placeholder="jazz, funk, wedding pop"></div>
+      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="mGenres" required placeholder="jazz, funk, samba, wedding pop"></div>
       <div class="grid2">
         <div class="row"><label data-i18n="home_city">Home city</label><input type="text" id="mCity" placeholder="Bern"></div>
         <div class="row"><label data-i18n="radius">Travel radius (km)</label><input type="number" id="mRadius" value="30" min="1" max="300"></div>
@@ -468,7 +468,7 @@ ${NOTES_LAYER}
 
 <script>
 const $ = (id) => document.getElementById(id);
-const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion','keys','piano','accordion','violin','viola','cello','trumpet','trombone','saxophone','clarinet','flute','harmonica','dj','other'];
+const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion','keys','piano','accordion','violin','viola','cello','trumpet','trombone','saxophone','clarinet','flute','harmonica','cavaquinho','dj','other'];
 const I18N = {
   en: {
     nav_board_s: 'Gigs', nav_post_s: 'Post', nav_mine_s: 'My gigs', nav_bands_s: 'Bands', nav_msgs_s: 'Messages', nav_profile_s: 'Profile', nav_board: 'Gig board',
@@ -508,7 +508,7 @@ const I18N = {
     gigs_through: ' {0} gigs played through JamWerk',
     st_open: 'open', st_booked: 'booked', st_completed: 'completed', st_cancelled: 'cancelled', st_expired: 'expired',
     st_applied: 'applied', st_shortlisted: 'shortlisted', st_accepted: 'accepted', st_declined: 'declined', st_withdrawn: 'withdrawn',
-    inst: {},
+    inst: { percussion: 'percussion (congas, cajón, pandeiro…)', cavaquinho: 'cavaquinho' },
   },
   fr: {
     nav_board_s: 'Concerts', nav_post_s: 'Publier', nav_mine_s: 'Mes concerts', nav_bands_s: 'Groupes', nav_msgs_s: 'Messages', nav_profile_s: 'Profil', nav_board: 'Tableau des concerts',
@@ -548,7 +548,7 @@ const I18N = {
     gigs_through: ' {0} concerts joués via JamWerk',
     st_open: 'ouvert', st_booked: 'réservé', st_completed: 'effectué', st_cancelled: 'annulé', st_expired: 'expiré',
     st_applied: 'envoyée', st_shortlisted: 'présélectionnée', st_accepted: 'acceptée', st_declined: 'déclinée', st_withdrawn: 'retirée',
-    inst: { vocals: 'chant', guitar: 'guitare', bass: 'basse', double_bass: 'contrebasse', drums: 'batterie', percussion: 'percussions', keys: 'claviers', piano: 'piano', accordion: 'accordéon', violin: 'violon', viola: 'alto', cello: 'violoncelle', trumpet: 'trompette', trombone: 'trombone', saxophone: 'saxophone', clarinet: 'clarinette', flute: 'fl\u00fbte', harmonica: 'harmonica', dj: 'dj', other: 'autre' },
+    inst: { vocals: 'chant', guitar: 'guitare', bass: 'basse', double_bass: 'contrebasse', drums: 'batterie', percussion: 'percussions (congas, cajón, pandeiro…)', keys: 'claviers', piano: 'piano', accordion: 'accordéon', violin: 'violon', viola: 'alto', cello: 'violoncelle', trumpet: 'trompette', trombone: 'trombone', saxophone: 'saxophone', clarinet: 'clarinette', flute: 'fl\u00fbte', harmonica: 'harmonica', cavaquinho: 'cavaquinho', dj: 'dj', other: 'autre' },
   },
   de: {
     nav_board_s: 'Gigs', nav_post_s: 'Einstellen', nav_mine_s: 'Meine Gigs', nav_bands_s: 'Bands', nav_msgs_s: 'Nachrichten', nav_profile_s: 'Profil', nav_board: 'Gig-Board',
@@ -588,7 +588,7 @@ const I18N = {
     gigs_through: ' {0} Gigs über JamWerk gespielt',
     st_open: 'offen', st_booked: 'gebucht', st_completed: 'abgeschlossen', st_cancelled: 'abgesagt', st_expired: 'abgelaufen',
     st_applied: 'gesendet', st_shortlisted: 'in Auswahl', st_accepted: 'angenommen', st_declined: 'abgelehnt', st_withdrawn: 'zurückgezogen',
-    inst: { vocals: 'Gesang', guitar: 'Gitarre', bass: 'Bass', double_bass: 'Kontrabass', drums: 'Schlagzeug', percussion: 'Percussion', keys: 'Keys', piano: 'Klavier', accordion: 'Akkordeon', violin: 'Violine', viola: 'Bratsche', cello: 'Cello', trumpet: 'Trompete', trombone: 'Posaune', saxophone: 'Saxophon', clarinet: 'Klarinette', flute: 'Fl\u00f6te', harmonica: 'Mundharmonika', dj: 'DJ', other: 'Sonstiges' },
+    inst: { vocals: 'Gesang', guitar: 'Gitarre', bass: 'Bass', double_bass: 'Kontrabass', drums: 'Schlagzeug', percussion: 'Percussion (Congas, Cajón, Pandeiro…)', keys: 'Keys', piano: 'Klavier', accordion: 'Akkordeon', violin: 'Violine', viola: 'Bratsche', cello: 'Cello', trumpet: 'Trompete', trombone: 'Posaune', saxophone: 'Saxophon', clarinet: 'Klarinette', flute: 'Fl\u00f6te', harmonica: 'Mundharmonika', cavaquinho: 'Cavaquinho', dj: 'DJ', other: 'Sonstiges' },
   },
   it: {
     nav_board_s: 'Concerti', nav_post_s: 'Pubblica', nav_mine_s: 'I miei', nav_bands_s: 'Gruppi', nav_msgs_s: 'Messaggi', nav_profile_s: 'Profilo', nav_board: 'Bacheca concerti',
@@ -628,7 +628,7 @@ const I18N = {
     gigs_through: ' {0} concerti suonati tramite JamWerk',
     st_open: 'aperto', st_booked: 'prenotato', st_completed: 'completato', st_cancelled: 'annullato', st_expired: 'scaduto',
     st_applied: 'inviata', st_shortlisted: 'preselezionata', st_accepted: 'accettata', st_declined: 'declinata', st_withdrawn: 'ritirata',
-    inst: { vocals: 'voce', guitar: 'chitarra', bass: 'basso', double_bass: 'contrabbasso', drums: 'batteria', percussion: 'percussioni', keys: 'tastiere', piano: 'pianoforte', accordion: 'fisarmonica', violin: 'violino', viola: 'viola', cello: 'violoncello', trumpet: 'tromba', trombone: 'trombone', saxophone: 'sassofono', clarinet: 'clarinetto', flute: 'flauto', harmonica: 'armonica', dj: 'dj', other: 'altro' },
+    inst: { vocals: 'voce', guitar: 'chitarra', bass: 'basso', double_bass: 'contrabbasso', drums: 'batteria', percussion: 'percussioni (congas, cajón, pandeiro…)', keys: 'tastiere', piano: 'pianoforte', accordion: 'fisarmonica', violin: 'violino', viola: 'viola', cello: 'violoncello', trumpet: 'tromba', trombone: 'trombone', saxophone: 'sassofono', clarinet: 'clarinetto', flute: 'flauto', harmonica: 'armonica', cavaquinho: 'cavaquinho', dj: 'dj', other: 'altro' },
   },
 };
 let lang = localStorage.getItem('lang') || (navigator.language || 'en').slice(0, 2);
