@@ -145,6 +145,7 @@ export const PAGE = `<!doctype html>
   input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
   textarea { min-height: 90px; resize: vertical; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .aud-cta { align-self: flex-start; }
   @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
   /* Phones: header collapses to one row (logo · lang · bell · login/avatar);
      the section tabs become a fixed bottom bar with icons + short labels so
@@ -174,6 +175,9 @@ export const PAGE = `<!doctype html>
     footer { padding-bottom: calc(84px + env(safe-area-inset-bottom)); margin-top: 32px; }
     .actions { flex-direction: column; }
     .actions > button { width: 100%; }
+    .aud-cta { align-self: stretch; width: 100%; }
+    #landing .cta-row { flex-direction: column; }
+    #landing .cta-row > button { width: 100%; }
     .filters button.ghost { flex: 1 1 100%; }
   }
   button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 600; cursor: pointer; min-height: 46px; }
@@ -264,7 +268,7 @@ ${NOTES_LAYER}
         ${WAVE_SVG}
         <div class="display" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px;" data-i18n="land_head">Find a dep. Fill a gig. Start a band.</div>
         <p style="max-width: 560px; margin: 0 auto 22px; color: rgba(255,255,255,0.72); font-size: 15px;" data-i18n="land_sub">JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.</p>
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <div class="cta-row" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <button class="primary" id="ctaJoin" data-i18n="cta_join">Create your free profile</button>
           <button class="ghost" id="ctaBrowse" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.4);" data-i18n="cta_browse">Browse the board</button>
         </div>
@@ -273,12 +277,12 @@ ${NOTES_LAYER}
         <div class="card" style="display: flex; flex-direction: column;">
           <div class="display" style="font-size: 17px; font-weight: 700; margin-bottom: 6px;" data-i18n="aud_jam_t">Just here to jam?</div>
           <p class="muted" style="margin: 0 0 12px; flex: 1;" data-i18n="aud_jam_p">Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.</p>
-          <button class="primary" id="ctaJam" style="align-self: flex-start;" data-i18n="cta_jam">Find jam partners</button>
+          <button class="primary aud-cta" id="ctaJam" data-i18n="cta_jam">Find jam partners</button>
         </div>
         <div class="card" style="display: flex; flex-direction: column;">
           <div class="display" style="font-size: 17px; font-weight: 700; margin-bottom: 6px;" data-i18n="aud_pro_t">Working musician?</div>
           <p class="muted" style="margin: 0 0 12px; flex: 1;" data-i18n="aud_pro_p">Paid dep gigs with the fee stated up front, in CHF or EUR. Reviews from real completed gigs build a track record you can share.</p>
-          <button class="primary" id="ctaGigs" style="align-self: flex-start;" data-i18n="cta_gigs">See paid gigs</button>
+          <button class="primary aud-cta" id="ctaGigs" data-i18n="cta_gigs">See paid gigs</button>
         </div>
       </div>
       <div class="card" id="landTiles" style="display: flex; flex-direction: column; gap: 14px;">
