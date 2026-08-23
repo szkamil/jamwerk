@@ -21,6 +21,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
   VAPID ES256 + aes128gcm on WebCrypto), `src/email.ts` (Mailjet),
   `src/turnstile.ts` (bot check), `src/ratelimit.ts`, `src/i18n.ts`,
   `src/pwa.ts` (manifest/icons/service worker)
+- `src/places.ts` — bundled place list (Grand Genève, Romandie, border towns, Swiss cities; multilingual aliases) + `src/places-api.ts` (`GET /places?q=`: bundled list, then Photon). City inputs use the typeahead in ui.ts; the server refuses unresolvable cities (`code: city_unknown`) — a listing without coordinates would never match anything
 - `src/media.ts` — demo/promo URL → embed descriptor (YouTube/Vimeo/Spotify/SoundCloud), used by the public profile page and the bands API
 - Profile photos: client resizes to a 512px JPEG, `POST /auth/photo` stores it in the R2 bucket `jamwerk-media` (binding `MEDIA`), served at `/img/avatars/<uuid>.<ext>` with immutable caching; `users.photo_key`
 - `schema.sql` — full-schema mirror; `migrations/NNN_*.sql` — incremental
@@ -42,7 +43,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 - The inline client script must stay valid standalone JS. Sanity check:
   extract the `<script>…</script>` block and `new Function(it)`.
 - External services degrade gracefully when unconfigured (email logs,
-  push skips, geocode off via `GEOCODE_OFF`, Turnstile skips without
+  push skips, geocode off via `GEOCODE_OFF` (bundled places still resolve), Turnstile skips without
   secret) — keep it that way so tests run offline.
 - Dialogs are modal: error/success feedback must render INSIDE the dialog
   (see `fbMsg`/`fbDone`, `authMsg`), not via the page toast. The page-level

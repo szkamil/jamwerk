@@ -67,16 +67,33 @@ describe('Geocoding', () => {
 		expect(tight.json.gigs.find((g: any) => g.id === id)).toBeUndefined();
 	});
 
-	it('falls back to exact city match when the city cannot be geocoded', async () => {
-		const created = await call('/gigs', {
-			method: 'POST', as: poster,
-			body: { ...bernGig, venue_city: 'Zermatt' },
-		});
-		const id = created.json.id;
-		const r = await call('/gigs?city=Zermatt');
-		expect(r.json.gigs.find((g: any) => g.id === id)).toBeTruthy();
-		const detail = await call(`/gigs/${id}`);
-		expect(detail.json.venue_lat).toBeNull();
+	it('resolves curated places offline and refuses unknown cities', async () => {
+		// Zermatt is in the bundled list → coordinates even with geocoding off
+		const created = await call('/gigs', { method: 'POST', as: poster, body: { ...bernGig, venue_city: 'Zermatt' } });
+		expect(created.status).toBe(201);
+		const detail = await call(`/gigs/${created.json.id}`);
+		expect(detail.json.venue_lat).toBeCloseTo(46.02, 1);
+		// aliases in other languages resolve to the same place
+		const genf = await call('/gigs', { method: 'POST', as: poster, body: { ...bernGig, venue_city: 'Genf' } });
+		expect(genf.status).toBe(201);
+		expect((await call(`/gigs/${genf.json.id}`)).json.venue_lng).toBeCloseTo(6.14, 1);
+		// a typo is refused instead of being saved invisibly
+		const typo = await call('/gigs', { method: 'POST', as: poster, body: { ...bernGig, venue_city: 'Genve' } });
+		expect(typo.status).toBe(400);
+		expect(typo.json.code).toBe('city_unknown');
+		// coordinates picked in the typeahead are accepted for places outside the list
+		const picked = await call('/gigs', { method: 'POST', as: poster, body: { ...bernGig, venue_city: 'Saint-Cergue', venue_lat: 46.446, venue_lng: 6.158 } });
+		expect(picked.status).toBe(201);
+	});
+
+	it('suggests places: curated list, aliases, prefixes', async () => {
+		const r = await call('/places?q=genf');
+		expect(r.json.places[0].name).toBe('Genève');
+		const r2 = await call('/places?q=st jul');
+		expect(r2.json.places.map((p: any) => p.name)).toContain('Saint-Julien-en-Genevois');
+		const r3 = await call('/places?q=la');
+		expect(r3.json.places.map((p: any) => p.name)).toContain('Lausanne');
+		expect((await call('/places?q=x')).json.places).toEqual([]);
 	});
 
 	it('fills musician home coordinates from the cached city', async () => {
