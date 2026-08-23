@@ -5,6 +5,8 @@
 // Ambient layers for the "backstage editorial" theme (mirrors design/):
 // an audio-waveform strip along the header's bottom edge, and a faint violet
 // scatter of notation behind the page. Deterministic — same field every load.
+import { MEDIA_CSS } from './media';
+
 export const WAVE_SVG = (() => {
   const heights = [8, 14, 10, 22, 30, 18, 12, 26, 36, 24, 14, 20, 32, 16, 10, 24, 34, 28, 16, 12, 22, 38, 26, 14, 18, 30, 20, 10, 16, 28, 36, 22, 12, 20, 26, 18, 32, 14, 8];
   let bars = '';
@@ -128,6 +130,7 @@ export const PAGE = `<!doctype html>
   #msgBadge { background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px; }
   main { max-width: 860px; margin: 0 auto; padding: 16px 20px 64px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(20,19,26,0.05); }
+${MEDIA_CSS}
   .gig-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .gig-head strong { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 19px; font-weight: 700; }
   .gig-head .fee { margin-left: auto; font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-weight: 800; font-size: 20px; color: var(--accent); }
@@ -392,6 +395,7 @@ ${NOTES_LAYER}
       </div>
       <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="bGenres" required placeholder="indie, rock"></div>
       <div class="row"><label data-i18n="description">Description</label><textarea id="bDesc"></textarea></div>
+      <div class="row"><label data-i18n="links_l">Links — YouTube, Spotify, SoundCloud, Vimeo, Bandcamp… (one per line, max 5)</label><textarea id="bLinks" rows="3" placeholder="https://open.spotify.com/artist/…&#10;https://youtube.com/watch?v=…"></textarea></div>
       <div class="row"><label data-i18n="seats_l">Open seats (choose instruments)</label><div class="checks" id="bSeats"></div></div>
       <button class="primary" data-i18n="start_band">Start a band</button>
     </form></div>
@@ -422,7 +426,7 @@ ${NOTES_LAYER}
         <label><input type="checkbox" id="mTransport"> <span data-i18n="transport">own transport</span></label>
         <label><input type="checkbox" id="mPa"> <span data-i18n="own_pa">own PA</span></label>
       </div>
-      <div class="row"><label data-i18n="demo_links_l">Demo links (one per line, max 5)</label><textarea id="mDemos" placeholder="https://youtube.com/…"></textarea></div>
+      <div class="row"><label data-i18n="demo_links_l">Demo links (one per line, max 5)</label><textarea id="mDemos" placeholder="https://youtube.com/watch?v=…&#10;https://open.spotify.com/track/…&#10;https://soundcloud.com/…"></textarea></div>
       <button class="primary" data-i18n="save_profile">Save profile</button>
       <span class="muted" id="mStats"></span>
       <a id="mPublic" target="_blank" rel="noopener" hidden style="margin-left: 10px;" data-i18n="public_page">View my public page &#8599;</a>
@@ -502,7 +506,7 @@ const I18N = {
     req_charts: 'must read charts', req_rehearsal: 'one rehearsal', post_gig_btn: 'Post gig',
     instruments_l: 'Instruments', home_city: 'Home city', radius: 'Travel radius (km)',
     reads_charts: 'reads charts', backing: 'backing vocals', transport: 'own transport', own_pa: 'own PA',
-    demo_links_l: 'Demo links (one per line, max 5)', save_profile: 'Save profile', public_page: 'View my public page \u2197',
+    demo_links_l: 'Demo links (one per line, max 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (one per line, max 5)', save_profile: 'Save profile', public_page: 'View my public page \u2197',
     empty_gigs: 'No paid gigs found at the moment.', empty_practice: 'No jam or practice partners found at the moment.', empty_sub: 'Turn on alerts and you’ll hear the moment something is posted for your instrument near you.', empty_alerts_btn: 'Enable alerts', alerts_already: 'Alerts are already on — you’ll hear as soon as something is posted.',
     your_gig: 'Your gig — manage it under \u201cMy gigs\u201d.', apply: 'Apply', jam: 'Jam', flexible: 'flexible',
     applied_ok: 'Applied. The bandleader will see your profile.', could_not_apply: 'Could not apply',
@@ -542,7 +546,7 @@ const I18N = {
     req_charts: 'lecture de partitions exigée', req_rehearsal: 'une répétition', post_gig_btn: 'Publier',
     instruments_l: 'Instruments', home_city: 'Ville de résidence', radius: 'Rayon de déplacement (km)',
     reads_charts: 'lit les partitions', backing: 'ch\u0153urs', transport: 'véhicule personnel', own_pa: 'sono personnelle',
-    demo_links_l: 'Liens démos (un par ligne, max 5)', save_profile: 'Enregistrer le profil', public_page: 'Voir ma page publique \u2197',
+    demo_links_l: 'Liens démos (un par ligne, max 5)', links_l: 'Liens \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (un par ligne, max 5)', save_profile: 'Enregistrer le profil', public_page: 'Voir ma page publique \u2197',
     empty_gigs: 'Aucun concert payé trouvé pour le moment.', empty_practice: 'Aucun partenaire de jam ni annonce trouvés pour le moment.', empty_sub: 'Activez les alertes et vous serez prévenu dès qu’une annonce est publiée pour votre instrument près de chez vous.', empty_alerts_btn: 'Activer les alertes', alerts_already: 'Les alertes sont déjà activées — vous serez prévenu dès la prochaine annonce.',
     your_gig: 'Votre annonce — gérez-la dans \u00ab Mes concerts \u00bb.', apply: 'Postuler', jam: 'Jam', flexible: 'flexible',
     applied_ok: 'Candidature envoyée. Le chef de groupe verra votre profil.', could_not_apply: 'Candidature impossible',
@@ -582,7 +586,7 @@ const I18N = {
     req_charts: 'Notenlesen erforderlich', req_rehearsal: 'eine Probe', post_gig_btn: 'Veröffentlichen',
     instruments_l: 'Instrumente', home_city: 'Wohnort', radius: 'Reiseradius (km)',
     reads_charts: 'liest Noten', backing: 'Backing Vocals', transport: 'eigenes Fahrzeug', own_pa: 'eigene PA',
-    demo_links_l: 'Demo-Links (einer pro Zeile, max. 5)', save_profile: 'Profil speichern', public_page: 'Meine öffentliche Seite \u2197',
+    demo_links_l: 'Demo-Links (einer pro Zeile, max. 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (einer pro Zeile, max. 5)', save_profile: 'Profil speichern', public_page: 'Meine öffentliche Seite \u2197',
     empty_gigs: 'Im Moment keine bezahlten Gigs gefunden.', empty_practice: 'Im Moment keine Jam-Partner oder Anzeigen gefunden.', empty_sub: 'Schalte Alerts ein und du erfährst sofort, wenn etwas für dein Instrument in deiner Nähe eingestellt wird.', empty_alerts_btn: 'Alerts einschalten', alerts_already: 'Alerts sind schon an — du erfährst es, sobald etwas eingestellt wird.',
     your_gig: 'Dein Gig — verwalte ihn unter \u201eMeine Gigs\u201c.', apply: 'Bewerben', jam: 'Jam', flexible: 'flexibel',
     applied_ok: 'Beworben. Der Bandleader sieht dein Profil.', could_not_apply: 'Bewerbung nicht möglich',
@@ -622,7 +626,7 @@ const I18N = {
     req_charts: 'lettura spartiti richiesta', req_rehearsal: 'una prova', post_gig_btn: 'Pubblica',
     instruments_l: 'Strumenti', home_city: 'Città di residenza', radius: 'Raggio di spostamento (km)',
     reads_charts: 'legge spartiti', backing: 'cori', transport: 'mezzo proprio', own_pa: 'impianto proprio',
-    demo_links_l: 'Link demo (uno per riga, max 5)', save_profile: 'Salva profilo', public_page: 'La mia pagina pubblica \u2197',
+    demo_links_l: 'Link demo (uno per riga, max 5)', links_l: 'Link \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (uno per riga, max 5)', save_profile: 'Salva profilo', public_page: 'La mia pagina pubblica \u2197',
     empty_gigs: 'Nessun concerto pagato trovato al momento.', empty_practice: 'Nessun partner di jam o annuncio trovato al momento.', empty_sub: 'Attiva gli avvisi e saprai subito quando viene pubblicato qualcosa per il tuo strumento vicino a te.', empty_alerts_btn: 'Attiva gli avvisi', alerts_already: 'Gli avvisi sono già attivi — saprai subito quando viene pubblicato qualcosa.',
     your_gig: 'Il tuo annuncio — gestiscilo in \u00abI miei concerti\u00bb.', apply: 'Candidati', jam: 'Jam', flexible: 'flessibile',
     applied_ok: 'Candidatura inviata. Il bandleader vedrà il tuo profilo.', could_not_apply: 'Candidatura non possibile',
@@ -954,6 +958,25 @@ $('resendConfirmBtn').onclick = async () => {
 };
 try { $('pCurrency').value = localStorage.getItem('currency') || 'CHF'; } catch (e) {}
 $('pCurrency').onchange = () => { try { localStorage.setItem('currency', $('pCurrency').value); } catch (e) {} };
+// Render a media descriptor from the API (see src/media.ts) as an inline
+// player or a link card. Iframes are lazy so a band list stays light.
+function mediaEl(m) {
+  if (m.embed) {
+    const video = m.kind === 'youtube' || m.kind === 'vimeo';
+    const box = el('div', video ? 'media video' : 'media');
+    const f = document.createElement('iframe');
+    f.src = m.embed; f.loading = 'lazy'; f.title = m.host; f.referrerPolicy = 'strict-origin-when-cross-origin';
+    f.setAttribute('allow', 'accelerometer; encrypted-media; picture-in-picture'); f.allowFullscreen = true;
+    if (!video) f.height = m.height || 152;
+    box.append(f);
+    return box;
+  }
+  const a = el('a', 'media link'); a.href = m.url; a.target = '_blank'; a.rel = 'noopener noreferrer nofollow';
+  const play = el('span', 'play', '\u2197');
+  const txt = el('span'); txt.append(el('span', 't', m.url), document.createElement('br'), el('span', 'd', m.host));
+  a.append(play, txt);
+  return a;
+}
 $('postForm').onsubmit = async (e) => {
   e.preventDefault();
   if (!me) { $('authDialog').showModal(); return; }
@@ -1257,6 +1280,7 @@ $('bandForm').onsubmit = async (e) => {
     home_city: $('bCity').value || undefined,
     genres: parseCsv($('bGenres').value),
     description: $('bDesc').value,
+    links: $('bLinks').value.split('\n').map((x) => x.trim()).filter(Boolean),
     seats: [...document.querySelectorAll('#bSeats input:checked')].map((x) => x.value),
   };
   const r = await api('/bands', { method: 'POST', body });
@@ -1278,6 +1302,7 @@ async function loadBands() {
     (b.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
     card.append(tags);
     if (b.description) card.append(el('p', '', b.description));
+    (b.media || []).forEach((m) => card.append(mediaEl(m)));
     const bar = el('div');
     bar.style.display = 'flex'; bar.style.gap = '8px'; bar.style.flexWrap = 'wrap';
     if (b.is_mine) {

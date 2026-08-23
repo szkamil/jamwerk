@@ -6,6 +6,7 @@ import { WAVE_SVG, NOTES_LAYER } from './ui';
 import { pickLang, t } from './i18n';
 import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
+import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
 
 function esc(s: unknown): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -117,14 +118,7 @@ profilePage.get('/:handle', async (c) => {
   ].filter(Boolean).join('');
 
   const demoHtml = demos.length
-    ? demos.map((u) => {
-        let host = '';
-        try { host = new URL(u).hostname.replace(/^www\./, ''); } catch { /* leave blank */ }
-        return `<div class="card"><a class="demo" href="${esc(u)}" target="_blank" rel="noopener noreferrer nofollow">
-          <span class="play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
-          <span><span class="t">${esc(u)}</span><br><span class="d">${esc(host)}</span></span>
-        </a></div>`;
-      }).join('')
+    ? demos.map((u) => { const m = classifyMedia(u); return m ? mediaHtml(m) : ''; }).join('')
     : `<p class="empty">${t(lang, { en: 'No demos yet.', fr: 'Pas encore de démos.', de: 'Noch keine Demos.', it: 'Ancora nessuna demo.' })}</p>`;
 
   const reviewHtml = (reviews as any[]).length
@@ -159,7 +153,7 @@ profilePage.get('/:handle', async (c) => {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
-<style>${CSS}</style>
+<style>${MEDIA_CSS}${CSS}</style>
 </head>
 <body>
 ${NOTES_LAYER}

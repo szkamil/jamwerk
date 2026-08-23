@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS bands (
   home_lat REAL,
   home_lng REAL,
   description TEXT NOT NULL DEFAULT '',
+  links TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (owner_email) REFERENCES users(email) ON DELETE CASCADE
 );

@@ -16,6 +16,7 @@ import { rateLimited, clientIp } from './ratelimit';
 import { INSTRUMENTS, geocodeCity, haversineKm } from './gigs';
 import { Lang, t } from './i18n';
 import type { AppEnv } from './types';
+import { classifyMedia, parseLinks } from './media';
 
 type Ctx = Context<AppEnv>;
 
@@ -87,6 +88,8 @@ bands.post('/', async (c) => {
   const genres = parseSlugArray(body.genres) ?? [];
   const seats = parseSlugArray(body.seats, 12) ?? [];
   const description = typeof body.description === 'string' ? body.description.trim().slice(0, 4000) : '';
+  const links = parseLinks(body.links);
+  if (links === null) return c.json({ error: 'links must be up to 5 valid http(s) URLs' }, 400);
   if (!name) return c.json({ error: 'Band name is required' }, 400);
   if (genres.length === 0) return c.json({ error: 'genres must be a non-empty array of slugs' }, 400);
   if (!seats.every((s) => (INSTRUMENTS as readonly string[]).includes(s))) {
@@ -100,8 +103,8 @@ bands.post('/', async (c) => {
   }
 
   const result = await c.env.DB.prepare(
-    'INSERT INTO bands (owner_email, name, genres, home_city, home_lat, home_lng, description) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).bind(user.email, name, JSON.stringify(genres), homeCity, lat, lng, description).run();
+    'INSERT INTO bands (owner_email, name, genres, home_city, home_lat, home_lng, description, links) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(user.email, name, JSON.stringify(genres), homeCity, lat, lng, description, JSON.stringify(links)).run();
   const bandId = result.meta.last_row_id;
   if (seats.length) {
     await c.env.DB.batch(seats.map((s) =>
@@ -132,6 +135,8 @@ bands.get('/', async (c) => {
       genres: JSON.parse(b.genres || '[]'),
       home_city: b.home_city,
       description: b.description,
+      links: JSON.parse(b.links || '[]'),
+      media: (JSON.parse(b.links || '[]') as string[]).map(classifyMedia).filter(Boolean),
       owner_name: b.owner_name || b.owner_email.split('@')[0],
       member_count: 1 + b.filled_count,
       open_seats: (seats as any[]).filter((s) => s.status === 'open').map((s) => ({ id: s.id, instrument: s.instrument })),

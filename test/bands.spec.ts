@@ -114,3 +114,21 @@ describe('Bands', () => {
 		expect((await call(`/bands/seats/${added.json.id}/apply`, { method: 'POST', as: drummer, body: {} })).status).toBe(409);
 	});
 });
+
+describe('Band links → media', () => {
+	it('stores up to 5 links and returns embed descriptors', async () => {
+		const who = 'linky@example.com';
+		await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES (?, 'x')").bind(who).run();
+		const bad = await call('/bands', { method: 'POST', as: who, body: { name: 'Bad Links', genres: ['jazz'], seats: [], links: ['not a url'] } });
+		expect(bad.status).toBe(400);
+		const r = await call('/bands', { method: 'POST', as: who, body: { name: 'Samba Link', genres: ['samba'], seats: [],
+			links: ['https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2', 'https://soundcloud.com/someone/some-track', 'https://vimeo.com/123456789', 'https://mybandcamp.bandcamp.com/album/x'] } });
+		expect(r.status).toBe(201);
+		const list = await call('/bands');
+		const band = list.json.bands.find((b: any) => b.name === 'Samba Link');
+		expect(band.links.length).toBe(5);
+		expect(band.media.map((m: any) => m.kind)).toEqual(['youtube', 'spotify', 'soundcloud', 'vimeo', 'link']);
+		expect(band.media[0].embed).toBe('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ');
+		expect(band.media[1].embed).toContain('open.spotify.com/embed/artist/');
+	});
+});
