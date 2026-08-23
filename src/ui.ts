@@ -87,7 +87,11 @@ export const PAGE = `<!doctype html>
     --ok: #0a7d4f; --warn: #b3261e; --muted: #6f6c64; --gold: #b98a00; --r: 14px;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; }
+  /* Column layout so the footer sits at the bottom even on short pages
+     (e.g. an empty tab); main stretches, footer never floats mid-screen. */
+  body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+  main { flex: 1 0 auto; width: 100%; }
+  footer { flex-shrink: 0; }
   #bgnotes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.085; pointer-events: none; }
   header {
     background-color: var(--ink);
@@ -167,12 +171,15 @@ export const PAGE = `<!doctype html>
     nav button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
     nav button[data-tab=profile] { display: none; }
     nav #msgBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
-    main { padding-bottom: 96px; }
-    footer { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+    footer { padding-bottom: calc(84px + env(safe-area-inset-bottom)); margin-top: 32px; }
+    .actions { flex-direction: column; }
+    .actions > button { width: 100%; }
+    .filters button.ghost { flex: 1 1 100%; }
   }
   button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 600; cursor: pointer; min-height: 46px; }
   button.primary:hover { background: var(--accent-deep); }
-  button.ghost { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font: inherit; cursor: pointer; }
+  button.ghost { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font: inherit; color: inherit; cursor: pointer; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
   button.small { padding: 7px 14px; font-size: 14px; min-height: 40px; }
   button.linkish { background: none; border: 0; padding: 0; font: inherit; font-size: inherit; color: var(--accent-deep); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
@@ -186,7 +193,7 @@ export const PAGE = `<!doctype html>
      wherever the user is scrolled (e.g. the footer feedback form). */
   #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3000; margin: 0; max-width: min(92vw, 480px); box-shadow: 0 8px 28px rgba(20,19,26,0.25); }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
-  .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; }
+  .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; color: inherit; }
   .filters select {
     appearance: none; -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2314131a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -861,8 +868,7 @@ async function loadBoard() {
     const title = el('div', 'display', boardKind === 'practice' ? T('empty_practice') : T('empty_gigs'));
     title.style.cssText = 'font-size: 17px; font-weight: 700; margin-bottom: 6px;';
     card.append(title, el('p', 'muted', T('empty_sub')));
-    const bar = el('div');
-    bar.style.cssText = 'display: flex; gap: 10px; flex-wrap: wrap;';
+    const bar = el('div', 'actions');
     const main = el('button', 'primary small', me ? T('empty_alerts_btn') : T('cta_join'));
     main.onclick = async () => {
       if (!me) { if (!registering) $('authSwitch').onclick(); $('authDialog').showModal(); return; }
