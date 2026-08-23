@@ -37,7 +37,15 @@ app.onError((err, c) => {
   return c.json({ error: 'Internal server error' }, 500);
 });
 
-app.get('/', (c) => c.html(PAGE));
+// The SPA shell. Cloudflare's request geolocation is passed to the page as a
+// hint (data-geo="CC:Region") — the client uses it ONLY when neither a stored
+// choice nor the browser language maps to a supported UI language.
+app.get('/', (c) => {
+  const cf = (c.req.raw as Request & { cf?: { country?: string; region?: string; city?: string } }).cf;
+  const clean = (v: unknown) => (typeof v === 'string' ? v.replace(/[^A-Za-z \-]/g, '').slice(0, 40) : '');
+  const geo = cf ? `${clean(cf.country)}:${clean(cf.region) || clean(cf.city)}` : '';
+  return c.html(geo && geo !== ':' ? PAGE.replace('<html lang="en">', `<html lang="en" data-geo="${geo}">`) : PAGE);
+});
 // Mailjet domain-ownership validation (Option 1: empty file on the site).
 // Mailjet's DNS-TXT check kept failing on their side even though the record
 // resolves; this file is the documented alternative. Harmless to keep.

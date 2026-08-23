@@ -36,3 +36,11 @@ describe('Not found', () => {
 		expect(html).toContain('<meta name="description"');
 	});
 });
+
+describe('Geo language hint', () => {
+	it('front page renders without a geo hint when cf is absent', async () => {
+		const html = await (await get('/')).text();
+		expect(html).toContain('<html lang="en">');
+		expect(html).not.toContain('data-geo');
+	});
+});
