@@ -185,8 +185,10 @@ ${MEDIA_CSS}
     nav button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
     nav button[data-tab=profile] { display: none; }
     nav #msgBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
-    footer { padding-bottom: calc(84px + env(safe-area-inset-bottom)); margin-top: 32px; }
-    footer .wave { bottom: calc(82px + env(safe-area-inset-bottom)); }
+    /* Tab bar is 63px tall (+ safe area); the footer's bottom padding hides
+       under it exactly, and the waveform stands on the tab bar's top edge. */
+    footer { padding-bottom: calc(63px + 28px + env(safe-area-inset-bottom)); margin-top: 32px; }
+    footer .wave { bottom: calc(63px + env(safe-area-inset-bottom) - 2px); }
     .actions { flex-direction: column; }
     .actions > button { width: 100%; }
     .aud-cta { align-self: stretch; width: 100%; }
