@@ -225,6 +225,7 @@ ${MEDIA_CSS}
   .install-step { display: flex; gap: 10px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; counter-increment: step; }
   .install-step::before { content: counter(step); flex: 0 0 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
   #installSteps { counter-reset: step; margin-bottom: 14px; }
+  .step-icon { display: inline-flex; vertical-align: -4px; margin-left: 2px; color: var(--accent-deep); background: var(--accent-tint); border: 1px solid var(--accent-tint-line); border-radius: 6px; padding: 3px; }
   .filters select, .filters input { width: auto; flex: 1 1 150px; border-radius: 999px; padding: 8px 16px; min-height: 46px; color: inherit; }
   .filters select {
     appearance: none; -webkit-appearance: none;
@@ -1175,9 +1176,20 @@ const isStandalone = () => window.matchMedia('(display-mode: standalone)').match
 function openInstallDialog() {
   const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const steps = $('installSteps'); steps.textContent = '';
-  const add = (txt) => { const d = el('div', 'install-step'); d.textContent = txt; steps.append(d); };
-  if (ios) { add(T('install_ios_1')); add(T('install_ios_2')); }
-  else if (/Android/i.test(navigator.userAgent)) { add(T('install_android_1')); add(T('install_android_2')); }
+  // The two glyphs people actually scan the iOS share sheet for.
+  const ICONS = {
+    share: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 6 4-4 4 4"/><rect x="4" y="9" width="16" height="12" rx="2"/></svg>',
+    plus: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+    menu: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>',
+  };
+  const add = (txt, icon) => {
+    const d = el('div', 'install-step');
+    const span = el('span', '', txt);
+    if (icon) { const i = el('span', 'step-icon'); i.innerHTML = ICONS[icon]; span.append(' ', i); }
+    d.append(span); steps.append(d);
+  };
+  if (ios) { add(T('install_ios_1'), 'share'); add(T('install_ios_2'), 'plus'); }
+  else if (/Android/i.test(navigator.userAgent)) { add(T('install_android_1'), 'menu'); add(T('install_android_2'), 'plus'); }
   else { add(T('install_desktop_1')); }
   $('installNative').hidden = !installPrompt;
   $('installDialog').showModal();
