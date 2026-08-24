@@ -551,7 +551,7 @@ const I18N = {
     confirm_needed: 'Confirm your email address to post paid gigs — check your inbox (and spam folder).', resend_confirm: 'Resend the email', resend_done: 'Confirmation email sent — check your inbox and spam folder.', reset_sent: 'If that account exists, a reset link is on its way — check your spam folder if it does not show up.', email_confirmed: 'Email confirmed — welcome aboard.',
     confirm_invalid: 'That confirmation link is invalid or already used.', pw_updated: 'Password updated — you are logged in.', reset_failed: 'Reset failed',
     alerts_off: 'Alerts off.', alerts_on_msg: 'Alerts on — gigs near you will reach this device.',
-    notif_blocked: 'Notifications are blocked in your browser settings.', alerts_error: 'Could not change alert settings.', alerts_enable_fail: 'Could not enable alerts',
+    alerts_ios: 'On iPhone: tap Share, then \u201cAdd to Home Screen\u201d \u2014 alerts work from the installed app.', alerts_unsupported: 'This browser does not support push alerts \u2014 you will still get emails.', notif_blocked: 'Notifications are blocked in your browser settings.', alerts_error: 'Could not change alert settings.', alerts_enable_fail: 'Could not enable alerts',
     note_prompt: 'Note to the bandleader (optional):', rating_prompt: 'Rating 1-5:', comment_prompt: 'Comment (optional):',
     cancel_reason_prompt: 'Reason for cancelling?', account_email_prompt: 'Your account email:', new_pw_prompt: 'Set a new password (min 8 characters):',
     login_to_see: 'Log in to see your gigs and applications.', posted_h: 'Gigs I posted', applied_h: 'Gigs I applied to', none_yet: 'None yet.',
@@ -591,7 +591,7 @@ const I18N = {
     confirm_needed: 'Confirmez votre adresse e-mail pour publier des concerts payés — vérifiez votre boîte de réception (et le dossier spam).', resend_confirm: 'Renvoyer l\u2019e-mail', resend_done: 'E-mail de confirmation envoyé — vérifiez votre boîte de réception et le dossier spam.', reset_sent: 'Si ce compte existe, un lien de réinitialisation arrive — vérifiez le dossier spam s\u2019il n\u2019apparaît pas.', email_confirmed: 'E-mail confirmé — bienvenue !',
     confirm_invalid: 'Ce lien de confirmation est invalide ou déjà utilisé.', pw_updated: 'Mot de passe mis à jour — vous êtes connecté.', reset_failed: 'Échec de la réinitialisation',
     alerts_off: 'Alertes désactivées.', alerts_on_msg: 'Alertes activées — les concerts près de chez vous arriveront sur cet appareil.',
-    notif_blocked: 'Les notifications sont bloquées dans votre navigateur.', alerts_error: 'Impossible de modifier les alertes.', alerts_enable_fail: 'Impossible d\u2019activer les alertes',
+    alerts_ios: 'Sur iPhone : touchez Partager puis \u00ab\u202fSur l\u2019\u00e9cran d\u2019accueil\u202f\u00bb \u2014 les alertes fonctionnent depuis l\u2019app install\u00e9e.', alerts_unsupported: 'Ce navigateur ne prend pas en charge les alertes push \u2014 vous recevrez quand m\u00eame les e-mails.', notif_blocked: 'Les notifications sont bloquées dans votre navigateur.', alerts_error: 'Impossible de modifier les alertes.', alerts_enable_fail: 'Impossible d\u2019activer les alertes',
     note_prompt: 'Note pour le chef de groupe (facultatif) :', rating_prompt: 'Note 1-5 :', comment_prompt: 'Commentaire (facultatif) :',
     cancel_reason_prompt: 'Raison de l\u2019annulation ?', account_email_prompt: 'Votre e-mail de compte :', new_pw_prompt: 'Nouveau mot de passe (min 8 caractères) :',
     login_to_see: 'Connectez-vous pour voir vos concerts et candidatures.', posted_h: 'Concerts publiés', applied_h: 'Mes candidatures', none_yet: 'Rien pour le moment.',
@@ -631,7 +631,7 @@ const I18N = {
     confirm_needed: 'Bestätige deine E-Mail-Adresse, um bezahlte Gigs einzustellen — schau in den Posteingang (und Spam-Ordner).', resend_confirm: 'E-Mail erneut senden', resend_done: 'Bestätigungs-E-Mail gesendet — schau in Posteingang und Spam-Ordner.', reset_sent: 'Falls das Konto existiert, ist ein Reset-Link unterwegs — schau auch im Spam-Ordner nach.', email_confirmed: 'E-Mail bestätigt — willkommen an Bord.',
     confirm_invalid: 'Dieser Bestätigungslink ist ungültig oder schon benutzt.', pw_updated: 'Passwort aktualisiert — du bist angemeldet.', reset_failed: 'Zurücksetzen fehlgeschlagen',
     alerts_off: 'Alerts aus.', alerts_on_msg: 'Alerts an — Gigs in deiner Nähe erreichen dieses Gerät.',
-    notif_blocked: 'Benachrichtigungen sind im Browser blockiert.', alerts_error: 'Alert-Einstellungen konnten nicht geändert werden.', alerts_enable_fail: 'Alerts konnten nicht aktiviert werden',
+    alerts_ios: 'Auf dem iPhone: Teilen antippen, dann \u201eZum Home-Bildschirm\u201c \u2014 Alerts funktionieren aus der installierten App.', alerts_unsupported: 'Dieser Browser unterst\u00fctzt keine Push-Alerts \u2014 E-Mails kommen trotzdem an.', notif_blocked: 'Benachrichtigungen sind im Browser blockiert.', alerts_error: 'Alert-Einstellungen konnten nicht geändert werden.', alerts_enable_fail: 'Alerts konnten nicht aktiviert werden',
     note_prompt: 'Notiz an den Bandleader (optional):', rating_prompt: 'Bewertung 1-5:', comment_prompt: 'Kommentar (optional):',
     cancel_reason_prompt: 'Grund der Absage?', account_email_prompt: 'Deine Konto-E-Mail:', new_pw_prompt: 'Neues Passwort (min. 8 Zeichen):',
     login_to_see: 'Melde dich an, um deine Gigs und Bewerbungen zu sehen.', posted_h: 'Eingestellte Gigs', applied_h: 'Meine Bewerbungen', none_yet: 'Noch nichts.',
@@ -671,7 +671,7 @@ const I18N = {
     confirm_needed: 'Conferma il tuo indirizzo e-mail per pubblicare concerti pagati — controlla la posta in arrivo (e la cartella spam).', resend_confirm: 'Reinvia l\u2019e-mail', resend_done: 'E-mail di conferma inviata — controlla posta in arrivo e cartella spam.', reset_sent: 'Se l\u2019account esiste, un link di reimpostazione è in arrivo — controlla anche la cartella spam.', email_confirmed: 'E-mail confermata — benvenuto/a!',
     confirm_invalid: 'Questo link di conferma non è valido o è già stato usato.', pw_updated: 'Password aggiornata — sei connesso.', reset_failed: 'Reimpostazione non riuscita',
     alerts_off: 'Avvisi disattivati.', alerts_on_msg: 'Avvisi attivi — i concerti vicino a te arriveranno su questo dispositivo.',
-    notif_blocked: 'Le notifiche sono bloccate nel browser.', alerts_error: 'Impossibile modificare gli avvisi.', alerts_enable_fail: 'Impossibile attivare gli avvisi',
+    alerts_ios: 'Su iPhone: tocca Condividi, poi \u201cAggiungi a Home\u201d \u2014 gli avvisi funzionano dall\u2019app installata.', alerts_unsupported: 'Questo browser non supporta gli avvisi push \u2014 riceverai comunque le e-mail.', notif_blocked: 'Le notifiche sono bloccate nel browser.', alerts_error: 'Impossibile modificare gli avvisi.', alerts_enable_fail: 'Impossibile attivare gli avvisi',
     note_prompt: 'Nota per il bandleader (facoltativa):', rating_prompt: 'Voto 1-5:', comment_prompt: 'Commento (facoltativo):',
     cancel_reason_prompt: 'Motivo dell\u2019annullamento?', account_email_prompt: 'La tua e-mail:', new_pw_prompt: 'Nuova password (min 8 caratteri):',
     login_to_see: 'Accedi per vedere i tuoi concerti e candidature.', posted_h: 'Concerti pubblicati', applied_h: 'Le mie candidature', none_yet: 'Ancora niente.',
@@ -947,6 +947,7 @@ async function loadBoard() {
     const main = el('button', 'primary small', me ? T('empty_alerts_btn') : T('cta_join'));
     main.onclick = async () => {
       if (!me) { if (!registering) $('authSwitch').onclick(); $('authDialog').showModal(); return; }
+      if (!pushSupported()) { pushUnsupportedHint(); return; }
       try {
         if (await currentSub()) { flash(T('alerts_already'), 'ok'); return; }
         await subscribeAlerts();
@@ -1602,7 +1603,15 @@ async function refreshNotifBtn() {
   $('notifBtn').title = sub ? T('alerts_on') : T('alerts');
   $('notifBtn').hidden = false;
 }
+// iOS Safari only allows Web Push for apps added to the Home Screen; in the
+// plain browser Notification/PushManager do not exist. Guide instead of failing.
+function pushSupported() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function pushUnsupportedHint() {
+  const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  flash(ios ? T('alerts_ios') : T('alerts_unsupported'), 'err');
+}
 async function subscribeAlerts() {
+  if (!pushSupported()) { pushUnsupportedHint(); return; }
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') { flash(T('notif_blocked'), 'err'); return; }
   if (vapidKey === null) vapidKey = (await api('/push/vapid')).json.key || false;
@@ -1614,6 +1623,7 @@ async function subscribeAlerts() {
   else flash(r.json.error || T('alerts_enable_fail'), 'err');
 }
 $('notifBtn').onclick = async () => {
+  if (!pushSupported()) { pushUnsupportedHint(); return; }
   try {
     const existing = await currentSub();
     if (existing) {
