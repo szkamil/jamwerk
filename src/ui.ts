@@ -211,7 +211,19 @@ ${MEDIA_CSS}
   .msg.warn:not([hidden]) { display: flex !important; }
   /* The page-level toast floats above the content so confirmations are seen
      wherever the user is scrolled (e.g. the footer feedback form). */
-  #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3000; margin: 0; max-width: min(92vw, 480px); box-shadow: 0 8px 28px rgba(20,19,26,0.25); }
+  /* Floating toast in the backstage style: ink pill, icon disc, draining
+     accent bar. Inline .msg boxes inside forms keep the flat look. */
+  #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%) translateY(-10px); z-index: 3000; margin: 0; max-width: min(92vw, 480px);
+    display: flex !important; align-items: center; gap: 11px; padding: 12px 18px 15px 12px; border-radius: 16px; overflow: hidden;
+    background-color: var(--ink); background-image: radial-gradient(circle at 88% -40%, rgba(100,64,251,0.45), transparent 60%);
+    color: #fff; font-size: 14.5px; font-weight: 500; box-shadow: 0 14px 38px rgba(20,19,26,0.35);
+    opacity: 0; pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease; cursor: pointer; }
+  #flash.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  #flash .fi { flex: 0 0 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; }
+  #flash.ok .fi { background: var(--ok); color: #fff; }
+  #flash.err .fi { background: #e0524a; color: #fff; }
+  #flash .fbar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent-light); transform-origin: left; animation: fbar 5s linear forwards; }
+  @keyframes fbar { to { transform: scaleX(0); } }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
   /* City typeahead (see attachPlaces) */
   .place-wrap { position: relative; }
@@ -806,11 +818,15 @@ const el = (tag, cls, text) => {
   if (text !== undefined) n.textContent = text;
   return n;
 };
+let flashTimer = null;
 const flash = (text, kind) => {
   const f = $('flash');
-  f.className = 'msg ' + kind;
-  f.textContent = text;
-  setTimeout(() => { f.className = 'msg'; }, 5000);
+  f.className = kind + ' show';
+  f.textContent = '';
+  f.append(el('span', 'fi', kind === 'ok' ? '\u2713' : '!'), el('span', '', text), el('span', 'fbar'));
+  f.onclick = () => { f.classList.remove('show'); clearTimeout(flashTimer); };
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => f.classList.remove('show'), 5000);
 };
 const label = (i) => (I18N[lang].inst && I18N[lang].inst[i]) || i.replace(/_/g, ' ');
 const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
