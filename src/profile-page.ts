@@ -20,7 +20,7 @@ const CSS = `
     --muted: #6f6c64; --gold: #b98a00; --r: 14px;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; }
+  body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
   #bgnotes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.085; pointer-events: none; }
   .display { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; }
   a { color: var(--accent); } a:hover { color: var(--accent-deep); }
@@ -60,8 +60,19 @@ const CSS = `
   .review .ctx { font-size: 12.5px; color: var(--muted); }
   .review p { margin: 0; font-size: 14px; line-height: 1.45; color: #3a382f; }
   .empty { color: var(--muted); font-size: 14px; }
-  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
-  footer .display { font-weight: 800; color: #1b1a16; }
+  main { flex: 1 0 auto; width: 100%; }
+  footer {
+    flex-shrink: 0;
+    background-color: #14131a;
+    background-image: radial-gradient(circle at 12% 130%, rgba(100,64,251,0.34), transparent 58%);
+    color: rgba(255,255,255,0.65); padding: 24px 20px 40px; margin-top: 48px;
+    position: relative; overflow: hidden; z-index: 0; font-size: 13.5px;
+  }
+  footer .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
+  footer .inner { max-width: 860px; margin: 0 auto; display: flex; gap: 8px 18px; align-items: center; flex-wrap: wrap; }
+  footer .brand { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.4px; color: #fff; }
+  footer .brand span { color: var(--accent-light, #a58bff); }
+  footer a { color: rgba(255,255,255,0.75); }
 `;
 
 const profilePage = new Hono<AppEnv>();
@@ -183,7 +194,14 @@ ${NOTES_LAYER}
   <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}</h2>
   ${reviewHtml}
 </main>
-<footer>${t(lang, { en: 'Booked through', fr: 'Réservé via', de: 'Gebucht über', it: 'Prenotato tramite' })} <a href="/" style="text-decoration:none"><span class="display">Jam<span style="color:var(--accent)">Werk</span></span></a> — ${t(lang, { en: 'gigs · jams · bands', fr: 'concerts · jams · groupes', de: 'Gigs · Jams · Bands', it: 'concerti · jam · band' })}</footer>
+<footer>
+  ${WAVE_SVG}
+  <div class="inner">
+    <a href="/" style="text-decoration: none;"><span class="brand">Jam<span>Werk</span></span></a>
+    <span>${t(lang, { en: 'Booked through JamWerk — gigs · jams · bands', fr: 'Réservé via JamWerk — concerts · jams · groupes', de: 'Gebucht über JamWerk — Gigs · Jams · Bands', it: 'Prenotato tramite JamWerk — concerti · jam · band' })}</span>
+    <span style="margin-left: auto;">© ${new Date().getFullYear()} JamWerk</span>
+  </div>
+</footer>
 </body>
 </html>`);
 });
