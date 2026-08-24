@@ -236,6 +236,7 @@ ${MEDIA_CSS}
   .filters button.ghost { min-height: 46px; border-radius: 999px; }
   .filters button.busy { opacity: .6; }
   .board-summary { margin: 0 0 10px; font-size: 13.5px; }
+  .alerts-on-line { color: var(--ok); font-weight: 600; margin: 0 0 12px; }
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
   .seg button { flex: 1; border: 0; background: transparent; color: #b9b6c9; border-radius: 9px; padding: 10px 0; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 42px; }
   .seg button.active { background: var(--accent); color: #fff; font-weight: 600; }
@@ -554,7 +555,7 @@ const I18N = {
     instruments_l: 'Instruments', home_city: 'Home city', radius: 'Travel radius (km)',
     reads_charts: 'reads charts', backing: 'backing vocals', transport: 'own transport', own_pa: 'own PA',
     demo_links_l: 'Demo links (one per line, max 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (one per line, max 5)', save_profile: 'Save profile', photo_l: 'Profile photo', photo_pick: 'Choose a photo', photo_remove: 'Remove', photo_hint: 'Shown to bandleaders on your applications and on your public page.', photo_saved: 'Photo saved.', photo_removed: 'Photo removed.', photo_bad: 'Could not read that image.', public_page: 'View my public page \u2197',
-    results_n: '{0} listings', loading: 'Loading…', empty_gigs_near: 'No paid gigs near {0} yet.', empty_practice_near: 'No jam partners near {0} yet.', empty_gigs: 'No paid gigs found at the moment.', empty_practice: 'No jam or practice partners found at the moment.', empty_sub: 'Turn on alerts and you’ll hear the moment something is posted for your instrument near you.', empty_alerts_btn: 'Enable alerts', alerts_already: 'Alerts are already on — you’ll hear as soon as something is posted.',
+    results_n: '{0} listings', loading: 'Loading…', empty_gigs_near: 'No paid gigs near {0} yet.', empty_practice_near: 'No jam partners near {0} yet.', empty_sub_on: 'You will be notified the moment a listing is posted for your instrument near you.', empty_gigs: 'No paid gigs found at the moment.', empty_practice: 'No jam or practice partners found at the moment.', empty_sub: 'Turn on alerts and you’ll hear the moment something is posted for your instrument near you.', empty_alerts_btn: 'Enable alerts', alerts_already: 'Alerts are already on — you’ll hear as soon as something is posted.',
     your_gig: 'Your gig — manage it under \u201cMy gigs\u201d.', apply: 'Apply', jam: 'Jam', flexible: 'flexible',
     applied_ok: 'Applied. The bandleader will see your profile.', could_not_apply: 'Could not apply',
     gig_posted: 'Gig posted.', practice_posted: 'Practice listing posted.', profile_saved: 'Profile saved.', failed: 'Failed',
@@ -594,7 +595,7 @@ const I18N = {
     instruments_l: 'Instruments', home_city: 'Ville de résidence', radius: 'Rayon de déplacement (km)',
     reads_charts: 'lit les partitions', backing: 'ch\u0153urs', transport: 'véhicule personnel', own_pa: 'sono personnelle',
     demo_links_l: 'Liens démos (un par ligne, max 5)', links_l: 'Liens \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (un par ligne, max 5)', save_profile: 'Enregistrer le profil', photo_l: 'Photo de profil', photo_pick: 'Choisir une photo', photo_remove: 'Supprimer', photo_hint: 'Visible par les chefs de groupe sur vos candidatures et sur votre page publique.', photo_saved: 'Photo enregistrée.', photo_removed: 'Photo supprimée.', photo_bad: 'Impossible de lire cette image.', public_page: 'Voir ma page publique \u2197',
-    results_n: '{0} annonces', loading: 'Chargement…', empty_gigs_near: 'Aucun concert payé autour de {0} pour le moment.', empty_practice_near: 'Aucun partenaire de jam autour de {0} pour le moment.', empty_gigs: 'Aucun concert payé trouvé pour le moment.', empty_practice: 'Aucun partenaire de jam ni annonce trouvés pour le moment.', empty_sub: 'Activez les alertes et vous serez prévenu dès qu’une annonce est publiée pour votre instrument près de chez vous.', empty_alerts_btn: 'Activer les alertes', alerts_already: 'Les alertes sont déjà activées — vous serez prévenu dès la prochaine annonce.',
+    results_n: '{0} annonces', loading: 'Chargement…', empty_gigs_near: 'Aucun concert payé autour de {0} pour le moment.', empty_practice_near: 'Aucun partenaire de jam autour de {0} pour le moment.', empty_sub_on: 'Vous serez prévenu dès qu\u2019une annonce sera publiée pour votre instrument près de chez vous.', empty_gigs: 'Aucun concert payé trouvé pour le moment.', empty_practice: 'Aucun partenaire de jam ni annonce trouvés pour le moment.', empty_sub: 'Activez les alertes et vous serez prévenu dès qu’une annonce est publiée pour votre instrument près de chez vous.', empty_alerts_btn: 'Activer les alertes', alerts_already: 'Les alertes sont déjà activées — vous serez prévenu dès la prochaine annonce.',
     your_gig: 'Votre annonce — gérez-la dans \u00ab Mes concerts \u00bb.', apply: 'Postuler', jam: 'Jam', flexible: 'flexible',
     applied_ok: 'Candidature envoyée. Le chef de groupe verra votre profil.', could_not_apply: 'Candidature impossible',
     gig_posted: 'Concert publié.', practice_posted: 'Annonce de répétition publiée.', profile_saved: 'Profil enregistré.', failed: 'Échec',
@@ -634,7 +635,7 @@ const I18N = {
     instruments_l: 'Instrumente', home_city: 'Wohnort', radius: 'Reiseradius (km)',
     reads_charts: 'liest Noten', backing: 'Backing Vocals', transport: 'eigenes Fahrzeug', own_pa: 'eigene PA',
     demo_links_l: 'Demo-Links (einer pro Zeile, max. 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (einer pro Zeile, max. 5)', save_profile: 'Profil speichern', photo_l: 'Profilfoto', photo_pick: 'Foto wählen', photo_remove: 'Entfernen', photo_hint: 'Bandleader sehen es bei deinen Bewerbungen und auf deiner öffentlichen Seite.', photo_saved: 'Foto gespeichert.', photo_removed: 'Foto entfernt.', photo_bad: 'Dieses Bild konnte nicht gelesen werden.', public_page: 'Meine öffentliche Seite \u2197',
-    results_n: '{0} Anzeigen', loading: 'Lädt…', empty_gigs_near: 'Noch keine bezahlten Gigs rund um {0}.', empty_practice_near: 'Noch keine Jam-Partner rund um {0}.', empty_gigs: 'Im Moment keine bezahlten Gigs gefunden.', empty_practice: 'Im Moment keine Jam-Partner oder Anzeigen gefunden.', empty_sub: 'Schalte Alerts ein und du erfährst sofort, wenn etwas für dein Instrument in deiner Nähe eingestellt wird.', empty_alerts_btn: 'Alerts einschalten', alerts_already: 'Alerts sind schon an — du erfährst es, sobald etwas eingestellt wird.',
+    results_n: '{0} Anzeigen', loading: 'Lädt…', empty_gigs_near: 'Noch keine bezahlten Gigs rund um {0}.', empty_practice_near: 'Noch keine Jam-Partner rund um {0}.', empty_sub_on: 'Du wirst benachrichtigt, sobald eine Anzeige f\u00fcr dein Instrument in deiner N\u00e4he erscheint.', empty_gigs: 'Im Moment keine bezahlten Gigs gefunden.', empty_practice: 'Im Moment keine Jam-Partner oder Anzeigen gefunden.', empty_sub: 'Schalte Alerts ein und du erfährst sofort, wenn etwas für dein Instrument in deiner Nähe eingestellt wird.', empty_alerts_btn: 'Alerts einschalten', alerts_already: 'Alerts sind schon an — du erfährst es, sobald etwas eingestellt wird.',
     your_gig: 'Dein Gig — verwalte ihn unter \u201eMeine Gigs\u201c.', apply: 'Bewerben', jam: 'Jam', flexible: 'flexibel',
     applied_ok: 'Beworben. Der Bandleader sieht dein Profil.', could_not_apply: 'Bewerbung nicht möglich',
     gig_posted: 'Gig veröffentlicht.', practice_posted: 'Übungs-Anzeige veröffentlicht.', profile_saved: 'Profil gespeichert.', failed: 'Fehlgeschlagen',
@@ -674,7 +675,7 @@ const I18N = {
     instruments_l: 'Strumenti', home_city: 'Città di residenza', radius: 'Raggio di spostamento (km)',
     reads_charts: 'legge spartiti', backing: 'cori', transport: 'mezzo proprio', own_pa: 'impianto proprio',
     demo_links_l: 'Link demo (uno per riga, max 5)', links_l: 'Link \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (uno per riga, max 5)', save_profile: 'Salva profilo', photo_l: 'Foto profilo', photo_pick: 'Scegli una foto', photo_remove: 'Rimuovi', photo_hint: 'Visibile ai bandleader nelle tue candidature e sulla tua pagina pubblica.', photo_saved: 'Foto salvata.', photo_removed: 'Foto rimossa.', photo_bad: 'Impossibile leggere questa immagine.', public_page: 'La mia pagina pubblica \u2197',
-    results_n: '{0} annunci', loading: 'Caricamento…', empty_gigs_near: 'Ancora nessun concerto pagato vicino a {0}.', empty_practice_near: 'Ancora nessun partner di jam vicino a {0}.', empty_gigs: 'Nessun concerto pagato trovato al momento.', empty_practice: 'Nessun partner di jam o annuncio trovato al momento.', empty_sub: 'Attiva gli avvisi e saprai subito quando viene pubblicato qualcosa per il tuo strumento vicino a te.', empty_alerts_btn: 'Attiva gli avvisi', alerts_already: 'Gli avvisi sono già attivi — saprai subito quando viene pubblicato qualcosa.',
+    results_n: '{0} annunci', loading: 'Caricamento…', empty_gigs_near: 'Ancora nessun concerto pagato vicino a {0}.', empty_practice_near: 'Ancora nessun partner di jam vicino a {0}.', empty_sub_on: 'Sarai avvisato appena verr\u00e0 pubblicato un annuncio per il tuo strumento vicino a te.', empty_gigs: 'Nessun concerto pagato trovato al momento.', empty_practice: 'Nessun partner di jam o annuncio trovato al momento.', empty_sub: 'Attiva gli avvisi e saprai subito quando viene pubblicato qualcosa per il tuo strumento vicino a te.', empty_alerts_btn: 'Attiva gli avvisi', alerts_already: 'Gli avvisi sono già attivi — saprai subito quando viene pubblicato qualcosa.',
     your_gig: 'Il tuo annuncio — gestiscilo in \u00abI miei concerti\u00bb.', apply: 'Candidati', jam: 'Jam', flexible: 'flessibile',
     applied_ok: 'Candidatura inviata. Il bandleader vedrà il tuo profilo.', could_not_apply: 'Candidatura non possibile',
     gig_posted: 'Concerto pubblicato.', practice_posted: 'Annuncio di prova pubblicato.', profile_saved: 'Profilo salvato.', failed: 'Errore',
@@ -954,21 +955,31 @@ async function loadBoard() {
       ? T(boardKind === 'practice' ? 'empty_practice_near' : 'empty_gigs_near', city + ' (' + km + ' km)')
       : T(boardKind === 'practice' ? 'empty_practice' : 'empty_gigs'));
     title.style.cssText = 'font-size: 17px; font-weight: 700; margin-bottom: 6px;';
-    card.append(title, el('p', 'muted', T('empty_sub')));
+    // Reflect the real alert state: once subscribed, the card confirms it and
+    // the activate button disappears (subscribing again would be a no-op).
+    const subbed = me && pushSupported() ? await currentSub().catch(() => null) : null;
+    card.append(title, el('p', 'muted', subbed ? T('empty_sub_on') : T('empty_sub')));
     const bar = el('div', 'actions');
-    const main = el('button', 'primary small', me ? T('empty_alerts_btn') : T('cta_join'));
-    main.onclick = async () => {
-      if (!me) { if (!registering) $('authSwitch').onclick(); $('authDialog').showModal(); return; }
-      if (!pushSupported()) { pushUnsupportedHint(); return; }
-      try {
-        if (await currentSub()) { flash(T('alerts_already'), 'ok'); return; }
-        await subscribeAlerts();
-        refreshNotifBtn();
-      } catch { flash(T('alerts_error'), 'err'); }
-    };
+    if (subbed) {
+      const ok = el('p', 'alerts-on-line', '\u2713 ' + T('alerts_on'));
+      card.insertBefore(ok, bar);
+    } else {
+      const main = el('button', 'primary small', me ? T('empty_alerts_btn') : T('cta_join'));
+      main.onclick = async () => {
+        if (!me) { if (!registering) $('authSwitch').onclick(); $('authDialog').showModal(); return; }
+        if (!pushSupported()) { pushUnsupportedHint(); return; }
+        try {
+          if (await currentSub()) { flash(T('alerts_already'), 'ok'); loadBoard(); return; }
+          await subscribeAlerts();
+          refreshNotifBtn();
+          loadBoard();
+        } catch { flash(T('alerts_error'), 'err'); }
+      };
+      bar.append(main);
+    }
     const post = el('button', 'ghost small', T('nav_post'));
     post.onclick = () => document.querySelector('[data-tab=post]').click();
-    bar.append(main, post);
+    bar.append(post);
     card.append(bar);
     board.append(card);
     return;
