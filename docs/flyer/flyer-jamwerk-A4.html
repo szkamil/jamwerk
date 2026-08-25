@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>JamWerk — flyer A4</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: #000; -webkit-print-color-adjust: exact; }
+  body { width: 210mm; height: 297mm; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; display: flex; flex-direction: column; padding: 14mm 14mm 0; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1.2pt solid #000; padding-bottom: 3mm; }
+  .brand { font-size: 22pt; font-weight: 800; letter-spacing: -0.5pt; }
+  .brand span { font-weight: 300; }
+  .tag { font-size: 10.5pt; letter-spacing: 1pt; text-transform: uppercase; }
+  h1 { font-size: 34pt; line-height: 1.05; letter-spacing: -0.8pt; margin: 9mm 0 3mm; font-weight: 800; }
+  h1 small { display: block; font-size: 13pt; font-weight: 400; letter-spacing: 0; margin-bottom: 3mm; }
+  .lead { font-size: 12.5pt; line-height: 1.4; margin: 0 0 7mm; max-width: 150mm; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; border-top: 0.6pt solid #000; border-bottom: 0.6pt solid #000; }
+  .col { padding: 4.5mm 4mm 4.5mm 0; border-right: 0.6pt solid #000; }
+  .col:last-child { border-right: 0; }
+  .col + .col { padding-left: 4mm; }
+  .col b { display: block; font-size: 12.5pt; margin-bottom: 1.5mm; }
+  .col p { margin: 0; font-size: 10.5pt; line-height: 1.4; }
+  .mid { display: flex; gap: 8mm; align-items: center; margin: 8mm 0 0; flex: 1; }
+  .steps { flex: 1; }
+  .steps h2 { font-size: 10.5pt; letter-spacing: 1pt; text-transform: uppercase; margin: 0 0 3mm; font-weight: 700; }
+  .step { display: flex; gap: 3.5mm; align-items: baseline; padding: 2.5mm 0; border-top: 0.6pt solid #000; font-size: 11.5pt; line-height: 1.35; }
+  .step:last-child { border-bottom: 0.6pt solid #000; }
+  .step i { font-style: normal; font-weight: 800; font-size: 15pt; width: 7mm; flex: 0 0 7mm; }
+  .qr { width: 58mm; flex: 0 0 58mm; text-align: center; }
+  .qr svg { width: 50mm; height: 50mm; display: block; margin: 0 auto 2mm; shape-rendering: crispEdges; }
+  .qr .url { font-size: 15pt; font-weight: 800; letter-spacing: -0.3pt; }
+  .qr .free { font-size: 9.5pt; margin-top: 1mm; }
+  .en { font-size: 9.5pt; color: #000; margin: 6mm 0 4mm; border-top: 0.6pt solid #000; padding-top: 3mm; display: flex; justify-content: space-between; }
+  .tabs { display: flex; height: 34mm; border-top: 0.6pt dashed #000; margin: 0 -14mm 0; }
+  .tab { flex: 1; border-right: 0.6pt dashed #000; display: flex; align-items: center; justify-content: center; }
+  .tab:last-child { border-right: 0; }
+  .tab span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10.5pt; font-weight: 700; letter-spacing: 0.2pt; }
+  .scissors { font-size: 8pt; text-align: right; margin: 0 0 -3.2mm; padding-right: 1mm; color: #000; }
+</style></head>
+<body>
+  <div class="top"><div class="brand">Jam<span>Werk</span></div><div class="tag">concerts · jams · groupes</div></div>
+  <h1><small>Musicien·ne à Genève ou dans le Grand Genève ?</small>Trouvez un remplaçant.<br>Rejoignez un jam.<br>Montez un groupe.</h1>
+  <p class="lead">JamWerk connecte les musiciens locaux : concerts payés au cachet affiché, partenaires de jam gratuits et places de groupe ouvertes — selon votre instrument et votre région. Rock, jazz, pop, latin, soul, chanson…</p>
+  <div class="cols">
+    <div class="col"><b>Concerts payés</b><p>Un groupe cherche un bassiste pour samedi ? Le cachet est annoncé d'avance, en CHF ou EUR. Postulez en un geste.</p></div>
+    <div class="col"><b>Partenaires de jam</b><p>Gratuit, sans pression. Trouvez des gens de votre niveau, du débutant au groupe du week-end.</p></div>
+    <div class="col"><b>Groupes</b><p>Places ouvertes dans des groupes existants — ou créez le vôtre et trouvez qui manque.</p></div>
+  </div>
+  <div class="mid">
+    <div class="steps">
+      <h2>Comment ça marche</h2>
+      <div class="step"><i>1</i><span>Créez votre profil : instruments, ville, rayon de déplacement. Deux minutes, gratuit.</span></div>
+      <div class="step"><i>2</i><span>Activez les alertes sur votre téléphone.</span></div>
+      <div class="step"><i>3</i><span>Chaque annonce pour votre instrument près de chez vous vous arrive dès sa publication.</span></div>
+    </div>
+    <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h41v41H0z"/><path stroke="#000000" d="M4 4.5h7m1 0h2m2 0h1m5 0h1m1 0h5m1 0h7M4 5.5h1m5 0h1m3 0h3m1 0h2m3 0h1m3 0h1m2 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m3 0h1m5 0h1m1 0h1m4 0h2m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h3m1 0h3m3 0h1m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m3 0h5m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m2 0h1m1 0h4m1 0h2m5 0h2m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M14 11.5h1m2 0h1m3 0h3m1 0h3M6 12.5h1m1 0h3m1 0h1m5 0h4m1 0h1m1 0h2m1 0h2m3 0h1m2 0h1M7 13.5h1m3 0h1m1 0h1m4 0h3m5 0h1m1 0h1m1 0h1m2 0h1m1 0h2M4 14.5h5m1 0h2m6 0h1m3 0h2m1 0h1m2 0h3m1 0h1m1 0h3M7 15.5h2m2 0h3m1 0h7m1 0h2m5 0h1m4 0h2M4 16.5h1m5 0h1m6 0h3m1 0h2m1 0h1m3 0h4m1 0h1M4 17.5h2m3 0h1m1 0h2m3 0h1m1 0h1m1 0h1m1 0h3m3 0h3m3 0h3M4 18.5h1m1 0h5m1 0h1m1 0h1m5 0h1m2 0h3m2 0h2m1 0h2m1 0h3M4 19.5h5m2 0h1m2 0h1m2 0h3m1 0h2m1 0h3m3 0h1m4 0h2M4 20.5h2m4 0h1m1 0h2m1 0h5m2 0h1m2 0h2m2 0h3m1 0h1m1 0h1M11 21.5h1m2 0h1m4 0h1m3 0h2m5 0h2m1 0h4M6 22.5h1m1 0h1m1 0h2m2 0h3m1 0h3m3 0h2m4 0h2m2 0h3M4 23.5h2m2 0h1m3 0h3m2 0h3m1 0h2m2 0h1m3 0h2m1 0h1m2 0h2M4 24.5h3m3 0h1m2 0h1m1 0h1m1 0h6m2 0h1m2 0h1m1 0h2m1 0h1m1 0h2M6 25.5h1m1 0h2m3 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h3m3 0h1m2 0h1M4 26.5h1m1 0h1m2 0h2m2 0h2m1 0h1m1 0h1m3 0h2m3 0h2m1 0h7M5 27.5h3m1 0h1m1 0h1m2 0h2m3 0h4m2 0h2m1 0h2m2 0h1M4 28.5h1m2 0h4m2 0h2m1 0h1m1 0h1m1 0h2m1 0h3m1 0h6m3 0h1M12 29.5h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h2m2 0h1m3 0h2m1 0h2M4 30.5h7m2 0h3m1 0h1m2 0h3m1 0h1m1 0h3m1 0h1m1 0h1m1 0h3M4 31.5h1m5 0h1m1 0h6m2 0h1m2 0h1m1 0h2m1 0h1m3 0h2m2 0h1M4 32.5h1m1 0h3m1 0h1m1 0h3m1 0h4m3 0h2m1 0h1m1 0h5m2 0h1M4 33.5h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h2m3 0h1m2 0h1m1 0h1m3 0h3M4 34.5h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h1m1 0h1m2 0h1m1 0h2m1 0h4m1 0h1M4 35.5h1m5 0h1m3 0h1m2 0h1m1 0h1m2 0h1m2 0h1m2 0h1m2 0h1m3 0h1M4 36.5h7m2 0h2m1 0h4m1 0h1m1 0h2m1 0h7m2 0h2"/></svg>
+<div class="url">jamwerk.app</div><div class="free">Gratuit · Genève &amp; Grand Genève<br>FR · EN · DE · IT</div></div>
+  </div>
+  <div class="en"><span>EN — Paid gigs, jam partners and bands for musicians around Geneva. Free.</span><span>Contact : jamwerk.app → « Vos retours »</span></div>
+  <div class="scissors">✂</div>
+  <div class="tabs"><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div><div class="tab"><span>jamwerk.app</span></div></div>
+</body></html>
