@@ -60,6 +60,9 @@ export const PAGE_CSS = `
   .review .ctx { font-size: 12.5px; color: var(--muted); }
   .review p { margin: 0; font-size: 14px; line-height: 1.45; color: #3a382f; }
   .empty { color: var(--muted); font-size: 14px; }
+  .dm-btn { display: inline-block; background: var(--accent); color: #fff !important; text-decoration: none; padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 14.5px; margin: 2px 0 14px; }
+  .dm-btn:hover { background: var(--accent-deep); }
+  @media (max-width: 640px) { .dm-btn { display: block; text-align: center; } }
   main { flex: 1 0 auto; width: 100%; }
   footer {
     flex-shrink: 0;
@@ -196,6 +199,7 @@ ${NOTES_LAYER}
   <div class="stat"><b class="display">${m.rate_min != null ? 'CHF ' + m.rate_min + '+' : '–'}</b><span>${t(lang, { en: 'per gig', fr: 'par concert', de: 'pro Gig', it: 'a concerto' })}</span></div>
 </div></div>
 <main>
+  ${m.accepts_dm !== 0 ? `<a class="dm-btn" href="/?dm=${esc(m.handle)}">${t(lang, { en: 'Send a message', fr: 'Envoyer un message', de: 'Nachricht senden', it: 'Invia un messaggio' })}</a>` : ''}
   <div class="chips">${flagChips}</div>
   <h2>${t(lang, { en: 'Demos', fr: 'Démos', de: 'Demos', it: 'Demo' })}</h2>
   ${demoHtml}

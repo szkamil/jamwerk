@@ -23,6 +23,11 @@
 
 ## Shipped 2026-08-26
 
+- Direct messages between musicians (opt-out in profile, confirmed email,
+  3 new/day) + bottom-nav rework: Concerts · Jams · Groupes · Messages · Publier;
+  Jams tab = partners + jam groups; "Mes concerts" → Profil › Mon activité with
+  avatar badge. Migration 016.
+
 - Bands directory: bands list themselves as *band* or *jam / practice group*,
   bookable flag + fee-from (CHF/EUR) + one-line pitch, demos; Groupes tab has
   filters (all / bookable / jam groups, genre, city + radius); public page

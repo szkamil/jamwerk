@@ -15,7 +15,7 @@ import { Lang, t } from './i18n';
 import type { AppEnv } from './types';
 
 type Ctx = Context<AppEnv>;
-type ThreadType = 'gig' | 'seat' | 'band';
+type ThreadType = 'gig' | 'seat' | 'band' | 'dm';
 
 interface Thread {
   applicant: string;
@@ -57,6 +57,12 @@ async function loadThread(c: Ctx, type: string, appId: string): Promise<Thread |
     ).bind(appId).first<any>();
     if (!row) return null;
     return { applicant: row.from_email, counterparty: row.owner_email, context: row.name };
+  }
+  if (type === 'dm') {
+    const row = await c.env.DB.prepare('SELECT a_email, b_email, started_by FROM dm_threads WHERE id = ?').bind(appId).first<any>();
+    if (!row) return null;
+    const other = row.started_by === row.a_email ? row.b_email : row.a_email;
+    return { applicant: row.started_by, counterparty: other, context: '' };
   }
   return null;
 }
@@ -115,7 +121,21 @@ messages.get('/threads', async (c) => {
      WHERE i.from_email = ? OR b.owner_email = ?`
   ).bind(me, me, me).all();
 
-  const threads = [...(gigRows.results as any[]), ...(seatRows.results as any[]), ...(bandRows.results as any[])].map((r) => {
+  const dmRows = await c.env.DB.prepare(
+    `SELECT d.id AS thread_id, 'dm' AS thread_type,
+            d.started_by AS musician_email,
+            CASE WHEN d.started_by = d.a_email THEN d.b_email ELSE d.a_email END AS poster_email,
+            um.display_name AS musician_name, up.display_name AS poster_name,
+            (SELECT body FROM messages m WHERE m.thread_type = 'dm' AND m.thread_id = d.id ORDER BY m.id DESC LIMIT 1) AS last_body,
+            (SELECT created_at FROM messages m WHERE m.thread_type = 'dm' AND m.thread_id = d.id ORDER BY m.id DESC LIMIT 1) AS last_at,
+            (SELECT COUNT(*) FROM messages m WHERE m.thread_type = 'dm' AND m.thread_id = d.id AND m.sender_email != ? AND m.is_read = 0) AS unread
+     FROM dm_threads d
+     JOIN users um ON um.email = d.started_by
+     JOIN users up ON up.email = CASE WHEN d.started_by = d.a_email THEN d.b_email ELSE d.a_email END
+     WHERE d.a_email = ? OR d.b_email = ?`
+  ).bind(me, me, me).all();
+
+  const threads = [...(gigRows.results as any[]), ...(seatRows.results as any[]), ...(bandRows.results as any[]), ...(dmRows.results as any[])].map((r) => {
     const iAmApplicant = r.musician_email === me;
     const otherEmail = iAmApplicant ? r.poster_email : r.musician_email;
     const otherName = iAmApplicant ? r.poster_name : r.musician_name;
@@ -125,7 +145,7 @@ messages.get('/threads', async (c) => {
       counterpart: otherName || otherEmail.split('@')[0],
       context: r.thread_type === 'gig'
         ? `${r.instrument} · ${r.venue_city}${r.gig_date ? ' · ' + r.gig_date : ''}`
-        : r.thread_type === 'band' ? `${r.band_name}` : `${r.band_name} · ${r.instrument}`,
+        : r.thread_type === 'band' ? `${r.band_name}` : r.thread_type === 'dm' ? '' : `${r.band_name} · ${r.instrument}`,
       last_body: r.last_body,
       last_at: r.last_at,
       unread: r.unread,
@@ -158,6 +178,42 @@ messages.get('/:type/:appId', async (c) => {
       created_at: m.created_at,
     })),
   });
+});
+
+// Start (or reuse) a direct-message thread with a musician by public handle.
+// Anti-abuse (PLAN.md): login + confirmed email, recipient opt-in (accepts_dm),
+// at most 3 new conversations per day per sender.
+messages.post('/dm', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const body = await c.req.json().catch(() => null);
+  const handle = typeof body?.handle === 'string' ? body.handle.trim().toLowerCase() : '';
+  const text = typeof body?.message === 'string' ? body.message.trim().slice(0, 4000) : '';
+  if (!/^[a-z0-9-]{1,50}$/.test(handle)) return c.json({ error: 'handle is required' }, 400);
+  if (text.length < 5) return c.json({ error: 'Message must be at least 5 characters' }, 400);
+  const sender = await c.env.DB.prepare('SELECT confirmed, display_name FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; display_name: string }>();
+  if (!sender?.confirmed) return c.json({ error: 'Confirm your email address before sending direct messages', code: 'email_unconfirmed' }, 403);
+  const target = await c.env.DB.prepare('SELECT m.owner, m.accepts_dm, u.display_name FROM musician_details m JOIN users u ON u.email = m.owner WHERE m.handle = ?')
+    .bind(handle).first<{ owner: string; accepts_dm: number; display_name: string }>();
+  if (!target) return c.json({ error: 'Musician not found' }, 404);
+  if (target.owner === user.email) return c.json({ error: 'That is you' }, 400);
+  if (target.accepts_dm === 0) return c.json({ error: 'This musician does not accept direct messages', code: 'dm_closed' }, 403);
+  const [a, b] = [user.email, target.owner].sort();
+  const existing = await c.env.DB.prepare('SELECT id FROM dm_threads WHERE a_email = ? AND b_email = ?').bind(a, b).first<{ id: number }>();
+  let threadId = existing?.id;
+  if (!threadId) {
+    const today = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM dm_threads WHERE started_by = ? AND created_at > datetime('now', '-1 day')").bind(user.email).first<{ n: number }>();
+    if ((today?.n ?? 0) >= 3) return c.json({ error: 'You can start up to 3 new conversations per day' }, 429);
+    const ins = await c.env.DB.prepare('INSERT INTO dm_threads (a_email, b_email, started_by) VALUES (?, ?, ?)').bind(a, b, user.email).run();
+    threadId = ins.meta.last_row_id as number;
+  }
+  await c.env.DB.prepare("INSERT INTO messages (thread_type, thread_id, sender_email, body) VALUES ('dm', ?, ?, ?)").bind(threadId, user.email, text).run();
+  const name = sender.display_name || user.email.split('@')[0];
+  notify(c, target.owner, (lang: Lang) => ({
+    subject: t(lang, { en: `New message from ${name}`, fr: `Nouveau message de ${name}`, de: `Neue Nachricht von ${name}`, it: `Nuovo messaggio da ${name}` }),
+    body: text.slice(0, 300) + '\n\nhttps://jamwerk.app',
+  }));
+  return c.json({ ok: true, thread_type: 'dm', thread_id: threadId, counterpart: target.display_name || target.owner.split('@')[0] }, 201);
 });
 
 messages.post('/:type/:appId', async (c) => {
