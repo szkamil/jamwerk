@@ -17,6 +17,14 @@ import type { AppEnv } from './types';
 type Ctx = Context<AppEnv>;
 type ThreadType = 'gig' | 'seat' | 'band' | 'dm';
 
+/** True when either side has blocked the other. */
+export async function isBlocked(env: AppEnv['Bindings'], a: string, b: string): Promise<boolean> {
+  const row = await env.DB.prepare(
+    'SELECT 1 AS x FROM user_blocks WHERE (blocker_email = ? AND blocked_email = ?) OR (blocker_email = ? AND blocked_email = ?) LIMIT 1'
+  ).bind(a, b, b, a).first();
+  return !!row;
+}
+
 interface Thread {
   applicant: string;
   counterparty: string;   // gig poster / band owner
@@ -151,6 +159,14 @@ messages.get('/threads', async (c) => {
       unread: r.unread,
     };
   });
+  const { results: myBlocks } = await c.env.DB.prepare('SELECT blocked_email FROM user_blocks WHERE blocker_email = ?').bind(me).all();
+  const blockedSet = new Set((myBlocks as any[]).map((r) => r.blocked_email));
+  const visible = threads.filter((th, i) => {
+    const r = [...(gigRows.results as any[]), ...(seatRows.results as any[]), ...(bandRows.results as any[]), ...(dmRows.results as any[])][i];
+    const other = r.musician_email === me ? r.poster_email : r.musician_email;
+    return !blockedSet.has(other);
+  });
+  threads.length = 0; threads.push(...visible);
   threads.sort((a, b) => (b.last_at || '').localeCompare(a.last_at || ''));
   return c.json({ threads, unread_total: threads.reduce((n, x) => n + x.unread, 0) });
 });
@@ -169,8 +185,11 @@ messages.get('/:type/:appId', async (c) => {
     'UPDATE messages SET is_read = 1 WHERE thread_type = ? AND thread_id = ? AND sender_email != ? AND is_read = 0'
   ).bind(c.req.param('type'), c.req.param('appId'), user.email).run();
 
+  const other = thread.applicant === user.email ? thread.counterparty : thread.applicant;
+  const blk = await c.env.DB.prepare('SELECT 1 AS x FROM user_blocks WHERE blocker_email = ? AND blocked_email = ?').bind(user.email, other).first();
   return c.json({
     context: thread.context,
+    blocked_by_me: !!blk,
     messages: (results as any[]).map((m) => ({
       id: m.id,
       mine: m.sender_email === user.email,
@@ -183,6 +202,54 @@ messages.get('/:type/:appId', async (c) => {
 // Start (or reuse) a direct-message thread with a musician by public handle.
 // Anti-abuse (PLAN.md): login + confirmed email, recipient opt-in (accepts_dm),
 // at most 3 new conversations per day per sender.
+// Block / unblock. Block by thread (the other participant) or by public handle.
+messages.get('/blocks', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const { results } = await c.env.DB.prepare(
+    `SELECT b.blocked_email AS email, u.display_name, m.handle FROM user_blocks b
+     JOIN users u ON u.email = b.blocked_email LEFT JOIN musician_details m ON m.owner = b.blocked_email
+     WHERE b.blocker_email = ? ORDER BY b.created_at DESC`
+  ).bind(user.email).all();
+  return c.json({ blocks: (results as any[]).map((r) => ({ email: r.email, name: r.display_name || r.email.split('@')[0], handle: r.handle })) });
+});
+messages.post('/block', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const body = await c.req.json().catch(() => null);
+  let target: string | null = null;
+  if (body?.thread_type && body?.thread_id) {
+    const thread = await loadThread(c, String(body.thread_type), String(body.thread_id));
+    if (!thread || !participant(thread, user.email)) return c.json({ error: 'Thread not found' }, 404);
+    target = thread.applicant === user.email ? thread.counterparty : thread.applicant;
+  } else if (typeof body?.handle === 'string') {
+    const row = await c.env.DB.prepare('SELECT owner FROM musician_details WHERE handle = ?').bind(body.handle.trim().toLowerCase()).first<{ owner: string }>();
+    target = row?.owner ?? null;
+  }
+  if (!target) return c.json({ error: 'Nobody to block' }, 404);
+  if (target === user.email) return c.json({ error: 'That is you' }, 400);
+  if (body.unblock) {
+    await c.env.DB.prepare('DELETE FROM user_blocks WHERE blocker_email = ? AND blocked_email = ?').bind(user.email, target).run();
+    return c.json({ ok: true, blocked: false });
+  }
+  await c.env.DB.prepare('INSERT OR IGNORE INTO user_blocks (blocker_email, blocked_email) VALUES (?, ?)').bind(user.email, target).run();
+  return c.json({ ok: true, blocked: true });
+});
+
+// Existing DM thread with a musician (by handle), if any — lets the client open the
+// conversation page directly instead of a prompt.
+messages.get('/dm/with/:handle', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const handle = c.req.param('handle').toLowerCase();
+  const target = await c.env.DB.prepare('SELECT m.owner, m.accepts_dm, u.display_name FROM musician_details m JOIN users u ON u.email = m.owner WHERE m.handle = ?')
+    .bind(handle).first<{ owner: string; accepts_dm: number; display_name: string }>();
+  if (!target) return c.json({ error: 'Musician not found' }, 404);
+  const [a, b] = [user.email, target.owner].sort();
+  const existing = await c.env.DB.prepare('SELECT id FROM dm_threads WHERE a_email = ? AND b_email = ?').bind(a, b).first<{ id: number }>();
+  return c.json({ thread_id: existing?.id ?? null, counterpart: target.display_name || target.owner.split('@')[0], accepts_dm: target.accepts_dm !== 0 });
+});
+
 messages.post('/dm', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Authentication required' }, 401);
@@ -198,6 +265,7 @@ messages.post('/dm', async (c) => {
   if (!target) return c.json({ error: 'Musician not found' }, 404);
   if (target.owner === user.email) return c.json({ error: 'That is you' }, 400);
   if (target.accepts_dm === 0) return c.json({ error: 'This musician does not accept direct messages', code: 'dm_closed' }, 403);
+  if (await isBlocked(c.env, user.email, target.owner)) return c.json({ error: 'You cannot message this person', code: 'blocked' }, 403);
   const [a, b] = [user.email, target.owner].sort();
   const existing = await c.env.DB.prepare('SELECT id FROM dm_threads WHERE a_email = ? AND b_email = ?').bind(a, b).first<{ id: number }>();
   let threadId = existing?.id;
@@ -231,6 +299,7 @@ messages.post('/:type/:appId', async (c) => {
   if (!text) return c.json({ error: 'Message body is required' }, 400);
 
   const recipient = thread.applicant === user.email ? thread.counterparty : thread.applicant;
+  if (await isBlocked(c.env, user.email, recipient)) return c.json({ error: 'You cannot message this person', code: 'blocked' }, 403);
 
   // Notify only when the recipient has nothing unread here yet — one nudge per
   // catch-up, not one email per message.
