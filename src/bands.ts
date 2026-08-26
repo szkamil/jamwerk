@@ -17,6 +17,7 @@ import { INSTRUMENTS, geocodeCity, haversineKm } from './gigs';
 import { Lang, t } from './i18n';
 import type { AppEnv } from './types';
 import { classifyMedia, parseLinks } from './media';
+import { isBlocked } from './messages';
 
 type Ctx = Context<AppEnv>;
 
@@ -242,6 +243,7 @@ bands.post('/:id/inquire', async (c) => {
   const body = await c.req.json().catch(() => null);
   const text = typeof body?.message === 'string' ? body.message.trim().slice(0, 4000) : '';
   if (text.length < 10) return c.json({ error: 'Message must be at least 10 characters' }, 400);
+  if (await isBlocked(c.env, user.email, band.owner_email)) return c.json({ error: 'You cannot message this band', code: 'blocked' }, 403);
   const existing = await c.env.DB.prepare('SELECT id FROM band_inquiries WHERE band_id = ? AND from_email = ?').bind(band.id, user.email).first<{ id: number }>();
   let inquiryId = existing?.id;
   if (!inquiryId) {

@@ -81,3 +81,23 @@ describe('Direct messages', () => {
 		expect(await (await raw('/m/bob-bass')).text()).not.toContain('/?dm=bob-bass');
 	});
 });
+
+describe('Blocking', () => {
+	it('blocked user cannot DM, reply or inquire; blocker hides the thread; unblock restores', async () => {
+		const a = await call('/messages/dm', { method: 'POST', as: alice, body: { handle: 'bob-bass', message: 'hello bob, jam soon?' } });
+		expect(a.status).toBe(201);
+		const blk = await call('/messages/block', { method: 'POST', as: bob, body: { thread_type: 'dm', thread_id: a.json.thread_id } });
+		expect(blk.json.blocked).toBe(true);
+		expect((await call('/messages/blocks', { as: bob })).json.blocks[0].handle).toBe('alice-alto');
+		expect((await call(`/messages/dm/${a.json.thread_id}`, { method: 'POST', as: alice, body: { body: 'still there?' } })).json.code).toBe('blocked');
+		expect((await call('/messages/dm', { method: 'POST', as: alice, body: { handle: 'bob-bass', message: 'hello again' } })).json.code).toBe('blocked');
+		expect((await call('/messages/threads', { as: bob })).json.threads.some((t: any) => t.thread_type === 'dm')).toBe(false);
+		expect((await call('/messages/threads', { as: alice })).json.threads.some((t: any) => t.thread_type === 'dm')).toBe(true);
+		const band = await call('/bands', { method: 'POST', as: bob, body: { name: 'Bob Band', genres: ['rock'], home_city: 'Bern', bookable: true } });
+		expect((await call(`/bands/${band.json.id}/inquire`, { method: 'POST', as: alice, body: { message: 'want to book you please' } })).json.code).toBe('blocked');
+		const un = await call('/messages/block', { method: 'POST', as: bob, body: { handle: 'alice-alto', unblock: true } });
+		expect(un.json.blocked).toBe(false);
+		expect((await call(`/messages/dm/${a.json.thread_id}`, { method: 'POST', as: alice, body: { body: 'phew, thanks' } })).status).toBe(201);
+		expect((await call(`/messages/dm/${a.json.thread_id}`, { as: alice })).json.blocked_by_me).toBe(false);
+	});
+});

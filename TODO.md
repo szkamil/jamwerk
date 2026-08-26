@@ -23,6 +23,9 @@
 
 ## Shipped 2026-08-26
 
+- Block/unblock (thread header + Profil › Personnes bloquées); DM/inquiry compose
+  is a conversation page, not a prompt; compact Message pill on musician cards.
+
 - Direct messages between musicians (opt-out in profile, confirmed email,
   3 new/day) + bottom-nav rework: Concerts · Jams · Groupes · Messages · Publier;
   Jams tab = partners + jam groups; "Mes concerts" → Profil › Mon activité with
