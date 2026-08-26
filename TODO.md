@@ -21,6 +21,15 @@
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
 6. [x] DECIDE: open musician-to-musician DMs — decided 2026-08-22: not during seeding; plan + trigger + anti-abuse rules in PLAN.md "Messaging".
 
+## Shipped 2026-08-26
+
+- Bands directory: bands list themselves as *band* or *jam / practice group*,
+  bookable flag + fee-from (CHF/EUR) + one-line pitch, demos; Groupes tab has
+  filters (all / bookable / jam groups, genre, city + radius); public page
+  `/b/<id>-<slug>`; "Réserver ce groupe" opens a `band` message thread with the
+  owner (confirmed email, 3 new/day); owner can edit the band; landing card
+  "Vous organisez un événement ?". Migration 015 rebuilt `messages` CHECK.
+
 ## Shipped 2026-08-22 (session log)
 
 - In-app messaging (threads per gig/seat application, unread badge, one nudge per

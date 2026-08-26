@@ -43,6 +43,36 @@ interface BandRow {
   home_lat: number | null;
   home_lng: number | null;
   description: string;
+  links?: string;
+  kind?: 'band' | 'jam';
+  bookable?: number;
+  fee_from?: number | null;
+  fee_currency?: 'CHF' | 'EUR';
+  pitch?: string;
+}
+
+/** Optional directory fields shared by create and edit. */
+function bandExtras(body: any) {
+  const kind: 'band' | 'jam' = body.kind === 'jam' ? 'jam' : 'band';
+  const bookable = kind === 'band' && !!body.bookable ? 1 : 0;
+  const feeFrom = bookable && Number.isInteger(body.fee_from) && body.fee_from > 0 && body.fee_from <= 100000 ? body.fee_from : null;
+  const feeCurrency: 'CHF' | 'EUR' = body.fee_currency === 'EUR' ? 'EUR' : 'CHF';
+  const pitch = typeof body.pitch === 'string' ? body.pitch.trim().slice(0, 160) : '';
+  return { kind, bookable, feeFrom, feeCurrency, pitch };
+}
+
+function slugify(name: string): string {
+  return name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'band';
+}
+
+function bandPublic(b: any) {
+  const links: string[] = JSON.parse(b.links || '[]');
+  return {
+    id: b.id, name: b.name, slug: slugify(b.name), kind: b.kind || 'band',
+    genres: JSON.parse(b.genres || '[]'), home_city: b.home_city, description: b.description,
+    pitch: b.pitch || '', bookable: !!b.bookable, fee_from: b.fee_from ?? null, fee_currency: b.fee_currency || 'CHF',
+    links, media: links.map(classifyMedia).filter(Boolean),
+  };
 }
 
 /** Best-effort: tell matching musicians nearby that a seat opened. */
@@ -90,6 +120,7 @@ bands.post('/', async (c) => {
   const description = typeof body.description === 'string' ? body.description.trim().slice(0, 4000) : '';
   const links = parseLinks(body.links);
   if (links === null) return c.json({ error: 'links must be up to 5 valid http(s) URLs' }, 400);
+  const x = bandExtras(body);
   if (!name) return c.json({ error: 'Band name is required' }, 400);
   if (genres.length === 0) return c.json({ error: 'genres must be a non-empty array of slugs' }, 400);
   if (!seats.every((s) => (INSTRUMENTS as readonly string[]).includes(s))) {
@@ -105,8 +136,8 @@ bands.post('/', async (c) => {
   }
 
   const result = await c.env.DB.prepare(
-    'INSERT INTO bands (owner_email, name, genres, home_city, home_lat, home_lng, description, links) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-  ).bind(user.email, name, JSON.stringify(genres), homeCity, lat, lng, description, JSON.stringify(links)).run();
+    'INSERT INTO bands (owner_email, name, genres, home_city, home_lat, home_lng, description, links, kind, bookable, fee_from, fee_currency, pitch) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(user.email, name, JSON.stringify(genres), homeCity, lat, lng, description, JSON.stringify(links), x.kind, x.bookable, x.feeFrom, x.feeCurrency, x.pitch).run();
   const bandId = result.meta.last_row_id;
   if (seats.length) {
     await c.env.DB.batch(seats.map((s) =>
@@ -120,32 +151,112 @@ bands.post('/', async (c) => {
 
 bands.get('/', async (c) => {
   const user = c.get('user');
+  const q = c.req.query();
+  const conds: string[] = ['1=1'];
+  const binds: unknown[] = [];
+  if (q.kind === 'band' || q.kind === 'jam') { conds.push('b.kind = ?'); binds.push(q.kind); }
+  if (q.bookable === '1') conds.push('b.bookable = 1');
+  if (q.genre) { conds.push('LOWER(b.genres) LIKE ?'); binds.push('%' + q.genre.toLowerCase().replace(/[%_]/g, '') + '%'); }
+  let lat = parseFloat(q.lat), lng = parseFloat(q.lng);
+  const radius = Math.min(parseFloat(q.radius_km) || 50, 300);
+  if ((isNaN(lat) || isNaN(lng)) && q.city) {
+    const center = await geocodeCity(c.env, q.city);
+    if (center) { lat = center.lat; lng = center.lng; }
+    else { conds.push('LOWER(b.home_city) = LOWER(?)'); binds.push(q.city.trim()); }
+  }
+  const geo = !isNaN(lat) && !isNaN(lng);
+  if (geo) {
+    const dLat = radius / 111, dLng = radius / (111 * Math.max(Math.cos((lat * Math.PI) / 180), 0.2));
+    conds.push('b.home_lat BETWEEN ? AND ? AND b.home_lng BETWEEN ? AND ?');
+    binds.push(lat - dLat, lat + dLat, lng - dLng, lng + dLng);
+  }
   const { results } = await c.env.DB.prepare(
     `SELECT b.*, u.display_name AS owner_name,
        (SELECT COUNT(*) FROM band_seats s WHERE s.band_id = b.id AND s.status = 'filled') AS filled_count
      FROM bands b JOIN users u ON u.email = b.owner_email
+     WHERE ${conds.join(' AND ')}
      ORDER BY b.created_at DESC LIMIT 100`
-  ).all();
-  const bandsOut = [];
+  ).bind(...binds).all();
+  let bandsOut: any[] = [];
   for (const b of results as any[]) {
     const { results: seats } = await c.env.DB.prepare(
       "SELECT id, instrument, status FROM band_seats WHERE band_id = ? ORDER BY id"
     ).bind(b.id).all();
     bandsOut.push({
-      id: b.id,
-      name: b.name,
-      genres: JSON.parse(b.genres || '[]'),
-      home_city: b.home_city,
-      description: b.description,
-      links: JSON.parse(b.links || '[]'),
-      media: (JSON.parse(b.links || '[]') as string[]).map(classifyMedia).filter(Boolean),
+      ...bandPublic(b),
       owner_name: b.owner_name || b.owner_email.split('@')[0],
       member_count: 1 + b.filled_count,
       open_seats: (seats as any[]).filter((s) => s.status === 'open').map((s) => ({ id: s.id, instrument: s.instrument })),
       is_mine: user !== undefined && user !== null && b.owner_email === user.email,
+      distance_km: geo && b.home_lat != null && b.home_lng != null ? Math.round(haversineKm(lat, lng, b.home_lat, b.home_lng)) : null,
     });
   }
+  if (geo) bandsOut = bandsOut.filter((b) => b.distance_km !== null && b.distance_km <= radius).sort((a, b) => a.distance_km - b.distance_km);
   return c.json({ bands: bandsOut });
+});
+
+// Owner edits the band's directory fields (name, genres, city, description, links, kind, booking).
+bands.put('/:id', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email !== user.email) return c.json({ error: 'Not your band' }, 403);
+  const body = await c.req.json().catch(() => null);
+  if (!body) return c.json({ error: 'Invalid JSON body' }, 400);
+  const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 80) : band.name;
+  const genres = parseSlugArray(body.genres) ?? JSON.parse(band.genres || '[]');
+  if (!genres.length) return c.json({ error: 'genres must be a non-empty array of slugs' }, 400);
+  const description = typeof body.description === 'string' ? body.description.trim().slice(0, 4000) : band.description;
+  const links = parseLinks(body.links);
+  if (links === null) return c.json({ error: 'links must be up to 5 valid http(s) URLs' }, 400);
+  const x = bandExtras(body);
+  const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : band.home_city;
+  let lat: number | null = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
+  let lng: number | null = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
+  if (homeCity && (lat === null || lng === null)) {
+    if (homeCity === band.home_city && band.home_lat != null) { lat = band.home_lat; lng = band.home_lng; }
+    else {
+      const geo = await geocodeCity(c.env, homeCity);
+      if (geo) { lat = geo.lat; lng = geo.lng; }
+      else return c.json({ error: 'City not recognised — pick one from the list', code: 'city_unknown' }, 400);
+    }
+  }
+  await c.env.DB.prepare(
+    `UPDATE bands SET name = ?, genres = ?, home_city = ?, home_lat = ?, home_lng = ?, description = ?, links = ?,
+       kind = ?, bookable = ?, fee_from = ?, fee_currency = ?, pitch = ? WHERE id = ?`
+  ).bind(name, JSON.stringify(genres), homeCity, lat, lng, description, JSON.stringify(links), x.kind, x.bookable, x.feeFrom, x.feeCurrency, x.pitch, band.id).run();
+  return c.json({ ok: true });
+});
+
+// Contact / book a band: opens (or reuses) a 'band' message thread with the owner.
+// Login + confirmed email, max 3 new inquiries per day — the anti-abuse rules from PLAN.md.
+bands.post('/:id/inquire', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email === user.email) return c.json({ error: 'This is your own band' }, 400);
+  const u = await c.env.DB.prepare('SELECT confirmed, display_name FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; display_name: string }>();
+  if (!u?.confirmed) return c.json({ error: 'Confirm your email address before contacting a band', code: 'email_unconfirmed' }, 403);
+  const body = await c.req.json().catch(() => null);
+  const text = typeof body?.message === 'string' ? body.message.trim().slice(0, 4000) : '';
+  if (text.length < 10) return c.json({ error: 'Message must be at least 10 characters' }, 400);
+  const existing = await c.env.DB.prepare('SELECT id FROM band_inquiries WHERE band_id = ? AND from_email = ?').bind(band.id, user.email).first<{ id: number }>();
+  let inquiryId = existing?.id;
+  if (!inquiryId) {
+    const today = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM band_inquiries WHERE from_email = ? AND created_at > datetime('now', '-1 day')").bind(user.email).first<{ n: number }>();
+    if ((today?.n ?? 0) >= 3) return c.json({ error: 'You can contact up to 3 bands per day' }, 429);
+    const ins = await c.env.DB.prepare('INSERT INTO band_inquiries (band_id, from_email) VALUES (?, ?)').bind(band.id, user.email).run();
+    inquiryId = ins.meta.last_row_id as number;
+  }
+  await c.env.DB.prepare("INSERT INTO messages (thread_type, thread_id, sender_email, body) VALUES ('band', ?, ?, ?)").bind(inquiryId, user.email, text).run();
+  const name = u.display_name || user.email.split('@')[0];
+  notify(c, band.owner_email, (lang: Lang) => ({
+    subject: t(lang, { en: `${name} wants to book ${band.name}`, fr: `${name} souhaite réserver ${band.name}`, de: `${name} möchte ${band.name} buchen`, it: `${name} vuole prenotare ${band.name}` }),
+    body: text.slice(0, 300) + '\n\nhttps://jamwerk.app',
+  }));
+  return c.json({ ok: true, thread_type: 'band', thread_id: inquiryId }, 201);
 });
 
 async function loadBand(c: Ctx, id: string): Promise<BandRow | null> {
@@ -169,12 +280,10 @@ bands.get('/:id', async (c) => {
      WHERE s.band_id = ? ORDER BY s.id`
   ).bind(band.id).all();
 
+  const ownerRow = await c.env.DB.prepare('SELECT display_name FROM users WHERE email = ?').bind(band.owner_email).first<{ display_name: string }>();
   const out: Record<string, unknown> = {
-    id: band.id,
-    name: band.name,
-    genres: JSON.parse(band.genres || '[]'),
-    home_city: band.home_city,
-    description: band.description,
+    ...bandPublic(band),
+    owner_name: ownerRow?.display_name || band.owner_email.split('@')[0],
     is_mine: isOwner,
     seats: (seats as any[]).map((s) => ({
       id: s.id,

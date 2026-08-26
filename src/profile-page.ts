@@ -8,11 +8,11 @@ import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
 import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
 
-function esc(s: unknown): string {
+export function esc(s: unknown): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-const CSS = `
+export const PAGE_CSS = `
   :root {
     --ink: #14131a; --paper: #f4f2ec; --card: #fffdf8; --line: #e5e1d8;
     --accent: #6440fb; --accent-deep: #4f30d8; --accent-light: #a58bff;
@@ -172,7 +172,7 @@ profilePage.get('/:handle', async (c) => {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
-<style>${MEDIA_CSS}${CSS}</style>
+<style>${MEDIA_CSS}${PAGE_CSS}</style>
 </head>
 <body>
 ${NOTES_LAYER}
