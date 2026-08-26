@@ -130,6 +130,8 @@ export const PAGE = `<!doctype html>
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
   nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
   #profileBtn { position: relative; }
+  #mPublic:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight: 600; color: var(--ink); min-height: 44px; }
+  @media (max-width: 640px) { #mPublic:not([hidden]) { width: 100%; } }
   .card.hilite { box-shadow: 0 0 0 3px var(--accent-light); }
   .tag.band-tag { background: var(--ink); color: #fff; border-color: var(--ink); text-decoration: none; }
   nav button[data-tab=post] { display: none !important; }
@@ -609,9 +611,11 @@ ${NOTES_LAYER}
         <label><input type="checkbox" id="mPa"> <span data-i18n="own_pa">own PA</span></label>
       </div>
       <div class="row"><label data-i18n="demo_links_l">Demo links (one per line, max 5)</label><textarea id="mDemos" placeholder="https://youtube.com/watch?v=…&#10;https://open.spotify.com/track/…&#10;https://soundcloud.com/…"></textarea></div>
-      <button class="primary" data-i18n="save_profile">Save profile</button>
-      <span class="muted" id="mStats"></span>
-      <a id="mPublic" target="_blank" rel="noopener" hidden style="margin-left: 10px;" data-i18n="public_page">View my public page &#8599;</a>
+      <div class="actions" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <button class="primary" data-i18n="save_profile">Save profile</button>
+        <a id="mPublic" target="_blank" rel="noopener" hidden data-i18n="public_page">View my public page &#8599;</a>
+      </div>
+      <p class="muted" id="mStats" style="margin: 10px 0 0; font-size: 13.5px;"></p>
     </form></div>
   </section>
 </main>
