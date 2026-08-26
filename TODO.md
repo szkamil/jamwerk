@@ -23,6 +23,11 @@
 
 ## Shipped 2026-08-26
 
+- Landing rewritten (4 langs): 3-step "Comment ça marche", "100 % gratuit" line,
+  tiles follow the new tabs and mention messaging/bookable bands/jam groups; "?"
+  help button in the header; honest "Ajouter à l'écran d'accueil" wording;
+  musician card meta (instruments line + 📍 city · level · rating); © right.
+
 - Messenger-style chat screen: full history, day separators, bubbles, sticky
   composer with send icon, live polling, full-viewport on phones.
 
