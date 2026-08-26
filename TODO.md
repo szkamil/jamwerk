@@ -23,6 +23,9 @@
 
 ## Shipped 2026-08-26
 
+- Messenger-style chat screen: full history, day separators, bubbles, sticky
+  composer with send icon, live polling, full-viewport on phones.
+
 - Musiciens first: tab order Musiciens · Groupes · Jams · Concerts · Messages, Publier
   moved into Concerts/Jams intro cards; cross-links musician ↔ band ↔ listing;
   "Rechercher" button.

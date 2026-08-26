@@ -277,8 +277,31 @@ ${MEDIA_CSS}
   .bubble.mine { background: var(--accent-tint); border: 1px solid var(--accent-tint-line); margin-left: auto; border-bottom-right-radius: 4px; }
   .bubble.theirs { background: var(--card); border: 1px solid var(--line); margin-right: auto; border-bottom-left-radius: 4px; }
   .bubble time { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
-  .composer { display: flex; gap: 8px; margin-top: 12px; }
-  .composer textarea { flex: 1; min-height: 48px; }
+  .chat { display: flex; flex-direction: column; background: var(--paper); height: calc(100dvh - 190px); min-height: 420px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  .chat-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--card); border-bottom: 1px solid var(--line); }
+  .chat-head .avatar { width: 36px; height: 36px; font-size: 14px; }
+  .chat-head .who { flex: 1; min-width: 0; }
+  .chat-head .who strong { display: block; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-head .who span { font-size: 12.5px; color: var(--muted); }
+  .chat-back { background: transparent; border: 0; font-size: 22px; line-height: 1; padding: 4px 6px; color: var(--ink); cursor: pointer; }
+  .chat-log { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px 6px; display: flex; flex-direction: column; }
+  .chat-day { align-self: center; font-size: 11.5px; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; margin: 8px 0 12px; }
+  .bubble { max-width: 82%; padding: 9px 12px 7px; border-radius: 16px; margin-bottom: 4px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .bubble.mine { background: var(--accent); color: #fff; margin-left: auto; border-bottom-right-radius: 5px; }
+  .bubble.theirs { background: var(--card); border: 1px solid var(--line); margin-right: auto; border-bottom-left-radius: 5px; }
+  .bubble time { display: block; font-size: 10.5px; opacity: .7; margin-top: 2px; text-align: right; }
+  .bubble.mine time { color: #fff; }
+  .bubble.theirs time { color: var(--muted); }
+  .composer { display: flex; gap: 8px; align-items: flex-end; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--line); }
+  .composer textarea { flex: 1; min-height: 42px; max-height: 120px; resize: none; border-radius: 21px; padding: 10px 14px; margin: 0; }
+  .composer .send { width: 42px; height: 42px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 0; }
+  .composer .send svg { display: block; }
+  @media (max-width: 640px) {
+    body.chat-open > header, body.chat-open > footer, body.chat-open #bgnotes { display: none !important; }
+    body.chat-open main { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+    body.chat-open #tab-msgs { padding: 0; }
+    .chat { position: fixed; left: 0; right: 0; top: 0; bottom: calc(63px + env(safe-area-inset-bottom)); height: auto; min-height: 0; border: 0; border-radius: 0; z-index: 5; padding-top: env(safe-area-inset-top); }
+  }
   .applicant-head { display: flex; align-items: center; gap: 10px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
   .applicant-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
@@ -667,6 +690,7 @@ const I18N = {
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam groups', jams_intro_t: 'Play for the fun of it', jams_intro_p: 'Free and casual: people looking for someone to jam with, and groups that meet regularly to play. No fees, no ratings.', jam_list_group: 'List a jam group', my_activity: 'My activity', activity_hint: 'Gigs you posted, applications you sent, reviews to leave.', activity_open: 'Show', activity_close: 'Hide', activity_pending: '{0} waiting for you', dm_btn: 'Message', dm_prompt: 'Your message:', dm_sent: 'Message sent.', dm_ctx: 'Direct message', dm_closed: 'This musician does not accept direct messages.', dm_accept_l: 'Other musicians can send me direct messages', no_jam_groups: 'No jam groups yet \u2014 list yours and be the first.', jam_groups_n: '{0} jam groups',
     block: 'Block', unblock: 'Unblock', block_confirm: 'Block {0}? They will no longer be able to message you, and this conversation disappears from your list.', blocked_ok: 'Blocked.', unblocked_ok: 'Unblocked.', blocked_h: 'Blocked people', blocked_msg: 'You cannot message this person.', compose_hint: 'Say hello to {0} \u2014 the date, the place, what you have in mind.', inquiry_ctx: 'Booking request',
     nav_musicians: 'Musicians', nav_musicians_s: 'Musicians', board_intro_t: 'Paid gigs', board_intro_p: 'Dep gigs with the fee stated up front, in CHF or EUR. Need someone? Post a gig and the right musicians get alerted.', post_gig_cta: 'Post a gig', post_jam_cta: 'Post a jam listing', by_poster: 'by {0}',
+    today: 'Today', yesterday: 'Yesterday',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -712,6 +736,7 @@ const I18N = {
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Groupes de jam', jams_intro_t: 'Jouer pour le plaisir', jams_intro_p: 'Gratuit et sans pression\u00a0: des musiciens qui cherchent avec qui jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement pour jouer. Pas de cachet, pas de notes.', jam_list_group: 'Inscrire un groupe de jam', my_activity: 'Mon activit\u00e9', activity_hint: 'Vos annonces, vos candidatures, les avis \u00e0 laisser.', activity_open: 'Afficher', activity_close: 'Masquer', activity_pending: '{0} en attente', dm_btn: 'Message', dm_prompt: 'Votre message\u00a0:', dm_sent: 'Message envoy\u00e9.', dm_ctx: 'Message direct', dm_closed: 'Ce musicien n\u2019accepte pas les messages directs.', dm_accept_l: 'Les autres musiciens peuvent m\u2019envoyer des messages directs', no_jam_groups: 'Aucun groupe de jam pour l\u2019instant \u2014 inscrivez le v\u00f4tre et soyez le premier.', jam_groups_n: '{0} groupes de jam',
     block: 'Bloquer', unblock: 'D\u00e9bloquer', block_confirm: 'Bloquer {0}\u00a0? Cette personne ne pourra plus vous \u00e9crire et la conversation dispara\u00eet de votre liste.', blocked_ok: 'Personne bloqu\u00e9e.', unblocked_ok: 'Personne d\u00e9bloqu\u00e9e.', blocked_h: 'Personnes bloqu\u00e9es', blocked_msg: 'Vous ne pouvez pas \u00e9crire \u00e0 cette personne.', compose_hint: 'Dites bonjour \u00e0 {0} \u2014 la date, le lieu, ce que vous avez en t\u00eate.', inquiry_ctx: 'Demande de r\u00e9servation',
     nav_musicians: 'Musiciens', nav_musicians_s: 'Musiciens', board_intro_t: 'Concerts pay\u00e9s', board_intro_p: 'Des remplacements avec le cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Besoin de quelqu\u2019un\u00a0? Publiez un concert et les bons musiciens sont alert\u00e9s.', post_gig_cta: 'Publier un concert', post_jam_cta: 'Publier une annonce de jam', by_poster: 'par {0}',
+    today: 'Aujourd\u2019hui', yesterday: 'Hier',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -757,6 +782,7 @@ const I18N = {
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam-Gruppen', jams_intro_t: 'Spielen aus Spass', jams_intro_p: 'Kostenlos und locker: Leute, die jemanden zum Jammen suchen, und Gruppen, die sich regelm\u00e4ssig zum Spielen treffen. Keine Gage, keine Bewertungen.', jam_list_group: 'Jam-Gruppe eintragen', my_activity: 'Meine Aktivit\u00e4t', activity_hint: 'Deine Inserate, deine Bewerbungen, offene Bewertungen.', activity_open: 'Anzeigen', activity_close: 'Ausblenden', activity_pending: '{0} warten auf dich', dm_btn: 'Nachricht', dm_prompt: 'Deine Nachricht:', dm_sent: 'Nachricht gesendet.', dm_ctx: 'Direktnachricht', dm_closed: 'Diese Person nimmt keine Direktnachrichten an.', dm_accept_l: 'Andere Musiker:innen d\u00fcrfen mir Direktnachrichten schicken', no_jam_groups: 'Noch keine Jam-Gruppen \u2014 trag deine ein und sei die erste.', jam_groups_n: '{0} Jam-Gruppen',
     block: 'Blockieren', unblock: 'Freigeben', block_confirm: '{0} blockieren? Die Person kann dir nicht mehr schreiben und das Gespr\u00e4ch verschwindet aus deiner Liste.', blocked_ok: 'Blockiert.', unblocked_ok: 'Freigegeben.', blocked_h: 'Blockierte Personen', blocked_msg: 'Du kannst dieser Person nicht schreiben.', compose_hint: 'Sag {0} hallo \u2014 Datum, Ort, was du vorhast.', inquiry_ctx: 'Buchungsanfrage',
     nav_musicians: 'Musiker:innen', nav_musicians_s: 'Musiker', board_intro_t: 'Bezahlte Gigs', board_intro_p: 'Ersatz-Gigs mit vorab genannter Gage, in CHF oder EUR. Du brauchst jemanden? Stell einen Gig ein und die passenden Leute werden benachrichtigt.', post_gig_cta: 'Gig einstellen', post_jam_cta: 'Jam-Inserat einstellen', by_poster: 'von {0}',
+    today: 'Heute', yesterday: 'Gestern',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -802,6 +828,7 @@ const I18N = {
     nav_jams: 'Jam', nav_jams_s: 'Jam', seg_jam_groups: 'Gruppi jam', jams_intro_t: 'Suonare per il gusto di farlo', jams_intro_p: 'Gratis e senza pressioni: musicisti che cercano con chi suonare, e gruppi che si trovano regolarmente per jammare. Niente cachet, niente voti.', jam_list_group: 'Iscrivi un gruppo jam', my_activity: 'La mia attivit\u00e0', activity_hint: 'I tuoi annunci, le tue candidature, le recensioni da lasciare.', activity_open: 'Mostra', activity_close: 'Nascondi', activity_pending: '{0} in attesa', dm_btn: 'Messaggio', dm_prompt: 'Il tuo messaggio:', dm_sent: 'Messaggio inviato.', dm_ctx: 'Messaggio diretto', dm_closed: 'Questo musicista non accetta messaggi diretti.', dm_accept_l: 'Gli altri musicisti possono inviarmi messaggi diretti', no_jam_groups: 'Nessun gruppo jam per ora \u2014 iscrivi il tuo e sii il primo.', jam_groups_n: '{0} gruppi jam',
     block: 'Blocca', unblock: 'Sblocca', block_confirm: 'Bloccare {0}? Non potr\u00e0 pi\u00f9 scriverti e la conversazione sparir\u00e0 dalla tua lista.', blocked_ok: 'Bloccato.', unblocked_ok: 'Sbloccato.', blocked_h: 'Persone bloccate', blocked_msg: 'Non puoi scrivere a questa persona.', compose_hint: 'Saluta {0} \u2014 la data, il luogo, cosa hai in mente.', inquiry_ctx: 'Richiesta di prenotazione',
     nav_musicians: 'Musicisti', nav_musicians_s: 'Musicisti', board_intro_t: 'Concerti pagati', board_intro_p: 'Sostituzioni con il cachet indicato in anticipo, in CHF o EUR. Cerchi qualcuno? Pubblica un concerto e i musicisti giusti vengono avvisati.', post_gig_cta: 'Pubblica un concerto', post_jam_cta: 'Pubblica un annuncio jam', by_poster: 'di {0}',
+    today: 'Oggi', yesterday: 'Ieri',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -1063,6 +1090,7 @@ function mountBoard(tab) {
 }
 document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
+    stopChat();
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
     b.classList.add('active');
     if (b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -1801,99 +1829,159 @@ function showMsgsTab() {
   TABS.forEach((t) => { $('tab-' + t).hidden = t !== 'msgs'; });
   window.scrollTo({ top: 0 });
 }
-// A conversation page that does not exist yet (first DM, first band inquiry):
-// same layout as a thread, the first send creates it and hands over to openThread.
-function openCompose(title, context, send) {
+// One chat screen for existing threads and not-yet-created ones (first DM,
+// first band inquiry). Full history, day separators, sticky composer, polling.
+let chatPoll = null;
+function stopChat() {
+  if (chatPoll) { clearInterval(chatPoll); chatPoll = null; }
+  document.body.classList.remove('chat-open');
+}
+function dayLabel(iso) {
+  const d = new Date(iso.replace(' ', 'T') + (iso.length <= 19 ? 'Z' : ''));
+  const today = new Date(); const y = new Date(); y.setDate(today.getDate() - 1);
+  const same = (a, b) => a.toDateString() === b.toDateString();
+  if (same(d, today)) return T('today');
+  if (same(d, y)) return T('yesterday');
+  return d.toLocaleDateString(lang, { day: 'numeric', month: 'long', year: d.getFullYear() === today.getFullYear() ? undefined : 'numeric' });
+}
+function timeLabel(iso) {
+  const d = new Date(iso.replace(' ', 'T') + (iso.length <= 19 ? 'Z' : ''));
+  return d.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+}
+function renderChat(opts) {
+  // opts: { title, context, send(text) -> api result, load() -> {messages, blocked_by_me}|null, onBlock? }
   showMsgsTab();
+  stopChat();
+  document.body.classList.add('chat-open');
   const wrap = $('msgArea');
   wrap.replaceChildren();
-  const head = el('div', 'card');
-  const bar = el('div');
-  bar.style.display = 'flex'; bar.style.alignItems = 'center'; bar.style.gap = '10px';
-  const back = el('button', 'ghost small', '\u2190 ' + T('back'));
-  back.onclick = loadThreads;
-  bar.append(back, el('strong', '', title || ''), el('span', 'muted', context || ''));
-  head.append(bar);
-  const list = el('div');
-  list.style.margin = '14px 0';
-  list.append(el('div', 'empty', T('compose_hint', title || '')));
-  head.append(list);
+  const chat = el('div', 'chat');
+  const head = el('div', 'chat-head');
+  const back = el('button', 'chat-back', '\u2190');
+  back.setAttribute('aria-label', T('back'));
+  back.onclick = () => { stopChat(); loadThreads(); };
+  const initials = (opts.title || '?').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  const who = el('div', 'who');
+  who.append(el('strong', '', opts.title || ''), el('span', '', opts.context || ''));
+  head.append(back, el('div', 'avatar', initials), who);
+  if (opts.onBlock) { const bb = el('button', 'ghost small', ''); bb.id = 'chatBlock'; head.append(bb); }
+  chat.append(head);
+  const log = el('div', 'chat-log');
+  chat.append(log);
   const composer = el('div', 'composer');
   const input = el('textarea');
+  input.rows = 1;
   input.placeholder = T('msg_placeholder');
-  const sendBtn = el('button', 'primary', T('msg_send'));
-  sendBtn.onclick = async () => {
+  input.oninput = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; };
+  const send = el('button', 'primary send');
+  send.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>';
+  send.setAttribute('aria-label', T('msg_send'));
+  composer.append(input, send);
+  chat.append(composer);
+  wrap.append(chat);
+
+  let lastId = 0, lastDay = '';
+  const scrollBottom = () => { log.scrollTop = log.scrollHeight; };
+  const append = (m) => {
+    const day = dayLabel(m.created_at);
+    if (day !== lastDay) { log.append(el('div', 'chat-day', day)); lastDay = day; }
+    const b = el('div', 'bubble ' + (m.mine ? 'mine' : 'theirs'), m.body);
+    b.append(el('time', '', timeLabel(m.created_at)));
+    log.append(b);
+    if (m.id > lastId) lastId = m.id;
+  };
+  const doSend = async () => {
     const text = input.value.trim();
     if (!text) return;
-    sendBtn.disabled = true;
-    const res = await send(text);
-    sendBtn.disabled = false;
-    if (res.ok) { flash(T('msg_sent'), 'ok'); openThread(res.json.thread_type, res.json.thread_id, title); }
+    send.disabled = true;
+    const res = await opts.send(text);
+    send.disabled = false;
+    if (res.ok) { input.value = ''; input.style.height = 'auto'; if (opts.afterFirstSend) { opts.afterFirstSend(res); return; } await poll(); input.focus(); }
     else if (res.json.code === 'email_unconfirmed') flash(T('confirm_to_contact'), 'err');
     else if (res.json.code === 'blocked') flash(T('blocked_msg'), 'err');
     else if (res.json.code === 'dm_closed') flash(T('dm_closed'), 'err');
     else flash(res.json.error || T('failed'), 'err');
   };
-  composer.append(input, sendBtn);
-  head.append(composer);
-  wrap.append(head);
+  send.onclick = doSend;
+  input.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); doSend(); } };
+  const poll = async () => {
+    if (!opts.load) return;
+    const r = await opts.load(lastId);
+    if (!r) return;
+    if (r.messages.length) { const empty = log.querySelector('.empty'); if (empty) empty.remove(); r.messages.forEach(append); scrollBottom(); refreshMsgBadge(); }
+    if (r.context !== undefined && !opts.context) { const sp = who.querySelector('span'); if (sp && !sp.textContent) sp.textContent = r.context; }
+    if (opts.onBlock && $('chatBlock')) {
+      const bb = $('chatBlock'); bb.textContent = T(r.blocked_by_me ? 'unblock' : 'block');
+      bb.onclick = () => opts.onBlock(!!r.blocked_by_me);
+    }
+  };
+  (async () => {
+    if (opts.load) { await poll(); if (!lastId) log.append(el('div', 'empty', opts.hint || T('thread_empty'))); }
+    else log.append(el('div', 'empty', opts.hint || ''));
+    scrollBottom();
+    if (opts.load) chatPoll = setInterval(() => { if (document.visibilityState === 'visible') poll(); }, 4000);
+  })();
   input.focus();
 }
+function openCompose(title, context, send) {
+  renderChat({
+    title, context, send, load: null, hint: T('compose_hint', title || ''),
+    afterFirstSend: (res) => openThread(res.json.thread_type, res.json.thread_id, title),
+  });
+}
 async function openThread(type, id, title) {
-  showMsgsTab();
+  renderChat({
+    title,
+    context: type === 'dm' ? T('dm_ctx') : undefined,
+    load: async (after) => {
+      const r = await api('/messages/' + type + '/' + id + (after ? '?after=' + after : ''));
+      if (!r.ok) { if (!after) { flash(r.json.error || T('failed'), 'err'); stopChat(); loadThreads(); } return null; }
+      return r.json;
+    },
+    send: (text) => api('/messages/' + type + '/' + id, { method: 'POST', body: { body: text } }),
+    onBlock: async (isBlocked) => {
+      if (!isBlocked && !confirm(T('block_confirm', title || ''))) return;
+      const res = await api('/messages/block', { method: 'POST', body: { thread_type: type, thread_id: id, unblock: isBlocked } });
+      if (res.ok) { flash(T(res.json.blocked ? 'blocked_ok' : 'unblocked_ok'), 'ok'); if (res.json.blocked) { stopChat(); loadThreads(); } else openThread(type, id, title); }
+      else flash(res.json.error || T('failed'), 'err');
+    },
+  });
+}
+async function refreshMsgBadge() {
+  if (!me) { $('msgBadge').hidden = true; return; }
+  const r = await api('/messages/threads');
+  const n = r.ok ? r.json.unread_total : 0;
+  $('msgBadge').textContent = n;
+  $('msgBadge').hidden = !n;
+}
+async function loadThreads() {
   const wrap = $('msgArea');
   wrap.replaceChildren();
-  const r = await api('/messages/' + type + '/' + id);
-  if (!r.ok) { flash(r.json.error || T('failed'), 'err'); loadThreads(); return; }
+  if (!me) { wrap.append(el('div', 'empty', T('login_to_see'))); return; }
+  const r = await api('/messages/threads');
   refreshMsgBadge();
-
-  const head = el('div', 'card');
-  const bar = el('div');
-  bar.style.display = 'flex'; bar.style.alignItems = 'center'; bar.style.gap = '10px';
-  const back = el('button', 'ghost small', '\u2190 ' + T('back'));
-  back.onclick = loadThreads;
-  bar.append(back, el('strong', '', title || ''), el('span', 'muted', type === 'dm' ? '' : r.json.context));
-  const blockBtn = el('button', 'ghost small', T(r.json.blocked_by_me ? 'unblock' : 'block'));
-  blockBtn.style.marginLeft = 'auto';
-  blockBtn.onclick = async () => {
-    if (!r.json.blocked_by_me && !confirm(T('block_confirm', title || ''))) return;
-    const res = await api('/messages/block', { method: 'POST', body: { thread_type: type, thread_id: id, unblock: !!r.json.blocked_by_me } });
-    if (res.ok) { flash(T(res.json.blocked ? 'blocked_ok' : 'unblocked_ok'), 'ok'); if (res.json.blocked) loadThreads(); else openThread(type, id, title); }
-    else flash(res.json.error || T('failed'), 'err');
-  };
-  bar.append(blockBtn);
-  head.append(bar);
-
-  const list = el('div');
-  list.style.display = 'flex'; list.style.flexDirection = 'column'; list.style.margin = '14px 0';
-  if (!r.json.messages.length) list.append(el('div', 'empty', T('thread_empty')));
-  for (const m of r.json.messages) {
-    const b = el('div', 'bubble ' + (m.mine ? 'mine' : 'theirs'), m.body);
-    const ts = el('time', '', m.created_at.slice(0, 16).replace('T', ' '));
-    b.append(ts);
-    list.append(b);
+  if (!r.ok || !r.json.threads.length) { wrap.append(el('div', 'empty', T('no_threads'))); return; }
+  for (const th of r.json.threads) {
+    const card = el('div', 'card thread');
+    const initials = th.counterpart.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    card.append(el('div', 'avatar', initials));
+    const mid = el('div');
+    mid.style.flex = '1'; mid.style.minWidth = '0';
+    mid.append(el('strong', '', th.counterpart));
+    mid.append(el('div', 'muted', th.thread_type === 'dm' ? T('dm_ctx') : th.context));
+    if (th.last_body) {
+      const prev = el('div', 'muted', th.last_body.slice(0, 60));
+      prev.style.overflow = 'hidden'; prev.style.textOverflow = 'ellipsis'; prev.style.whiteSpace = 'nowrap';
+      mid.append(prev);
+    }
+    card.append(mid);
+    if (th.unread) card.append(el('span', 'tag status-booked', String(th.unread)));
+    card.onclick = () => openThread(th.thread_type, th.thread_id, th.counterpart);
+    wrap.append(card);
   }
-  head.append(list);
-
-  const composer = el('div', 'composer');
-  const input = el('textarea');
-  input.placeholder = T('msg_placeholder');
-  const send = el('button', 'primary', T('msg_send'));
-  send.onclick = async () => {
-    const text = input.value.trim();
-    if (!text) return;
-    send.disabled = true;
-    const res = await api('/messages/' + type + '/' + id, { method: 'POST', body: { body: text } });
-    send.disabled = false;
-    if (res.ok) { input.value = ''; flash(T('msg_sent'), 'ok'); openThread(type, id, title); }
-    else if (res.json.code === 'blocked') flash(T('blocked_msg'), 'err');
-    else flash(res.json.error || T('failed'), 'err');
-  };
-  composer.append(input, send);
-  head.append(composer);
-  wrap.append(head);
-  window.scrollTo({ top: 0 });
 }
+// A conversation page that does not exist yet (first DM, first band inquiry):
+// same layout as a thread, the first send creates it and hands over to openThread.
 
 // ── Bands ────────────────────────────────────────────
 let editingBand = null;

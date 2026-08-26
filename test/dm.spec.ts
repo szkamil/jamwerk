@@ -101,3 +101,17 @@ describe('Blocking', () => {
 		expect((await call(`/messages/dm/${a.json.thread_id}`, { as: alice })).json.blocked_by_me).toBe(false);
 	});
 });
+
+describe('Chat polling', () => {
+	it('GET thread?after=ID returns only newer messages and marks them read', async () => {
+		const a = await call('/messages/dm', { method: 'POST', as: alice, body: { handle: 'bob-bass', message: 'first message here' } });
+		const full = await call(`/messages/dm/${a.json.thread_id}`, { as: bob });
+		expect(full.json.messages.length).toBe(1);
+		const lastId = full.json.messages[0].id;
+		expect((await call(`/messages/dm/${a.json.thread_id}?after=${lastId}`, { as: bob })).json.messages.length).toBe(0);
+		await call(`/messages/dm/${a.json.thread_id}`, { method: 'POST', as: alice, body: { body: 'second one' } });
+		const newer = await call(`/messages/dm/${a.json.thread_id}?after=${lastId}`, { as: bob });
+		expect(newer.json.messages.map((m: any) => m.body)).toEqual(['second one']);
+		expect((await call('/messages/threads', { as: bob })).json.unread_total).toBe(0);
+	});
+});

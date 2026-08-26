@@ -178,9 +178,10 @@ messages.get('/:type/:appId', async (c) => {
   if (!thread) return c.json({ error: 'Thread not found' }, 404);
   if (!participant(thread, user.email)) return c.json({ error: 'Not your conversation' }, 403);
 
+  const after = parseInt(c.req.query('after') || '0', 10) || 0;
   const { results } = await c.env.DB.prepare(
-    'SELECT id, sender_email, body, created_at FROM messages WHERE thread_type = ? AND thread_id = ? ORDER BY id ASC LIMIT 200'
-  ).bind(c.req.param('type'), c.req.param('appId')).all();
+    'SELECT id, sender_email, body, created_at FROM messages WHERE thread_type = ? AND thread_id = ? AND id > ? ORDER BY id ASC LIMIT 500'
+  ).bind(c.req.param('type'), c.req.param('appId'), after).all();
   await c.env.DB.prepare(
     'UPDATE messages SET is_read = 1 WHERE thread_type = ? AND thread_id = ? AND sender_email != ? AND is_read = 0'
   ).bind(c.req.param('type'), c.req.param('appId'), user.email).run();
