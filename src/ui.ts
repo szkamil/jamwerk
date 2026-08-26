@@ -130,6 +130,9 @@ export const PAGE = `<!doctype html>
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
   nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
   #profileBtn { position: relative; }
+  .card.hilite { box-shadow: 0 0 0 3px var(--accent-light); }
+  .tag.band-tag { background: var(--ink); color: #fff; border-color: var(--ink); text-decoration: none; }
+  nav button[data-tab=post] { display: none !important; }
   #profileDot { position: absolute; top: -3px; right: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: #e0432a; color: #fff; font-size: 10.5px; line-height: 16px; font-weight: 700; text-align: center; border: 2px solid var(--ink); }
   #msgBadge, #actBadge { background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px; }
   main { max-width: 860px; margin: 0 auto; padding: 16px 20px 64px; }
@@ -196,7 +199,7 @@ ${MEDIA_CSS}
     .aud-cta { align-self: stretch; width: 100%; }
     #landing .cta-row { flex-direction: column; }
     #landing .cta-row > button { width: 100%; }
-    .filters button.ghost { flex: 1 1 100%; }
+    .filters button.ghost, .filters button.primary { flex: 1 1 100%; }
   }
   button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 600; cursor: pointer; min-height: 46px; }
   button.primary:hover { background: var(--accent-deep); }
@@ -247,7 +250,7 @@ ${MEDIA_CSS}
     background-repeat: no-repeat; background-position: right 15px center; padding-right: 38px;
   }
   .filters #fRadius { flex: 0 1 auto; min-width: 106px; }
-  .filters button.ghost { min-height: 46px; border-radius: 999px; }
+  .filters button.ghost, .filters button.primary { min-height: 46px; border-radius: 999px; }
   .filters button.busy { opacity: .6; }
   .board-summary { margin: 0 0 10px; font-size: 13.5px; }
   .card.musician { cursor: pointer; }
@@ -258,7 +261,7 @@ ${MEDIA_CSS}
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
   .msg-pill { display: inline-flex; align-items: center; gap: 6px; align-self: center; flex-shrink: 0; margin-left: auto; background: var(--accent-tint); color: var(--accent-deep); border: 1px solid var(--accent-tint-line); border-radius: 999px; padding: 6px 12px; min-height: 0; font: inherit; font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer; width: auto; }
   .msg-pill:hover { background: var(--accent-tint-line); }
-  .seg button[hidden] { display: none; }
+  .seg[hidden], .seg button[hidden] { display: none; }
   .seg button { flex: 1; border: 0; background: transparent; color: #b9b6c9; border-radius: 9px; padding: 10px 0; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 42px; }
   .seg button.active { background: var(--accent); color: #fff; font-weight: 600; }
   .empty { text-align: center; padding: 36px 10px; color: var(--muted); }
@@ -305,9 +308,10 @@ ${NOTES_LAYER}
   <button id="profileBtn" hidden aria-label="Musician profile" title="Musician profile"></button>
 </header>
 <nav id="tabs">
-  <button data-tab="board" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span class="lf" data-i18n="nav_board">Gig board</span><span class="ls" data-i18n="nav_board_s">Gigs</span></button>
-  <button data-tab="jams"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zM16 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3z"/><path d="M3 14v-2a9 9 0 0 1 18 0v2"/></svg><span class="lf" data-i18n="nav_jams">Jams</span><span class="ls" data-i18n="nav_jams_s">Jams</span></button>
+  <button data-tab="musicians" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="lf" data-i18n="nav_musicians">Musicians</span><span class="ls" data-i18n="nav_musicians_s">Musicians</span></button>
   <button data-tab="bands"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="lf" data-i18n="nav_bands">Bands</span><span class="ls" data-i18n="nav_bands_s">Bands</span></button>
+  <button data-tab="jams"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zM16 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3z"/><path d="M3 14v-2a9 9 0 0 1 18 0v2"/></svg><span class="lf" data-i18n="nav_jams">Jams</span><span class="ls" data-i18n="nav_jams_s">Jams</span></button>
+  <button data-tab="board"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span class="lf" data-i18n="nav_board">Gig board</span><span class="ls" data-i18n="nav_board_s">Gigs</span></button>
   <button data-tab="msgs"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg><span class="lf" data-i18n="nav_msgs">Messages</span><span class="ls" data-i18n="nav_msgs_s">Messages</span><span id="msgBadge" hidden></span></button>
   <button data-tab="post"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="lf" data-i18n="nav_post">Post a gig</span><span class="ls" data-i18n="nav_post_s">Post</span></button>
   <button data-tab="profile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="lf" data-i18n="nav_profile">Musician profile</span><span class="ls" data-i18n="nav_profile_s">Profile</span><span id="actBadge" class="nav-badge" hidden></span></button>
@@ -315,7 +319,6 @@ ${NOTES_LAYER}
 <main>
   <div class="msg" id="flash"></div>
 
-  <section id="tab-board">
     <div id="landing" hidden>
       <div style="background-color: var(--ink); background-image: radial-gradient(circle at 85% -20%, rgba(100,64,251,0.45), transparent 60%); border-radius: 16px; padding: 34px 24px 40px; text-align: center; position: relative; z-index: 0; overflow: hidden; margin-bottom: 12px; color: #fff;">
         ${WAVE_SVG}
@@ -378,11 +381,23 @@ ${NOTES_LAYER}
         <p class="muted" style="margin: 0;" data-i18n="land_alerts">Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.</p>
       </div>
     </div>
+  <section id="tab-musicians">
+    <div id="musiciansHost"></div>
+  </section>
+
+  <section id="tab-board" hidden>
+    <div class="card" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 200px;">
+        <div class="display" style="font-size: 17px; font-weight: 700;" data-i18n="board_intro_t">Paid gigs</div>
+        <p class="muted" style="margin: 4px 0 0;" data-i18n="board_intro_p">Dep gigs with the fee stated up front, in CHF or EUR. Need someone? Post a gig and the right musicians get alerted.</p>
+      </div>
+      <button class="primary aud-cta" id="postGigBtn" data-i18n="post_gig_cta">Post a gig</button>
+    </div>
     <div id="boardHost">
     <div class="filters">
       <div class="seg" id="kindSeg">
         <button type="button" data-kind="gig" data-group="board" class="active" data-i18n="seg_gigs">Paid gigs</button>
-        <button type="button" data-kind="musicians" data-group="board" data-i18n="seg_musicians">Musicians</button>
+        <button type="button" data-kind="musicians" data-group="musicians" data-i18n="seg_musicians">Musicians</button>
         <button type="button" data-kind="practice" data-group="jams" data-i18n="seg_practice">Practice partners</button>
         <button type="button" data-kind="jamgroups" data-group="jams" data-i18n="seg_jam_groups">Jam groups</button>
       </div>
@@ -409,7 +424,7 @@ ${NOTES_LAYER}
         <div class="display" style="font-size: 17px; font-weight: 700;" data-i18n="jams_intro_t">Play for the fun of it</div>
         <p class="muted" style="margin: 4px 0 0;" data-i18n="jams_intro_p">Free and casual: people looking for someone to jam with, and groups that meet regularly to play. No fees, no ratings.</p>
       </div>
-      <button class="primary aud-cta" id="jamListBtn" data-i18n="jam_list_group">List a jam group</button>
+      <div class="actions" style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="primary aud-cta" id="postJamBtn" data-i18n="post_jam_cta">Post a jam listing</button><button class="ghost aud-cta" id="jamListBtn" data-i18n="jam_list_group">List a jam group</button></div>
     </div>
     <div id="jamsHost"></div>
   </section>
@@ -651,6 +666,7 @@ const I18N = {
     band_intro_t: 'Bands & jam groups', band_intro_p: 'Bands announce themselves here with demos and a fee \u2014 book one for your event, ask for an open seat, or find a jam group at your level.', list_my_band: 'List my band', band_kind_l: 'What is it?', kind_band: 'A band \u2014 we play concerts and events', kind_jam: 'A jam / practice group \u2014 we meet to play, no bookings', bookable_l: 'Available for events \u2014 weddings, parties, corporate (people can book us)', fee_from_l: 'Fee from (whole band, one evening)', pitch_l: 'One-line pitch (shown on the card)', pitch_ph: '5-piece soul & funk band, 3 sets, own PA', cancel: 'Cancel', edit: 'Edit', band_saved: 'Band updated.', seg_all_bands: 'All', seg_bookable: 'Bookable', seg_jamgroups: 'Jam groups', ph_genre: 'Genre', bands_n: '{0} bands', no_bands_near: 'No bands match yet \u2014 list yours and be the first.', from_fee: 'from {0}', fee_on_request: 'fee on request', book_band: 'Book this band', contact_band: 'Contact the band', jam_group: 'jam group', ask_to_join: 'Ask to join', inquiry_prompt: 'Your message to the band \u2014 date, place, type of event, budget:', inquiry_sent: 'Message sent \u2014 the band will answer here in Messages.', confirm_to_contact: 'Confirm your email address before contacting a band \u2014 check your inbox.', view_band_page: 'Band page \u2197', aud_event_t: 'Organising an event?', aud_event_p: 'Bands list themselves with demos and a starting fee. Filter by genre and city, listen, and message the band directly.', cta_hire: 'Book a band',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam groups', jams_intro_t: 'Play for the fun of it', jams_intro_p: 'Free and casual: people looking for someone to jam with, and groups that meet regularly to play. No fees, no ratings.', jam_list_group: 'List a jam group', my_activity: 'My activity', activity_hint: 'Gigs you posted, applications you sent, reviews to leave.', activity_open: 'Show', activity_close: 'Hide', activity_pending: '{0} waiting for you', dm_btn: 'Message', dm_prompt: 'Your message:', dm_sent: 'Message sent.', dm_ctx: 'Direct message', dm_closed: 'This musician does not accept direct messages.', dm_accept_l: 'Other musicians can send me direct messages', no_jam_groups: 'No jam groups yet \u2014 list yours and be the first.', jam_groups_n: '{0} jam groups',
     block: 'Block', unblock: 'Unblock', block_confirm: 'Block {0}? They will no longer be able to message you, and this conversation disappears from your list.', blocked_ok: 'Blocked.', unblocked_ok: 'Unblocked.', blocked_h: 'Blocked people', blocked_msg: 'You cannot message this person.', compose_hint: 'Say hello to {0} \u2014 the date, the place, what you have in mind.', inquiry_ctx: 'Booking request',
+    nav_musicians: 'Musicians', nav_musicians_s: 'Musicians', board_intro_t: 'Paid gigs', board_intro_p: 'Dep gigs with the fee stated up front, in CHF or EUR. Need someone? Post a gig and the right musicians get alerted.', post_gig_cta: 'Post a gig', post_jam_cta: 'Post a jam listing', by_poster: 'by {0}',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -695,6 +711,7 @@ const I18N = {
     band_intro_t: 'Groupes & groupes de jam', band_intro_p: 'Les groupes se pr\u00e9sentent ici avec d\u00e9mos et tarif \u2014 r\u00e9servez-en un pour votre \u00e9v\u00e9nement, postulez \u00e0 une place libre ou trouvez un groupe de jam \u00e0 votre niveau.', list_my_band: 'Inscrire mon groupe', band_kind_l: 'De quoi s\u2019agit-il\u00a0?', kind_band: 'Un groupe \u2014 on joue des concerts et des \u00e9v\u00e9nements', kind_jam: 'Un groupe de jam / r\u00e9p\u00e9tition \u2014 on se retrouve pour jouer, sans r\u00e9servations', bookable_l: 'Disponible pour \u00e9v\u00e9nements \u2014 mariages, soir\u00e9es, entreprises (on peut nous r\u00e9server)', fee_from_l: 'Tarif d\u00e8s (groupe entier, une soir\u00e9e)', pitch_l: 'Accroche en une ligne (affich\u00e9e sur la carte)', pitch_ph: 'Groupe soul & funk \u00e0 5, 3 sets, sono incluse', cancel: 'Annuler', edit: 'Modifier', band_saved: 'Groupe mis \u00e0 jour.', seg_all_bands: 'Tous', seg_bookable: '\u00c0 r\u00e9server', seg_jamgroups: 'Groupes de jam', ph_genre: 'Genre', bands_n: '{0} groupes', no_bands_near: 'Aucun groupe ne correspond pour l\u2019instant \u2014 inscrivez le v\u00f4tre et soyez le premier.', from_fee: 'd\u00e8s {0}', fee_on_request: 'tarif sur demande', book_band: 'R\u00e9server ce groupe', contact_band: 'Contacter le groupe', jam_group: 'groupe de jam', ask_to_join: 'Demander \u00e0 rejoindre', inquiry_prompt: 'Votre message au groupe \u2014 date, lieu, type d\u2019\u00e9v\u00e9nement, budget\u00a0:', inquiry_sent: 'Message envoy\u00e9 \u2014 le groupe vous r\u00e9pondra ici dans Messages.', confirm_to_contact: 'Confirmez votre adresse e-mail avant de contacter un groupe \u2014 v\u00e9rifiez votre bo\u00eete mail.', view_band_page: 'Page du groupe \u2197', aud_event_t: 'Vous organisez un \u00e9v\u00e9nement\u00a0?', aud_event_p: 'Les groupes s\u2019inscrivent avec leurs d\u00e9mos et un tarif de d\u00e9part. Filtrez par genre et ville, \u00e9coutez, et \u00e9crivez directement au groupe.', cta_hire: 'R\u00e9server un groupe',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Groupes de jam', jams_intro_t: 'Jouer pour le plaisir', jams_intro_p: 'Gratuit et sans pression\u00a0: des musiciens qui cherchent avec qui jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement pour jouer. Pas de cachet, pas de notes.', jam_list_group: 'Inscrire un groupe de jam', my_activity: 'Mon activit\u00e9', activity_hint: 'Vos annonces, vos candidatures, les avis \u00e0 laisser.', activity_open: 'Afficher', activity_close: 'Masquer', activity_pending: '{0} en attente', dm_btn: 'Message', dm_prompt: 'Votre message\u00a0:', dm_sent: 'Message envoy\u00e9.', dm_ctx: 'Message direct', dm_closed: 'Ce musicien n\u2019accepte pas les messages directs.', dm_accept_l: 'Les autres musiciens peuvent m\u2019envoyer des messages directs', no_jam_groups: 'Aucun groupe de jam pour l\u2019instant \u2014 inscrivez le v\u00f4tre et soyez le premier.', jam_groups_n: '{0} groupes de jam',
     block: 'Bloquer', unblock: 'D\u00e9bloquer', block_confirm: 'Bloquer {0}\u00a0? Cette personne ne pourra plus vous \u00e9crire et la conversation dispara\u00eet de votre liste.', blocked_ok: 'Personne bloqu\u00e9e.', unblocked_ok: 'Personne d\u00e9bloqu\u00e9e.', blocked_h: 'Personnes bloqu\u00e9es', blocked_msg: 'Vous ne pouvez pas \u00e9crire \u00e0 cette personne.', compose_hint: 'Dites bonjour \u00e0 {0} \u2014 la date, le lieu, ce que vous avez en t\u00eate.', inquiry_ctx: 'Demande de r\u00e9servation',
+    nav_musicians: 'Musiciens', nav_musicians_s: 'Musiciens', board_intro_t: 'Concerts pay\u00e9s', board_intro_p: 'Des remplacements avec le cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Besoin de quelqu\u2019un\u00a0? Publiez un concert et les bons musiciens sont alert\u00e9s.', post_gig_cta: 'Publier un concert', post_jam_cta: 'Publier une annonce de jam', by_poster: 'par {0}',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -739,6 +756,7 @@ const I18N = {
     band_intro_t: 'Bands & Jam-Gruppen', band_intro_p: 'Bands stellen sich hier mit Demos und Gage vor \u2014 buche eine f\u00fcr deinen Anlass, bewirb dich auf einen freien Platz oder finde eine Jam-Gruppe auf deinem Niveau.', list_my_band: 'Meine Band eintragen', band_kind_l: 'Was ist es?', kind_band: 'Eine Band \u2014 wir spielen Konzerte und Events', kind_jam: 'Eine Jam-/Probegruppe \u2014 wir treffen uns zum Spielen, keine Buchungen', bookable_l: 'F\u00fcr Events buchbar \u2014 Hochzeiten, Partys, Firmenanl\u00e4sse', fee_from_l: 'Gage ab (ganze Band, ein Abend)', pitch_l: 'Ein Satz zur Band (auf der Karte sichtbar)', pitch_ph: '5-k\u00f6pfige Soul-&-Funk-Band, 3 Sets, eigene PA', cancel: 'Abbrechen', edit: 'Bearbeiten', band_saved: 'Band aktualisiert.', seg_all_bands: 'Alle', seg_bookable: 'Buchbar', seg_jamgroups: 'Jam-Gruppen', ph_genre: 'Genre', bands_n: '{0} Bands', no_bands_near: 'Noch keine passende Band \u2014 trag deine ein und sei die erste.', from_fee: 'ab {0}', fee_on_request: 'Gage auf Anfrage', book_band: 'Diese Band buchen', contact_band: 'Band kontaktieren', jam_group: 'Jam-Gruppe', ask_to_join: 'Mitspielen anfragen', inquiry_prompt: 'Deine Nachricht an die Band \u2014 Datum, Ort, Art des Anlasses, Budget:', inquiry_sent: 'Nachricht gesendet \u2014 die Band antwortet dir hier unter Nachrichten.', confirm_to_contact: 'Best\u00e4tige zuerst deine E-Mail-Adresse \u2014 schau in dein Postfach.', view_band_page: 'Bandseite \u2197', aud_event_t: 'Du organisierst einen Anlass?', aud_event_p: 'Bands tragen sich mit Demos und einer Startgage ein. Nach Genre und Stadt filtern, reinh\u00f6ren und der Band direkt schreiben.', cta_hire: 'Band buchen',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam-Gruppen', jams_intro_t: 'Spielen aus Spass', jams_intro_p: 'Kostenlos und locker: Leute, die jemanden zum Jammen suchen, und Gruppen, die sich regelm\u00e4ssig zum Spielen treffen. Keine Gage, keine Bewertungen.', jam_list_group: 'Jam-Gruppe eintragen', my_activity: 'Meine Aktivit\u00e4t', activity_hint: 'Deine Inserate, deine Bewerbungen, offene Bewertungen.', activity_open: 'Anzeigen', activity_close: 'Ausblenden', activity_pending: '{0} warten auf dich', dm_btn: 'Nachricht', dm_prompt: 'Deine Nachricht:', dm_sent: 'Nachricht gesendet.', dm_ctx: 'Direktnachricht', dm_closed: 'Diese Person nimmt keine Direktnachrichten an.', dm_accept_l: 'Andere Musiker:innen d\u00fcrfen mir Direktnachrichten schicken', no_jam_groups: 'Noch keine Jam-Gruppen \u2014 trag deine ein und sei die erste.', jam_groups_n: '{0} Jam-Gruppen',
     block: 'Blockieren', unblock: 'Freigeben', block_confirm: '{0} blockieren? Die Person kann dir nicht mehr schreiben und das Gespr\u00e4ch verschwindet aus deiner Liste.', blocked_ok: 'Blockiert.', unblocked_ok: 'Freigegeben.', blocked_h: 'Blockierte Personen', blocked_msg: 'Du kannst dieser Person nicht schreiben.', compose_hint: 'Sag {0} hallo \u2014 Datum, Ort, was du vorhast.', inquiry_ctx: 'Buchungsanfrage',
+    nav_musicians: 'Musiker:innen', nav_musicians_s: 'Musiker', board_intro_t: 'Bezahlte Gigs', board_intro_p: 'Ersatz-Gigs mit vorab genannter Gage, in CHF oder EUR. Du brauchst jemanden? Stell einen Gig ein und die passenden Leute werden benachrichtigt.', post_gig_cta: 'Gig einstellen', post_jam_cta: 'Jam-Inserat einstellen', by_poster: 'von {0}',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -783,6 +801,7 @@ const I18N = {
     band_intro_t: 'Gruppi & gruppi jam', band_intro_p: 'I gruppi si presentano qui con demo e tariffa \u2014 prenotane uno per il tuo evento, candidati a un posto libero o trova un gruppo jam al tuo livello.', list_my_band: 'Iscrivi il mio gruppo', band_kind_l: 'Di cosa si tratta?', kind_band: 'Un gruppo \u2014 suoniamo concerti ed eventi', kind_jam: 'Un gruppo jam / di prova \u2014 ci troviamo per suonare, senza prenotazioni', bookable_l: 'Disponibile per eventi \u2014 matrimoni, feste, aziende (ci si pu\u00f2 prenotare)', fee_from_l: 'Tariffa da (gruppo intero, una serata)', pitch_l: 'Frase di presentazione (mostrata sulla scheda)', pitch_ph: 'Band soul & funk in 5, 3 set, impianto proprio', cancel: 'Annulla', edit: 'Modifica', band_saved: 'Gruppo aggiornato.', seg_all_bands: 'Tutti', seg_bookable: 'Prenotabili', seg_jamgroups: 'Gruppi jam', ph_genre: 'Genere', bands_n: '{0} gruppi', no_bands_near: 'Nessun gruppo corrisponde per ora \u2014 iscrivi il tuo e sii il primo.', from_fee: 'da {0}', fee_on_request: 'tariffa su richiesta', book_band: 'Prenota questo gruppo', contact_band: 'Contatta il gruppo', jam_group: 'gruppo jam', ask_to_join: 'Chiedi di unirti', inquiry_prompt: 'Il tuo messaggio al gruppo \u2014 data, luogo, tipo di evento, budget:', inquiry_sent: 'Messaggio inviato \u2014 il gruppo ti risponder\u00e0 qui in Messaggi.', confirm_to_contact: 'Conferma il tuo indirizzo e-mail prima di contattare un gruppo \u2014 controlla la posta.', view_band_page: 'Pagina del gruppo \u2197', aud_event_t: 'Organizzi un evento?', aud_event_p: 'I gruppi si iscrivono con demo e una tariffa di partenza. Filtra per genere e citt\u00e0, ascolta e scrivi direttamente al gruppo.', cta_hire: 'Prenota un gruppo',
     nav_jams: 'Jam', nav_jams_s: 'Jam', seg_jam_groups: 'Gruppi jam', jams_intro_t: 'Suonare per il gusto di farlo', jams_intro_p: 'Gratis e senza pressioni: musicisti che cercano con chi suonare, e gruppi che si trovano regolarmente per jammare. Niente cachet, niente voti.', jam_list_group: 'Iscrivi un gruppo jam', my_activity: 'La mia attivit\u00e0', activity_hint: 'I tuoi annunci, le tue candidature, le recensioni da lasciare.', activity_open: 'Mostra', activity_close: 'Nascondi', activity_pending: '{0} in attesa', dm_btn: 'Messaggio', dm_prompt: 'Il tuo messaggio:', dm_sent: 'Messaggio inviato.', dm_ctx: 'Messaggio diretto', dm_closed: 'Questo musicista non accetta messaggi diretti.', dm_accept_l: 'Gli altri musicisti possono inviarmi messaggi diretti', no_jam_groups: 'Nessun gruppo jam per ora \u2014 iscrivi il tuo e sii il primo.', jam_groups_n: '{0} gruppi jam',
     block: 'Blocca', unblock: 'Sblocca', block_confirm: 'Bloccare {0}? Non potr\u00e0 pi\u00f9 scriverti e la conversazione sparir\u00e0 dalla tua lista.', blocked_ok: 'Bloccato.', unblocked_ok: 'Sbloccato.', blocked_h: 'Persone bloccate', blocked_msg: 'Non puoi scrivere a questa persona.', compose_hint: 'Saluta {0} \u2014 la data, il luogo, cosa hai in mente.', inquiry_ctx: 'Richiesta di prenotazione',
+    nav_musicians: 'Musicisti', nav_musicians_s: 'Musicisti', board_intro_t: 'Concerti pagati', board_intro_p: 'Sostituzioni con il cachet indicato in anticipo, in CHF o EUR. Cerchi qualcuno? Pubblica un concerto e i musicisti giusti vengono avvisati.', post_gig_cta: 'Pubblica un concerto', post_jam_cta: 'Pubblica un annuncio jam', by_poster: 'di {0}',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -850,10 +869,10 @@ function applyI18n() {
 let me = null;
 let boardKind = 'gig';
 let landingDismissed = false;
-$('ctaBrowse').onclick = () => { landingDismissed = true; $('landing').hidden = true; };
+$('ctaBrowse').onclick = () => { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=board]').click(); };
 $('ctaJam').onclick = () => { landingDismissed = true; $('landing').hidden = true; boardKind = 'practice'; document.querySelector('[data-tab=jams]').click(); };
-$('ctaGigs').onclick = () => { landingDismissed = true; $('landing').hidden = true; switchKind('gig'); };
-$('ctaPeople').onclick = () => { landingDismissed = true; $('landing').hidden = true; switchKind('musicians'); };
+$('ctaGigs').onclick = () => { landingDismissed = true; $('landing').hidden = true; boardKind = 'gig'; document.querySelector('[data-tab=board]').click(); };
+$('ctaPeople').onclick = () => { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=musicians]').click(); };
 $('ctaHire').onclick = () => { landingDismissed = true; $('landing').hidden = true; bandFilter = 'bookable'; document.querySelector('[data-tab=bands]').click(); };
 document.querySelectorAll('#landTiles [data-goto]').forEach((tile) => {
   tile.onclick = () => {
@@ -1026,18 +1045,20 @@ $('authForm').onsubmit = async (e) => {
 };
 
 // ── Tabs ─────────────────────────────────────────────
-const TABS = ['board','jams','post','bands','msgs','profile'];
+const TABS = ['musicians','board','jams','post','bands','msgs','profile'];
 let lastBrowse = 'board';
 // One board component, two homes: the Concerts tab (paid gigs, musicians) and the
 // Jams tab (practice partners, jam groups). Moving the DOM node keeps one set of
 // filters and one loadBoard().
 function mountBoard(tab) {
-  const host = tab === 'jams' ? $('jamsHost') : $('tab-board');
+  const host = tab === 'jams' ? $('jamsHost') : tab === 'musicians' ? $('musiciansHost') : $('tab-board');
   if ($('boardHost').parentElement !== host) host.append($('boardHost'));
-  const group = tab === 'jams' ? 'jams' : 'board';
-  document.querySelectorAll('#kindSeg button').forEach((x) => { x.hidden = x.dataset.group !== group; });
+  const group = tab;
+  let visible = 0;
+  document.querySelectorAll('#kindSeg button').forEach((x) => { x.hidden = x.dataset.group !== group; if (!x.hidden) visible++; });
+  $('kindSeg').hidden = visible < 2;
   const current = document.querySelector('#kindSeg button[data-kind="' + boardKind + '"]');
-  if (!current || current.dataset.group !== group) boardKind = group === 'jams' ? 'practice' : 'gig';
+  if (!current || current.dataset.group !== group) boardKind = group === 'jams' ? 'practice' : group === 'musicians' ? 'musicians' : 'gig';
   switchKind(boardKind);
 }
 document.querySelectorAll('#tabs button').forEach((b) => {
@@ -1046,7 +1067,7 @@ document.querySelectorAll('#tabs button').forEach((b) => {
     b.classList.add('active');
     if (b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     TABS.forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
-    if (b.dataset.tab === 'board' || b.dataset.tab === 'jams') { lastBrowse = b.dataset.tab; mountBoard(b.dataset.tab); }
+    if (b.dataset.tab === 'board' || b.dataset.tab === 'jams' || b.dataset.tab === 'musicians') { if (b.dataset.tab !== 'musicians') lastBrowse = b.dataset.tab; mountBoard(b.dataset.tab); }
     if (b.dataset.tab === 'bands') { bandFilter = ''; loadBands(); }
     if (b.dataset.tab === 'msgs') loadThreads();
     if (b.dataset.tab === 'post') { if (lastBrowse === 'jams' && $('pKind').value !== 'practice') { $('pKind').value = 'practice'; $('pKind').onchange(); } }
@@ -1057,11 +1078,18 @@ document.querySelectorAll('#tabs button').forEach((b) => {
 // ── Board ────────────────────────────────────────────
 function gigCard(g, actions) {
   const c = el('div', 'card');
+  c.id = 'gig-' + g.id;
   const head = el('div', 'gig-head');
   head.append(el('strong', '', label(g.instrument)));
   head.append(el('span', 'tag status-' + g.status, TS(g.status)));
   head.append(el('span', 'muted', (g.gig_date || T('flexible')) + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
   head.append(el('span', 'fee', g.kind === 'practice' ? T('jam') : (g.currency || 'CHF') + ' ' + g.fee_chf));
+  if (g.poster_name && !g.is_mine) {
+    const by = el(g.poster_handle ? 'a' : 'span', 'muted', T('by_poster', g.poster_name));
+    if (g.poster_handle) { by.href = '/m/' + g.poster_handle; by.style.textDecoration = 'underline'; }
+    by.style.fontSize = '13px'; by.style.flexBasis = '100%';
+    head.append(by);
+  }
   c.append(head);
   const tags = el('div');
   (g.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
@@ -1093,6 +1121,7 @@ function musicianCard(m) {
   const chips = el('div', 'chips');
   (m.looking_for || []).forEach((k) => chips.append(el('span', 'tag hot', T(LF_KEYS[k] || k))));
   (m.genres || []).slice(0, 4).forEach((g) => chips.append(el('span', 'tag', g)));
+  (m.bands || []).forEach((b) => { const a = el('a', 'tag band-tag', '\u266b ' + b.name); a.href = '/b/' + b.id + '-' + b.slug; a.onclick = (e) => e.stopPropagation(); chips.append(a); });
   if (chips.childElementCount) card.append(chips);
   if (me && !m.is_me && m.accepts_dm !== false) {
     const dm = el('button', 'msg-pill');
@@ -1217,7 +1246,7 @@ async function loadBoard() {
     if (seq !== boardSeq || !r2.ok) return;
     const near = r2.json.musicians || [];
     if (near.length) { board.append(el('h2', '', T('musicians_near'))); near.forEach((m) => board.append(musicianCard(m))); }
-    if (r2.json.total > near.length) { const more = el('button', 'ghost small', T('see_all_musicians', r2.json.total)); more.onclick = () => { boardKind = 'musicians'; document.querySelector('[data-tab=board]').click(); }; board.append(more); }
+    if (r2.json.total > near.length) { const more = el('button', 'ghost small', T('see_all_musicians', r2.json.total)); more.onclick = () => document.querySelector('[data-tab=musicians]').click(); board.append(more); }
     return;
   }
   r.json.gigs.forEach((g) => board.append(gigCard(g, (gig) => {
@@ -1243,6 +1272,8 @@ async function loadJamGroups() {
   const co = taFilter.coords();
   await renderBands({ wrap: board, kind: 'jam', city, radius: km, coords: co, emptyKey: 'no_jam_groups', countKey: 'jam_groups_n' });
 }
+$('postGigBtn').onclick = () => { lastBrowse = 'board'; document.querySelector('[data-tab=post]').click(); if ($('pKind').value !== 'gig') { $('pKind').value = 'gig'; $('pKind').onchange(); } };
+$('postJamBtn').onclick = () => { lastBrowse = 'jams'; document.querySelector('[data-tab=post]').click(); };
 $('jamListBtn').onclick = () => {
   if (!me) { $('authDialog').showModal(); return; }
   document.querySelector('[data-tab=bands]').click();
@@ -2173,7 +2204,15 @@ applyI18n();
   const r = await api('/auth/me');
   if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null };
   renderAuth(); loadProfile();
-  if (!(deepTab === 'jams' || deepTab === 'band' || deepBand)) mountBoard('board');
+  const deepGig = q.get('gig');
+  if (deepGig) {
+    landingDismissed = true; $('landing').hidden = true;
+    document.querySelector('[data-tab=board]').click();
+    boardSeq++; const seqNow = boardSeq;
+    await loadBoard();
+    const card = $('gig-' + deepGig);
+    if (card) { card.scrollIntoView({ block: 'center' }); card.classList.add('hilite'); setTimeout(() => card.classList.remove('hilite'), 2500); }
+  } else if (!(deepTab === 'jams' || deepTab === 'band' || deepBand)) mountBoard('musicians');
   if (deepTab === 'jams') { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=jams]').click(); }
   if (deepDm) { if (!me) { $('authDialog').showModal(); } else dmUser(deepDm, ''); }
   if (deepTab === 'band' || deepBand) {

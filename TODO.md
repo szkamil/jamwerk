@@ -23,6 +23,10 @@
 
 ## Shipped 2026-08-26
 
+- Musiciens first: tab order Musiciens · Groupes · Jams · Concerts · Messages, Publier
+  moved into Concerts/Jams intro cards; cross-links musician ↔ band ↔ listing;
+  "Rechercher" button.
+
 - Block/unblock (thread header + Profil › Personnes bloquées); DM/inquiry compose
   is a conversation page, not a prompt; compact Message pill on musician cards.
 
