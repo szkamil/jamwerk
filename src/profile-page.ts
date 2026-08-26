@@ -119,7 +119,15 @@ profilePage.get('/:handle', async (c) => {
     semi_pro: { en: 'semi-pro', fr: 'semi-pro', de: 'semiprofessionell', it: 'semi-professionista' },
     pro: { en: 'professional', fr: 'professionnel', de: 'professionell', it: 'professionista' },
   };
+  const lfNames: Record<string, { en: string; fr: string; de: string; it: string }> = {
+    dep: { en: 'looking for paid dep gigs', fr: 'cherche des remplacements payés', de: 'sucht bezahlte Ersatz-Gigs', it: 'cerca sostituzioni pagate' },
+    jam: { en: 'looking for jam partners', fr: 'cherche des partenaires de jam', de: 'sucht Jam-Partner', it: 'cerca partner per jam' },
+    join_band: { en: 'wants to join a band', fr: 'cherche à rejoindre un groupe', de: 'möchte in eine Band einsteigen', it: 'vuole entrare in un gruppo' },
+    start_band: { en: 'wants to start a band', fr: 'cherche à monter un groupe', de: 'möchte eine Band gründen', it: 'vuole fondare un gruppo' },
+  };
+  const lookingFor: string[] = JSON.parse(m.looking_for || '[]');
   const flagChips = [
+    ...lookingFor.filter((k) => lfNames[k]).map((k) => `<span class="chip hot">${t(lang, lfNames[k])}</span>`),
     m.level && levelNames[m.level] ? `<span class="chip hot">${t(lang, levelNames[m.level])}</span>` : '',
     m.reads_charts ? '<span class="chip hot">reads charts</span>' : '',
     m.sings_backing ? '<span class="chip">backing vocals</span>' : '',
