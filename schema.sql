@@ -152,6 +152,11 @@ CREATE TABLE IF NOT EXISTS bands (
   home_lng REAL,
   description TEXT NOT NULL DEFAULT '',
   links TEXT NOT NULL DEFAULT '[]',
+  kind TEXT NOT NULL DEFAULT 'band' CHECK(kind IN ('band','jam')),
+  bookable INTEGER NOT NULL DEFAULT 0,
+  fee_from INTEGER,
+  fee_currency TEXT NOT NULL DEFAULT 'CHF' CHECK(fee_currency IN ('CHF','EUR')),
+  pitch TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (owner_email) REFERENCES users(email) ON DELETE CASCADE
 );
@@ -185,7 +190,7 @@ CREATE INDEX IF NOT EXISTS idx_seat_applications_seat ON seat_applications(seat_
 -- In-app messaging (mirrors migrations/009)
 CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  thread_type TEXT NOT NULL CHECK(thread_type IN ('gig','seat')),
+  thread_type TEXT NOT NULL CHECK(thread_type IN ('gig','seat','band')),
   thread_id INTEGER NOT NULL,
   sender_email TEXT NOT NULL,
   body TEXT NOT NULL,
@@ -194,6 +199,17 @@ CREATE TABLE IF NOT EXISTS messages (
   FOREIGN KEY (sender_email) REFERENCES users(email) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_type, thread_id, id);
+
+-- Booking / contact inquiries to a band (thread_type 'band' keys this id)
+CREATE TABLE IF NOT EXISTS band_inquiries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  band_id INTEGER NOT NULL,
+  from_email TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(band_id, from_email),
+  FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
+  FOREIGN KEY (from_email) REFERENCES users(email) ON DELETE CASCADE
+);
 
 -- Feedback form submissions (mirrors migrations/010)
 CREATE TABLE IF NOT EXISTS feedback (

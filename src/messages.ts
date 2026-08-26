@@ -15,7 +15,7 @@ import { Lang, t } from './i18n';
 import type { AppEnv } from './types';
 
 type Ctx = Context<AppEnv>;
-type ThreadType = 'gig' | 'seat';
+type ThreadType = 'gig' | 'seat' | 'band';
 
 interface Thread {
   applicant: string;
@@ -50,6 +50,13 @@ async function loadThread(c: Ctx, type: string, appId: string): Promise<Thread |
       counterparty: row.owner_email,
       context: `${row.name} · ${row.instrument}`,
     };
+  }
+  if (type === 'band') {
+    const row = await c.env.DB.prepare(
+      `SELECT i.from_email, b.owner_email, b.name FROM band_inquiries i JOIN bands b ON b.id = i.band_id WHERE i.id = ?`
+    ).bind(appId).first<any>();
+    if (!row) return null;
+    return { applicant: row.from_email, counterparty: row.owner_email, context: row.name };
   }
   return null;
 }
@@ -94,7 +101,21 @@ messages.get('/threads', async (c) => {
      WHERE a.musician_email = ? OR b.owner_email = ?`
   ).bind(me, me, me).all();
 
-  const threads = [...(gigRows.results as any[]), ...(seatRows.results as any[])].map((r) => {
+  const bandRows = await c.env.DB.prepare(
+    `SELECT i.id AS thread_id, 'band' AS thread_type,
+            i.from_email AS musician_email, b.owner_email AS poster_email, b.name AS band_name,
+            um.display_name AS musician_name, up.display_name AS poster_name,
+            (SELECT body FROM messages m WHERE m.thread_type = 'band' AND m.thread_id = i.id ORDER BY m.id DESC LIMIT 1) AS last_body,
+            (SELECT created_at FROM messages m WHERE m.thread_type = 'band' AND m.thread_id = i.id ORDER BY m.id DESC LIMIT 1) AS last_at,
+            (SELECT COUNT(*) FROM messages m WHERE m.thread_type = 'band' AND m.thread_id = i.id AND m.sender_email != ? AND m.is_read = 0) AS unread
+     FROM band_inquiries i
+     JOIN bands b ON b.id = i.band_id
+     JOIN users um ON um.email = i.from_email
+     JOIN users up ON up.email = b.owner_email
+     WHERE i.from_email = ? OR b.owner_email = ?`
+  ).bind(me, me, me).all();
+
+  const threads = [...(gigRows.results as any[]), ...(seatRows.results as any[]), ...(bandRows.results as any[])].map((r) => {
     const iAmApplicant = r.musician_email === me;
     const otherEmail = iAmApplicant ? r.poster_email : r.musician_email;
     const otherName = iAmApplicant ? r.poster_name : r.musician_name;
@@ -104,7 +125,7 @@ messages.get('/threads', async (c) => {
       counterpart: otherName || otherEmail.split('@')[0],
       context: r.thread_type === 'gig'
         ? `${r.instrument} · ${r.venue_city}${r.gig_date ? ' · ' + r.gig_date : ''}`
-        : `${r.band_name} · ${r.instrument}`,
+        : r.thread_type === 'band' ? `${r.band_name}` : `${r.band_name} · ${r.instrument}`,
       last_body: r.last_body,
       last_at: r.last_at,
       unread: r.unread,
