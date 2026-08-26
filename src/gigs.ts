@@ -163,6 +163,57 @@ function gigToJson(row: GigRow, viewerEmail?: string) {
 
 export const musicians = new Hono<AppEnv>();
 
+// Public directory: who is here and what they're after. No login needed —
+// the same data already sits on the public /m/:handle pages.
+//   GET /musicians?instrument=bass&city=Genève&radius_km=50&looking_for=jam&limit=24
+musicians.get('/', async (c) => {
+  const q = c.req.query();
+  const conds: string[] = ['m.handle IS NOT NULL'];
+  const binds: unknown[] = [];
+  if (q.instrument && (INSTRUMENTS as readonly string[]).includes(q.instrument)) { conds.push('m.instruments LIKE ?'); binds.push(`%"${q.instrument}"%`); }
+  if (q.looking_for && ['dep', 'jam', 'join_band', 'start_band'].includes(q.looking_for)) { conds.push('m.looking_for LIKE ?'); binds.push(`%"${q.looking_for}"%`); }
+  let lat = parseFloat(q.lat), lng = parseFloat(q.lng);
+  const radius = Math.min(parseFloat(q.radius_km) || 50, 300);
+  if ((isNaN(lat) || isNaN(lng)) && q.city) {
+    const center = await geocodeCity(c.env, q.city);
+    if (center) { lat = center.lat; lng = center.lng; }
+    else { conds.push('LOWER(m.home_city) = LOWER(?)'); binds.push(q.city.trim()); }
+  }
+  const geo = !isNaN(lat) && !isNaN(lng);
+  if (geo) {
+    const dLat = radius / 111, dLng = radius / (111 * Math.max(Math.cos((lat * Math.PI) / 180), 0.2));
+    conds.push('m.home_lat BETWEEN ? AND ? AND m.home_lng BETWEEN ? AND ?');
+    binds.push(lat - dLat, lat + dLat, lng - dLng, lng + dLng);
+  }
+  const limit = Math.min(parseInt(q.limit || '24', 10) || 24, 60);
+  const { results } = await c.env.DB.prepare(
+    `SELECT m.owner, m.instruments, m.genres, m.level, m.looking_for, m.home_city, m.home_lat, m.home_lng, m.travel_radius_km, m.gigs_played, m.handle,
+            u.display_name, u.photo_key, u.created_at,
+            (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS avg_rating,
+            (SELECT COUNT(*) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS review_count
+     FROM musician_details m JOIN users u ON u.email = m.owner
+     WHERE ${conds.join(' AND ')}
+     ORDER BY u.created_at DESC LIMIT 200`
+  ).bind(...binds).all();
+  let rows = (results as any[]).map((r) => ({
+    display_name: r.display_name || String(r.owner).split('@')[0],
+    handle: r.handle,
+    photo: r.photo_key ? `/img/${r.photo_key}` : null,
+    instruments: JSON.parse(r.instruments || '[]'),
+    genres: JSON.parse(r.genres || '[]'),
+    level: r.level,
+    looking_for: JSON.parse(r.looking_for || '[]'),
+    home_city: r.home_city,
+    travel_radius_km: r.travel_radius_km,
+    gigs_played: r.gigs_played || 0,
+    avg_rating: r.avg_rating != null ? Math.round(r.avg_rating * 10) / 10 : null,
+    review_count: r.review_count || 0,
+    distance_km: geo && r.home_lat != null && r.home_lng != null ? Math.round(haversineKm(lat, lng, r.home_lat, r.home_lng)) : null,
+  }));
+  if (geo) rows = rows.filter((r) => r.distance_km !== null && r.distance_km <= radius).sort((a, b) => (a.distance_km as number) - (b.distance_km as number));
+  return c.json({ musicians: rows.slice(0, limit), total: rows.length });
+});
+
 musicians.get('/me', async (c) => {
   const user = requireUser(c);
   if (!user) return c.json({ error: 'Authentication required' }, 401);
@@ -175,6 +226,7 @@ musicians.get('/me', async (c) => {
     instruments: JSON.parse((row.instruments as string) || '[]'),
     genres: JSON.parse((row.genres as string) || '[]'),
     demo_links: JSON.parse((row.demo_links as string) || '[]'),
+    looking_for: JSON.parse((row.looking_for as string) || '[]'),
   });
 });
 
@@ -219,6 +271,8 @@ musicians.post('/me', async (c) => {
   }
 
   const level = ['hobby', 'semi_pro', 'pro'].includes(body.level) ? body.level : null;
+  const LOOKING = ['dep', 'jam', 'join_band', 'start_band'];
+  const lookingFor = (parseSlugArray(body.looking_for, 4) ?? []).filter((x) => LOOKING.includes(x));
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
   let homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
   let homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
@@ -232,11 +286,11 @@ musicians.post('/me', async (c) => {
   await c.env.DB.prepare(
     `INSERT INTO musician_details
        (owner, instruments, genres, reads_charts, sings_backing, own_transport, own_pa,
-        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level, looking_for)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(owner) DO UPDATE SET
        handle = COALESCE(musician_details.handle, excluded.handle),
-       level = excluded.level,
+       level = excluded.level, looking_for = excluded.looking_for,
        instruments = excluded.instruments, genres = excluded.genres,
        reads_charts = excluded.reads_charts, sings_backing = excluded.sings_backing,
        own_transport = excluded.own_transport, own_pa = excluded.own_pa,
@@ -248,7 +302,7 @@ musicians.post('/me', async (c) => {
   ).bind(
     user.email, JSON.stringify(instruments), JSON.stringify(genres),
     flag(body.reads_charts), flag(body.sings_backing), flag(body.own_transport), flag(body.own_pa),
-    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level
+    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level, JSON.stringify(lookingFor)
   ).run();
 
   return c.json({ ok: true, handle });

@@ -99,6 +99,7 @@
 
 ## Core loop improvements
 
+- [x] **Musicians directory** — shipped 2026-08-25 (first-user feedback: 'no way to find anyone'): public *Musiciens* segment on the board with the same filters, cards → public page, the board shows *Musiciens près de vous* under any empty result, and profiles carry *Je cherche* (remplacements payés / jams / rejoindre / monter un groupe) shown as chips. Later: a 'visible in the directory' opt-out if anyone asks.
 - [x] **Typo-proof cities** — shipped 2026-08-23: city fields are a typeahead (bundled list of ~70 places with Genf/Geneva/Ginebra-style aliases, Photon for the rest, biased to Geneva); unknown cities are refused instead of saved without coordinates. Nominatim fallback now biased to CH/FR/DE/IT/AT + Geneva viewbox.
 - [x] **Profile photo** — shipped 2026-08-23: R2 bucket `jamwerk-media`, client-side 512px crop/resize, shown on applicant cards, public page (also as og:image) and the header avatar; remove button. No moderation yet (fine at POC scale — every new profile is visible to the owner).
 - [x] **Media embeds** — shipped 2026-08-23: demo/promo links on public musician pages and band

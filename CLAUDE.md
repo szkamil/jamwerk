@@ -22,12 +22,13 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
   `src/turnstile.ts` (bot check), `src/ratelimit.ts`, `src/i18n.ts`,
   `src/pwa.ts` (manifest/icons/service worker)
 - `src/places.ts` — bundled place list (Grand Genève, Romandie, border towns, Swiss cities; multilingual aliases) + `src/places-api.ts` (`GET /places?q=`: bundled list, then Photon). City inputs use the typeahead in ui.ts; the server refuses unresolvable cities (`code: city_unknown`) — a listing without coordinates would never match anything
+- Musicians directory: public `GET /musicians` (instrument / city+radius / looking_for filters) — the *Musiciens* board segment; the board also shows nearby musicians under any empty result. `musician_details.looking_for` = JSON of dep | jam | join_band | start_band
 - `src/media.ts` — demo/promo URL → embed descriptor (YouTube/Vimeo/Spotify/SoundCloud), used by the public profile page and the bands API
 - Profile photos: client resizes to a 512px JPEG, `POST /auth/photo` stores it in the R2 bucket `jamwerk-media` (binding `MEDIA`), served at `/img/avatars/<uuid>.<ext>` with immutable caching; `users.photo_key`
 - `schema.sql` — full-schema mirror; `migrations/NNN_*.sql` — incremental
   patches for the already-provisioned prod DB. Keep BOTH in sync for any
   schema change. Prod D1: `jamwerk-db`, id `9b956c5a-b8e2-41e4-930c-8a647501b6cb`.
-  Migrations 001–013 are applied to prod.
+  Migrations 001–014 are applied to prod.
 - `test/*.spec.ts` — @cloudflare/vitest-pool-workers. 44 tests. Run:
   `CI=true npx vitest run`. Isolated per-test D1 storage: multi-step
   lifecycle flows must live in a SINGLE `it` block. Schema is replayed from
