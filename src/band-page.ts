@@ -32,14 +32,14 @@ bandPage.get('/:id', async (c) => {
   const baseUrl = c.env.BASE_URL || 'https://jamwerk.app';
 
   const b = await c.env.DB.prepare(
-    'SELECT b.*, u.display_name AS owner_name FROM bands b JOIN users u ON u.email = b.owner_email WHERE b.id = ?'
+    'SELECT b.*, u.display_name AS owner_name, (SELECT handle FROM musician_details md WHERE md.owner = b.owner_email) AS owner_handle FROM bands b JOIN users u ON u.email = b.owner_email WHERE b.id = ?'
   ).bind(id).first<any>();
   if (!b) {
     return c.html(notFoundPage(lang, t(lang, { en: 'No such band.', fr: 'Ce groupe n’existe pas.', de: 'Diese Band gibt es nicht.', it: 'Questo gruppo non esiste.' })), 404);
   }
   const { results: seats } = await c.env.DB.prepare(
-    `SELECT s.instrument, s.status, u.display_name AS member_name
-     FROM band_seats s LEFT JOIN users u ON u.email = s.member_email
+    `SELECT s.instrument, s.status, u.display_name AS member_name, md.handle AS member_handle
+     FROM band_seats s LEFT JOIN users u ON u.email = s.member_email LEFT JOIN musician_details md ON md.owner = s.member_email
      WHERE s.band_id = ? ORDER BY s.id`
   ).bind(id).all();
 
@@ -72,9 +72,12 @@ bandPage.get('/:id', async (c) => {
     ? links.map((u) => { const m = classifyMedia(u); return m ? mediaHtml(m) : ''; }).join('')
     : `<p class="empty">${t(lang, { en: 'No demos yet.', fr: 'Pas encore de démos.', de: 'Noch keine Demos.', it: 'Ancora nessuna demo.' })}</p>`;
 
+  const person = (name: string, handle: string | null, extra: string) => handle
+    ? `<a class="chip hot" href="/m/${esc(handle)}" style="text-decoration: none;">${esc(name)}${extra}</a>`
+    : `<span class="chip hot">${esc(name)}${extra}</span>`;
   const lineupHtml = [
-    `<span class="chip hot">${esc(b.owner_name || b.owner_email.split('@')[0])}</span>`,
-    ...filled.map((s) => `<span class="chip hot">${esc(s.member_name || '')} · ${esc(label(s.instrument))}</span>`),
+    person(b.owner_name || b.owner_email.split('@')[0], b.owner_handle, ''),
+    ...filled.map((s) => person(s.member_name || '', s.member_handle, ' · ' + esc(label(s.instrument)))),
     ...open.map((s) => `<span class="chip">${t(lang, { en: 'open seat', fr: 'place libre', de: 'freier Platz', it: 'posto libero' })}: ${esc(label(s.instrument))}</span>`),
   ].join('');
 

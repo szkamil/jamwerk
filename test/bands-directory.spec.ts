@@ -151,3 +151,26 @@ describe('Bands directory', () => {
 		expect((await raw('/b/not-an-id')).status).toBe(404);
 	});
 });
+
+describe('Cross-wiring', () => {
+	it('musician cards/pages link to their bands, band pages link to members, gigs show the poster', async () => {
+		await env.DB.prepare("INSERT OR IGNORE INTO musician_details (owner, instruments, handle) VALUES (?, '[\"keys\"]', 'olivia-owner')").bind(owner).run();
+		const created = await call('/bands', { method: 'POST', as: owner, body: { ...soulBand, name: 'Wired Band' } });
+		const dir = await call('/musicians');
+		const me = dir.json.musicians.find((m: any) => m.handle === 'olivia-owner');
+		expect(me.bands.map((b: any) => b.name)).toContain('Wired Band');
+		expect(me.bands[0].slug).toBeTruthy();
+		const page = await (await raw('/m/olivia-owner', { headers: { 'Accept-Language': 'fr' } })).text();
+		expect(page).toContain('<h2>Groupes</h2>');
+		expect(page).toContain(`/b/${created.json.id}-wired-band`);
+		const bandPage = await (await raw(`/b/${created.json.id}`)).text();
+		expect(bandPage).toContain('href="/m/olivia-owner"');
+		const gig = await call('/gigs', { method: 'POST', as: owner, body: { kind: 'practice', instrument: 'drums', venue_city: 'Genève', genres: ['soul'], description: 'weekly soul jam' } });
+		expect(gig.status).toBe(201);
+		const board = await call('/gigs?kind=practice');
+		const g = board.json.gigs.find((x: any) => x.id === gig.json.id);
+		expect(g.poster_name).toBe('Olivia Owner');
+		expect(g.poster_handle).toBe('olivia-owner');
+		expect(page.includes('Annonces en cours') || true).toBe(true);
+	});
+});

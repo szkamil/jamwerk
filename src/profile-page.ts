@@ -7,6 +7,7 @@ import { pickLang, t } from './i18n';
 import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
 import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
+import { bandsForUser } from './gigs';
 
 export function esc(s: unknown): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -109,6 +110,10 @@ profilePage.get('/:handle', async (c) => {
      ORDER BY r.created_at DESC LIMIT 20`
   ).bind(m.owner).all();
 
+  const myBands = await bandsForUser(c.env, m.owner);
+  const { results: listings } = await c.env.DB.prepare(
+    `SELECT id, kind, instrument, venue_city, gig_date FROM gigs WHERE poster_email = ? AND status = 'open' AND (gig_date IS NULL OR gig_date >= date()) ORDER BY gig_date LIMIT 10`
+  ).bind(m.owner).all();
   const name = m.display_name || 'JamWerk musician';
   const initials = name.split(/\s+/).map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const instruments: string[] = JSON.parse(m.instruments || '[]');
@@ -201,6 +206,10 @@ ${NOTES_LAYER}
 <main>
   ${m.accepts_dm !== 0 ? `<a class="dm-btn" href="/?dm=${esc(m.handle)}">${t(lang, { en: 'Send a message', fr: 'Envoyer un message', de: 'Nachricht senden', it: 'Invia un messaggio' })}</a>` : ''}
   <div class="chips">${flagChips}</div>
+  ${myBands.length ? `<h2>${t(lang, { en: 'Groups', fr: 'Groupes', de: 'Gruppen', it: 'Gruppi' })}</h2>
+  <div class="chips">${myBands.map((b) => `<a class="chip hot" href="/b/${b.id}-${esc(b.slug)}" style="text-decoration: none;">${esc(b.name)}${b.kind === 'jam' ? ' · ' + t(lang, { en: 'jam group', fr: 'groupe de jam', de: 'Jam-Gruppe', it: 'gruppo jam' }) : ''}</a>`).join('')}</div>` : ''}
+  ${(listings as any[]).length ? `<h2>${t(lang, { en: 'Open listings', fr: 'Annonces en cours', de: 'Offene Inserate', it: 'Annunci aperti' })}</h2>
+  <div class="chips">${(listings as any[]).map((g) => `<a class="chip" href="/?gig=${g.id}" style="text-decoration: none;">${g.kind === 'practice' ? t(lang, { en: 'jam', fr: 'jam', de: 'Jam', it: 'jam' }) : t(lang, { en: 'gig', fr: 'concert', de: 'Gig', it: 'concerto' })} · ${esc(label(g.instrument))} · ${esc(g.venue_city)}${g.gig_date ? ' · ' + esc(g.gig_date) : ''}</a>`).join('')}</div>` : ''}
   <h2>${t(lang, { en: 'Demos', fr: 'Démos', de: 'Demos', it: 'Demo' })}</h2>
   ${demoHtml}
   <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}</h2>

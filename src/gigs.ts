@@ -146,6 +146,8 @@ interface GigRow {
   description: string;
   status: string;
   created_at: string;
+  poster_name?: string | null;
+  poster_handle?: string | null;
 }
 
 /** Public shape: JSON columns parsed, poster hidden until there is a booking. */
@@ -162,6 +164,20 @@ function gigToJson(row: GigRow, viewerEmail?: string) {
 // ─── Musician profile ─────────────────────────────────────────────────────────
 
 export const musicians = new Hono<AppEnv>();
+
+/** Bands a user belongs to (owner or filled seat) — the cross-links from people to groups. */
+export async function bandsForUser(env: { DB: D1Database }, email: string): Promise<{ id: number; name: string; kind: string; slug: string }[]> {
+  if (!email) return [];
+  const { results } = await env.DB.prepare(
+    `SELECT b.id, b.name, b.kind FROM bands b WHERE b.owner_email = ?
+     UNION SELECT b.id, b.name, b.kind FROM bands b JOIN band_seats s ON s.band_id = b.id WHERE s.member_email = ? AND s.status = 'filled'
+     ORDER BY 2 LIMIT 10`
+  ).bind(email, email).all();
+  return (results as any[]).map((b) => ({ id: b.id, name: b.name, kind: b.kind || 'band', slug: slugifyName(b.name) }));
+}
+export function slugifyName(name: string): string {
+  return name.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'band';
+}
 
 // Public directory: who is here and what they're after. No login needed —
 // the same data already sits on the public /m/:handle pages.
@@ -214,7 +230,10 @@ musicians.get('/', async (c) => {
     distance_km: geo && r.home_lat != null && r.home_lng != null ? Math.round(haversineKm(lat, lng, r.home_lat, r.home_lng)) : null,
   }));
   if (geo) rows = rows.filter((r) => r.distance_km !== null && r.distance_km <= radius).sort((a, b) => (a.distance_km as number) - (b.distance_km as number));
-  return c.json({ musicians: rows.slice(0, limit), total: rows.length });
+  const page = rows.slice(0, limit);
+  const owners = (results as any[]).reduce((m, r) => { m[r.handle] = r.owner; return m; }, {} as Record<string, string>);
+  const bandLists = await Promise.all(page.map((r) => bandsForUser(c.env, owners[r.handle])));
+  return c.json({ musicians: page.map((r, i) => ({ ...r, bands: bandLists[i] })), total: rows.length });
 });
 
 musicians.get('/me', async (c) => {
@@ -478,7 +497,9 @@ gigs.get('/', async (c) => {
   }
 
   const { results } = await c.env.DB.prepare(
-    `SELECT * FROM gigs WHERE ${conds.join(' AND ')} ORDER BY ${kind === 'gig' ? 'gig_date ASC' : 'created_at DESC'} LIMIT 100`
+    `SELECT g.*, (SELECT display_name FROM users u WHERE u.email = g.poster_email) AS poster_name,
+            (SELECT handle FROM musician_details md WHERE md.owner = g.poster_email) AS poster_handle
+     FROM gigs g WHERE ${conds.join(' AND ')} ORDER BY ${kind === 'gig' ? 'gig_date ASC' : 'created_at DESC'} LIMIT 100`
   ).bind(...binds).all();
 
   let rows = results as unknown as GigRow[];
