@@ -168,6 +168,7 @@ export const musicians = new Hono<AppEnv>();
 //   GET /musicians?instrument=bass&city=Genève&radius_km=50&looking_for=jam&limit=24
 musicians.get('/', async (c) => {
   const q = c.req.query();
+  const viewer = c.get('user');
   const conds: string[] = ['m.handle IS NOT NULL'];
   const binds: unknown[] = [];
   if (q.instrument && (INSTRUMENTS as readonly string[]).includes(q.instrument)) { conds.push('m.instruments LIKE ?'); binds.push(`%"${q.instrument}"%`); }
@@ -187,7 +188,7 @@ musicians.get('/', async (c) => {
   }
   const limit = Math.min(parseInt(q.limit || '24', 10) || 24, 60);
   const { results } = await c.env.DB.prepare(
-    `SELECT m.owner, m.instruments, m.genres, m.level, m.looking_for, m.home_city, m.home_lat, m.home_lng, m.travel_radius_km, m.gigs_played, m.handle,
+    `SELECT m.owner, m.instruments, m.genres, m.level, m.looking_for, m.accepts_dm, m.home_city, m.home_lat, m.home_lng, m.travel_radius_km, m.gigs_played, m.handle,
             u.display_name, u.photo_key, u.created_at,
             (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS avg_rating,
             (SELECT COUNT(*) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS review_count
@@ -203,6 +204,8 @@ musicians.get('/', async (c) => {
     genres: JSON.parse(r.genres || '[]'),
     level: r.level,
     looking_for: JSON.parse(r.looking_for || '[]'),
+    accepts_dm: r.accepts_dm !== 0,
+    is_me: !!viewer && viewer.email === r.owner,
     home_city: r.home_city,
     travel_radius_km: r.travel_radius_km,
     gigs_played: r.gigs_played || 0,
@@ -273,6 +276,7 @@ musicians.post('/me', async (c) => {
   const level = ['hobby', 'semi_pro', 'pro'].includes(body.level) ? body.level : null;
   const LOOKING = ['dep', 'jam', 'join_band', 'start_band'];
   const lookingFor = (parseSlugArray(body.looking_for, 4) ?? []).filter((x) => LOOKING.includes(x));
+  const acceptsDm = body.accepts_dm === undefined ? 1 : (body.accepts_dm ? 1 : 0);
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
   let homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
   let homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
@@ -286,11 +290,11 @@ musicians.post('/me', async (c) => {
   await c.env.DB.prepare(
     `INSERT INTO musician_details
        (owner, instruments, genres, reads_charts, sings_backing, own_transport, own_pa,
-        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level, looking_for)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level, looking_for, accepts_dm)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(owner) DO UPDATE SET
        handle = COALESCE(musician_details.handle, excluded.handle),
-       level = excluded.level, looking_for = excluded.looking_for,
+       level = excluded.level, looking_for = excluded.looking_for, accepts_dm = excluded.accepts_dm,
        instruments = excluded.instruments, genres = excluded.genres,
        reads_charts = excluded.reads_charts, sings_backing = excluded.sings_backing,
        own_transport = excluded.own_transport, own_pa = excluded.own_pa,
@@ -302,7 +306,7 @@ musicians.post('/me', async (c) => {
   ).bind(
     user.email, JSON.stringify(instruments), JSON.stringify(genres),
     flag(body.reads_charts), flag(body.sings_backing), flag(body.own_transport), flag(body.own_pa),
-    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level, JSON.stringify(lookingFor)
+    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level, JSON.stringify(lookingFor), acceptsDm
   ).run();
 
   return c.json({ ok: true, handle });

@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS musician_details (
   handle TEXT,
   level TEXT,
   looking_for TEXT NOT NULL DEFAULT '[]',
+  accepts_dm INTEGER NOT NULL DEFAULT 1,
   home_city TEXT,
   home_lat REAL,
   home_lng REAL,
@@ -190,7 +191,7 @@ CREATE INDEX IF NOT EXISTS idx_seat_applications_seat ON seat_applications(seat_
 -- In-app messaging (mirrors migrations/009)
 CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  thread_type TEXT NOT NULL CHECK(thread_type IN ('gig','seat','band')),
+  thread_type TEXT NOT NULL CHECK(thread_type IN ('gig','seat','band','dm')),
   thread_id INTEGER NOT NULL,
   sender_email TEXT NOT NULL,
   body TEXT NOT NULL,
@@ -199,6 +200,18 @@ CREATE TABLE IF NOT EXISTS messages (
   FOREIGN KEY (sender_email) REFERENCES users(email) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_type, thread_id, id);
+
+-- Direct messages between two users (thread_type 'dm' keys this id); a_email < b_email
+CREATE TABLE IF NOT EXISTS dm_threads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  a_email TEXT NOT NULL,
+  b_email TEXT NOT NULL,
+  started_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(a_email, b_email),
+  FOREIGN KEY (a_email) REFERENCES users(email) ON DELETE CASCADE,
+  FOREIGN KEY (b_email) REFERENCES users(email) ON DELETE CASCADE
+);
 
 -- Booking / contact inquiries to a band (thread_type 'band' keys this id)
 CREATE TABLE IF NOT EXISTS band_inquiries (
