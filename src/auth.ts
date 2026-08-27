@@ -21,7 +21,10 @@ export async function authMiddleware(c: Context<AppEnv>, next: Next) {
   if (token) {
     try {
       const decoded = jwt.verify(token, c.env.JWT_SECRET) as { email: string };
-      c.set('user', { email: decoded.email });
+      const b = await c.env.DB.prepare('SELECT banned FROM users WHERE email = ?').bind(decoded.email).first<{ banned: number }>();
+      if (b && b.banned) {
+        setCookie(c, COOKIE, '', { path: '/', expires: new Date(0), httpOnly: true, sameSite: 'Strict' });
+      } else c.set('user', { email: decoded.email });
     } catch {
       setCookie(c, COOKIE, '', { path: '/', expires: new Date(0), httpOnly: true, sameSite: 'Strict' });
     }
@@ -107,8 +110,9 @@ auth.post('/login', async (c) => {
   const body = await c.req.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
-  const row = await c.env.DB.prepare('SELECT password_hash FROM users WHERE email = ?')
-    .bind(email).first<{ password_hash: string }>();
+  const row = await c.env.DB.prepare('SELECT password_hash, banned FROM users WHERE email = ?')
+    .bind(email).first<{ password_hash: string; banned: number }>();
+  if (row?.banned) return c.json({ error: 'This account has been suspended', code: 'banned' }, 403);
   if (!row || !(await bcrypt.compare(password, row.password_hash))) {
     return c.json({ error: 'Invalid email or password' }, 401);
   }
@@ -234,6 +238,44 @@ auth.post('/resend-confirm', async (c) => {
     const task = sendConfirmEmail(c, user.email, normLang(row.lang), confirmToken);
     try { c.executionCtx.waitUntil(task); } catch { /* tests */ }
   }
+  return c.json({ ok: true });
+});
+
+// Your data, as JSON — everything we hold about you.
+auth.get('/export', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const me = user.email;
+  const q = async (sql: string, ...b: unknown[]) => (await c.env.DB.prepare(sql).bind(...b).all()).results;
+  const out = {
+    exported_at: new Date().toISOString(),
+    account: await c.env.DB.prepare('SELECT email, display_name, lang, confirmed, created_at, terms_accepted_at FROM users WHERE email = ?').bind(me).first(),
+    profile: await c.env.DB.prepare('SELECT * FROM musician_details WHERE owner = ?').bind(me).first(),
+    gigs_posted: await q('SELECT * FROM gigs WHERE poster_email = ?', me),
+    applications: await q('SELECT * FROM gig_applications WHERE musician_email = ?', me),
+    bookings: await q('SELECT * FROM bookings WHERE musician_email = ?', me),
+    reviews_written: await q('SELECT * FROM gig_reviews WHERE reviewer_email = ?', me),
+    reviews_received: await q('SELECT * FROM gig_reviews WHERE reviewee_email = ?', me),
+    bands_owned: await q('SELECT * FROM bands WHERE owner_email = ?', me),
+    band_seats: await q('SELECT * FROM band_seats WHERE member_email = ?', me),
+    messages_sent: await q('SELECT thread_type, thread_id, body, created_at FROM messages WHERE sender_email = ?', me),
+    blocks: await q('SELECT blocked_email, created_at FROM user_blocks WHERE blocker_email = ?', me),
+  };
+  return c.body(JSON.stringify(out, null, 2), 200, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Disposition': 'attachment; filename="jamwerk-export.json"' });
+});
+
+// Delete the account and everything attached to it (FK cascades), plus the photo in R2.
+auth.delete('/account', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const body = await c.req.json().catch(() => null);
+  const password = typeof body?.password === 'string' ? body.password : '';
+  const row = await c.env.DB.prepare('SELECT password_hash, photo_key FROM users WHERE email = ?').bind(user.email).first<{ password_hash: string; photo_key: string | null }>();
+  if (!row || !(await bcrypt.compare(password, row.password_hash))) return c.json({ error: 'Wrong password', code: 'bad_password' }, 403);
+  if (row.photo_key && c.env.MEDIA) { try { await c.env.MEDIA.delete(row.photo_key); } catch { /* best effort */ } }
+  // Bands owned die with the owner (cascade); other users' threads with this person lose the counterpart (cascade).
+  await c.env.DB.prepare('DELETE FROM users WHERE email = ?').bind(user.email).run();
+  setCookie(c, COOKIE, '', { path: '/', expires: new Date(0), httpOnly: true, sameSite: 'Strict' });
   return c.json({ ok: true });
 });
 

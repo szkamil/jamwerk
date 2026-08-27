@@ -15,6 +15,7 @@ export interface Env {
   BASE_URL?: string;
   // Where footer-form feedback is forwarded. Absent: stored in D1 only.
   FEEDBACK_EMAIL?: string;
+  ADMIN_EMAIL?: string;
   // Turnstile widget secret (Worker secret) — see src/turnstile.ts.
   // Absent: bot verification is skipped (tests, local dev).
   TURNSTILE_SECRET_KEY?: string;

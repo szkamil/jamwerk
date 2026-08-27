@@ -307,6 +307,9 @@ ${MEDIA_CSS}
   .tag.hot { color: var(--accent-deep); border-color: var(--accent-tint-line); background: var(--accent-tint); }
   .alerts-on-line { color: var(--ok); font-weight: 600; margin: 0 0 12px; }
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
+  .card-actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+  .card-actions .msg-pill { margin-left: 0; }
+  .share-btn.icon { width: 34px; height: 34px; padding: 0; justify-content: center; gap: 0; border-radius: 50%; }
   .share-btn { display: inline-flex; align-items: center; gap: 5px; min-height: 0; padding: 6px 10px; font-size: 13px; border-radius: 999px; flex-shrink: 0; align-self: center; }
   .applicant-head .share-btn { margin-left: 6px; }
   .msg-pill { display: inline-flex; align-items: center; gap: 6px; align-self: center; flex-shrink: 0; margin-left: auto; background: var(--accent-tint); color: var(--accent-deep); border: 1px solid var(--accent-tint-line); border-radius: 999px; padding: 6px 12px; min-height: 0; font: inherit; font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer; width: auto; }
@@ -686,6 +689,8 @@ ${NOTES_LAYER}
         <button type="button" class="srow" id="sHow"><span data-i18n="how_it_works">How it works</span><span class="val">&rsaquo;</span></button>
         <button type="button" class="srow" id="sFeedback"><span data-i18n="feedback">Feedback</span><span class="val">&rsaquo;</span></button>
         <button type="button" class="srow" id="sInvite"><span data-i18n="invite_l">Invite a musician</span><span class="val">&rsaquo;</span></button>
+        <a class="srow" id="sExport" href="/auth/export" download="jamwerk-export.json" style="text-decoration: none;"><span data-i18n="export_l">Download my data</span><span class="val">&rsaquo;</span></a>
+        <button type="button" class="srow" id="sDelete" style="color: #b3261e;"><span data-i18n="delete_l">Delete my account</span><span class="val">&rsaquo;</span></button>
         <button type="button" class="srow" id="sInstall"><span data-i18n="install_link">Add to Home Screen</span><span class="val">&rsaquo;</span></button>
       </div>
       <button type="button" class="logout" id="logoutBtn2" data-i18n="logout">Log out</button>
@@ -789,6 +794,25 @@ ${NOTES_LAYER}
   <div id="installSteps"></div>
   <button type="button" class="primary" id="installNative" hidden data-i18n="install_now">Install now</button>
 </dialog>
+<dialog id="reportDialog">
+  <button type="button" class="dlg-x" id="reportClose" aria-label="Close" title="Close">&times;</button>
+  <form id="reportForm">
+    <h2 style="margin-top:0" data-i18n="report_t">Report</h2>
+    <p class="muted" data-i18n="report_p">Tell us what is wrong. We read every report and act on it.</p>
+    <div class="row"><textarea id="reportBody" required minlength="3" maxlength="2000" rows="4"></textarea></div>
+    <div class="actions" style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="primary" data-i18n="report_send">Send report</button><button type="button" class="ghost" id="reportCancel" data-i18n="cancel">Cancel</button></div>
+  </form>
+</dialog>
+<dialog id="deleteDialog">
+  <button type="button" class="dlg-x" id="deleteClose" aria-label="Close" title="Close">&times;</button>
+  <form id="deleteForm">
+    <h2 style="margin-top:0" data-i18n="delete_t">Delete my account</h2>
+    <p class="muted" data-i18n="delete_p">This removes your profile, listings, bands you own, applications and messages. It cannot be undone.</p>
+    <div class="row"><label data-i18n="password">Password</label><input type="password" id="deletePw" required autocomplete="current-password"></div>
+    <div class="msg" id="deleteMsg"></div>
+    <div class="actions" style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="primary danger" data-i18n="delete_btn">Delete for good</button><button type="button" class="ghost" id="deleteCancel" data-i18n="cancel">Cancel</button></div>
+  </form>
+</dialog>
 <dialog id="fbDialog">
   <button type="button" class="dlg-x" id="fbClose" aria-label="Close" title="Close">&times;</button>
   <form id="fbForm">
@@ -845,6 +869,7 @@ const I18N = {
     terms_accept: 'I accept the {terms} and the {privacy}.', terms_link: 'Terms of use', privacy_link: 'privacy notice', terms_needed: 'Please accept the terms of use to create your account.',
     invite_l: 'Invite a musician', invite_t: 'Know musicians?', invite_p: 'The more people here, the more it works. Send them the link \u2014 one tap.', invite_btn: 'Invite via WhatsApp', invite_text: 'Hey! I\u2019m on JamWerk, a free app to find musicians, bands, jams and paid gigs around Geneva. Join me:', share: 'Share', link_copied: 'Link copied.',
     away_l: 'I\u2019m not available for now', away_until: 'until', away_hint: '\u2014 no alerts, no pings; the board shows you as away.', away_until_x: 'away until {0}',
+    report_t: 'Report', report_p: 'Tell us what is wrong. We read every report and act on it.', report_send: 'Send report', report_btn: 'Report', report_ok: 'Thanks \u2014 we\u2019ll look into it.', export_l: 'Download my data', delete_l: 'Delete my account', delete_t: 'Delete my account', delete_p: 'This removes your profile, listings, bands you own, applications and messages. It cannot be undone.', delete_btn: 'Delete for good', delete_bad_pw: 'Wrong password.', delete_done: 'Your account has been deleted.',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -907,6 +932,7 @@ const I18N = {
     terms_accept: 'J\u2019accepte les {terms} et la {privacy}.', terms_link: 'Conditions d\u2019utilisation', privacy_link: 'politique de confidentialit\u00e9', terms_needed: 'Veuillez accepter les conditions d\u2019utilisation pour cr\u00e9er votre compte.',
     invite_l: 'Inviter un musicien', invite_t: 'Tu connais des musiciens\u00a0?', invite_p: 'Plus on est nombreux, plus \u00e7a marche. Envoie-leur le lien \u2014 un clic.', invite_btn: 'Inviter via WhatsApp', invite_text: 'Salut\u00a0! Je suis sur JamWerk, une app gratuite pour trouver des musiciens, des groupes, des jams et des concerts pay\u00e9s autour de Gen\u00e8ve. Rejoins-moi\u00a0:', share: 'Partager', link_copied: 'Lien copi\u00e9.',
     away_l: 'Je ne suis pas dispo pour le moment', away_until: 'jusqu\u2019au', away_hint: '\u2014 pas d\u2019alertes, pas de pings\u00a0; l\u2019annuaire vous affiche comme absent.', away_until_x: 'absent jusqu\u2019au {0}',
+    report_t: 'Signaler', report_p: 'Dites-nous ce qui ne va pas. Nous lisons chaque signalement et agissons.', report_send: 'Envoyer le signalement', report_btn: 'Signaler', report_ok: 'Merci \u2014 on s\u2019en occupe.', export_l: 'T\u00e9l\u00e9charger mes donn\u00e9es', delete_l: 'Supprimer mon compte', delete_t: 'Supprimer mon compte', delete_p: 'Cela supprime votre profil, vos annonces, les groupes que vous g\u00e9rez, vos candidatures et vos messages. C\u2019est d\u00e9finitif.', delete_btn: 'Supprimer d\u00e9finitivement', delete_bad_pw: 'Mot de passe incorrect.', delete_done: 'Votre compte a \u00e9t\u00e9 supprim\u00e9.',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -969,6 +995,7 @@ const I18N = {
     terms_accept: 'Ich akzeptiere die {terms} und die {privacy}.', terms_link: 'Nutzungsbedingungen', privacy_link: 'Datenschutzhinweise', terms_needed: 'Bitte akzeptiere die Nutzungsbedingungen, um dein Konto zu erstellen.',
     invite_l: 'Musiker:in einladen', invite_t: 'Kennst du Musiker:innen?', invite_p: 'Je mehr Leute hier sind, desto besser funktioniert es. Schick ihnen den Link \u2014 ein Tipp.', invite_btn: 'Per WhatsApp einladen', invite_text: 'Hey! Ich bin auf JamWerk, einer Gratis-App f\u00fcr Musiker:innen, Bands, Jams und bezahlte Gigs rund um Genf. Komm dazu:', share: 'Teilen', link_copied: 'Link kopiert.',
     away_l: 'Ich bin gerade nicht verf\u00fcgbar', away_until: 'bis', away_hint: '\u2014 keine Alerts, keine Pings; im Verzeichnis stehst du als abwesend.', away_until_x: 'abwesend bis {0}',
+    report_t: 'Melden', report_p: 'Sag uns, was nicht stimmt. Wir lesen jede Meldung und handeln.', report_send: 'Meldung senden', report_btn: 'Melden', report_ok: 'Danke \u2014 wir k\u00fcmmern uns darum.', export_l: 'Meine Daten herunterladen', delete_l: 'Konto l\u00f6schen', delete_t: 'Konto l\u00f6schen', delete_p: 'Das entfernt dein Profil, Inserate, Bands, die du verwaltest, Bewerbungen und Nachrichten. Das l\u00e4sst sich nicht r\u00fcckg\u00e4ngig machen.', delete_btn: 'Endg\u00fcltig l\u00f6schen', delete_bad_pw: 'Falsches Passwort.', delete_done: 'Dein Konto wurde gel\u00f6scht.',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -1031,6 +1058,7 @@ const I18N = {
     terms_accept: 'Accetto le {terms} e l\u2019{privacy}.', terms_link: 'Condizioni d\u2019uso', privacy_link: 'informativa sulla privacy', terms_needed: 'Accetta le condizioni d\u2019uso per creare il tuo account.',
     invite_l: 'Invita un musicista', invite_t: 'Conosci musicisti?', invite_p: 'Pi\u00f9 siamo, meglio funziona. Mandagli il link \u2014 un tocco.', invite_btn: 'Invita via WhatsApp', invite_text: 'Ciao! Sono su JamWerk, un\u2019app gratuita per trovare musicisti, gruppi, jam e concerti pagati intorno a Ginevra. Unisciti:', share: 'Condividi', link_copied: 'Link copiato.',
     away_l: 'Non sono disponibile per ora', away_until: 'fino al', away_hint: '\u2014 niente avvisi, niente ping; l\u2019elenco ti mostra come assente.', away_until_x: 'assente fino al {0}',
+    report_t: 'Segnala', report_p: 'Dicci cosa non va. Leggiamo ogni segnalazione e interveniamo.', report_send: 'Invia segnalazione', report_btn: 'Segnala', report_ok: 'Grazie \u2014 ce ne occupiamo.', export_l: 'Scarica i miei dati', delete_l: 'Elimina il mio account', delete_t: 'Elimina il mio account', delete_p: 'Rimuove il tuo profilo, gli annunci, i gruppi che gestisci, le candidature e i messaggi. Non si pu\u00f2 annullare.', delete_btn: 'Elimina definitivamente', delete_bad_pw: 'Password errata.', delete_done: 'Il tuo account \u00e8 stato eliminato.',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -1424,15 +1452,18 @@ function musicianCard(m) {
   (m.genres || []).slice(0, 4).forEach((g) => chips.append(el('span', 'tag', genreLabel(g))));
   (m.bands || []).forEach((b) => { const a = el('a', 'tag band-tag', '\u266b ' + b.name); a.href = '/b/' + b.id + '-' + b.slug; a.onclick = (e) => e.stopPropagation(); chips.append(a); });
   if (chips.childElementCount) card.append(chips);
+  const acts = el('div', 'card-actions');
   if (me && !m.is_me && m.accepts_dm !== false) {
     const dm = el('button', 'msg-pill');
     dm.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>';
     dm.append(document.createTextNode(T('dm_btn')));
     dm.title = T('dm_btn');
     dm.onclick = (e) => { e.stopPropagation(); dmUser(m.handle, m.display_name); };
-    head.append(dm);
+    acts.append(dm);
   }
-  head.append(shareBtn('/m/' + m.handle, m.display_name));
+  const shIcon = shareBtn('/m/' + m.handle, m.display_name); shIcon.classList.add('icon'); shIcon.lastChild.remove();
+  acts.append(shIcon);
+  card.append(acts);
   card.onclick = (e) => { if (e.target.closest('a, button')) return; location.href = '/m/' + m.handle; };
   return card;
 }
@@ -1558,6 +1589,27 @@ async function loadBoard() {
   board.append(askLine());
 }
 // What a musician can do on a listing, in plain words and one button.
+// Report a user (via a thread), a gig or a band — opens a small dialog, never a prompt.
+let reportTarget = null;
+function openReport(target) { reportTarget = target; $('reportBody').value = ''; $('reportDialog').showModal(); }
+$('reportClose').onclick = () => $('reportDialog').close();
+$('reportCancel').onclick = () => $('reportDialog').close();
+$('reportForm').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!me) { $('reportDialog').close(); $('authDialog').showModal(); return; }
+  const res = await api('/report', { method: 'POST', body: { ...reportTarget, reason: $('reportBody').value } });
+  if (res.ok) { $('reportDialog').close(); flash(T('report_ok'), 'ok'); } else flash(res.json.error || T('failed'), 'err');
+};
+function reportBtn(target) { const b = el('button', 'ghost small', T('report_btn')); b.style.color = 'var(--muted)'; b.onclick = (e) => { e.stopPropagation(); if (!me) { $('authDialog').showModal(); return; } openReport(target); }; return b; }
+$('sDelete').onclick = () => { $('deletePw').value = ''; $('deleteMsg').className = 'msg'; $('deleteMsg').textContent = ''; $('deleteDialog').showModal(); };
+$('deleteClose').onclick = () => $('deleteDialog').close();
+$('deleteCancel').onclick = () => $('deleteDialog').close();
+$('deleteForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const res = await api('/auth/account', { method: 'DELETE', body: { password: $('deletePw').value } });
+  if (res.ok) { $('deleteDialog').close(); me = null; localStorage.removeItem('onboard_done'); renderAuth(); document.querySelector('[data-tab=musicians]').click(); flash(T('delete_done'), 'ok'); }
+  else { const m = $('deleteMsg'); m.className = 'msg err'; m.textContent = res.json.code === 'bad_password' ? T('delete_bad_pw') : (res.json.error || T('failed')); }
+};
 // Share & invite: native share sheet when available, else WhatsApp / clipboard.
 async function shareUrl(url, title) {
   const abs = url.startsWith('http') ? url : location.origin + url;
@@ -1618,7 +1670,7 @@ function gigActions(gig) {
     if (res.ok) { flash(T('applied_ok'), 'ok'); loadBoard(); }
     else flash(res.json.error || T('could_not_apply'), 'err');
   };
-  bar.append(btn, sb);
+  bar.append(btn, sb, reportBtn({ type: 'gig', id: gig.id }));
   return bar;
 }
 $('fGo').onclick = loadBoard;
@@ -2251,7 +2303,7 @@ function renderChat(opts) {
   const who = el('div', 'who');
   who.append(el('strong', '', opts.title || ''), el('span', '', opts.context || ''));
   head.append(back, el('div', 'avatar', initials), who);
-  if (opts.onBlock) { const bb = el('button', 'ghost small', ''); bb.id = 'chatBlock'; head.append(bb); }
+  if (opts.onBlock) { const bb = el('button', 'ghost small', ''); bb.id = 'chatBlock'; head.append(bb); if (opts.report) head.append(reportBtn(opts.report)); }
   chat.append(head);
   const log = el('div', 'chat-log');
   chat.append(log);
@@ -2326,6 +2378,7 @@ async function openThread(type, id, title) {
       return r.json;
     },
     send: (text) => api('/messages/' + type + '/' + id, { method: 'POST', body: { body: text } }),
+    report: { type: 'user', thread_type: type, thread_id: id },
     onBlock: async (isBlocked) => {
       if (!isBlocked && !confirm(T('block_confirm', title || ''))) return;
       const res = await api('/messages/block', { method: 'POST', body: { thread_type: type, thread_id: id, unblock: isBlocked } });
@@ -2538,6 +2591,7 @@ async function renderBands(o) {
       }
     }
     bar.append(shareBtn('/b/' + b.id + '-' + b.slug, b.name));
+    if (!b.is_mine) bar.append(reportBtn({ type: 'band', id: b.id }));
     const page = el('a', 'muted', T('view_band_page'));
     page.href = '/b/' + b.id + '-' + b.slug; page.style.alignSelf = 'center'; page.style.fontSize = '13px';
     bar.append(page);

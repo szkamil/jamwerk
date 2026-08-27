@@ -45,9 +45,9 @@
 - [ ] Reviews for bands (organiser → band).
 
 ### 3. Protecting you
-- [ ] Report a user / listing → feedback inbox; minimal admin (ban user, hide listing) gated by ADMIN_EMAIL.
-- [ ] Self-serve account deletion + data export (privacy notice promises deletion).
-- [ ] Daily D1 backup to R2; admin /stats (users, gigs, messages this week).
+- [x] Report a user / listing → feedback inbox; minimal admin (ban user, hide listing) gated by ADMIN_EMAIL.
+- [x] Self-serve account deletion + data export (privacy notice promises deletion).
+- [x] Daily D1 backup to R2 (backups/YYYY-MM-DD.json in jamwerk-media, via the 03:17 cron); admin at /admin (log in as FEEDBACK_EMAIL/ADMIN_EMAIL) with stats, open reports, ban/unban, hide gig, delete band.
 - [x] CI: verified 2026-08-27 — push to main auto-deploys (manual `gh workflow run` used to race and cancel it). Don't trigger manually.
 
 ### 4. Polish

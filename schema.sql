@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   display_name TEXT NOT NULL DEFAULT '',
   confirmed INTEGER DEFAULT 0,
   terms_accepted_at TEXT,
+  banned INTEGER NOT NULL DEFAULT 0,
   photo_key TEXT,
   confirm_token TEXT,
   reset_token TEXT,
@@ -204,6 +205,18 @@ CREATE TABLE IF NOT EXISTS messages (
   FOREIGN KEY (sender_email) REFERENCES users(email) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_messages_thread ON messages(thread_type, thread_id, id);
+
+-- User reports for the minimal admin
+CREATE TABLE IF NOT EXISTS reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reporter_email TEXT NOT NULL,
+  target_type TEXT NOT NULL CHECK(target_type IN ('user','gig','band')),
+  target_id TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','resolved')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (reporter_email) REFERENCES users(email) ON DELETE CASCADE
+);
 
 -- Direct messages between two users (thread_type 'dm' keys this id); a_email < b_email
 CREATE TABLE IF NOT EXISTS dm_threads (
