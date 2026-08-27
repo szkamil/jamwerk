@@ -147,6 +147,9 @@ interface GigRow {
   description: string;
   status: string;
   created_at: string;
+  need?: 'dep' | 'standby';
+  standby_activated_at?: string | null;
+  my_status?: string | null;
   poster_name?: string | null;
   poster_handle?: string | null;
 }
@@ -407,17 +410,19 @@ gigs.post('/', async (c) => {
 
   // Fee currency: CHF by default; EUR for gigs on the French side of the border.
   const currency: 'CHF' | 'EUR' = kind === 'gig' && body.currency === 'EUR' ? 'EUR' : 'CHF';
+  const need: 'dep' | 'standby' = kind === 'gig' && body.need === 'standby' ? 'standby' : 'dep';
+  const urgent = kind === 'gig' && need === 'dep' && Date.parse(body.gig_date) - Date.now() < 72 * 3600 * 1000;
   const result = await c.env.DB.prepare(
     `INSERT INTO gigs (poster_email, kind, instrument, genres, gig_date, call_time, end_time,
                        venue_city, venue_lat, venue_lng, fee_chf, currency, requirements, setlist_link,
-                       description, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                       description, expires_at, need)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     user.email, kind, body.instrument, JSON.stringify(genres),
     isIsoDate(body.gig_date) ? body.gig_date : null, callTime, endTime,
     body.venue_city.trim().slice(0, 100), lat, lng, kind === 'gig' ? body.fee_chf : null, currency,
     JSON.stringify(requirements), setlist && setlist[0] ? setlist[0] : null,
-    body.description.trim(), expiresAt
+    body.description.trim(), expiresAt, need
   ).run();
 
   // Fan out to matching musicians: same instrument, within their own travel
@@ -445,12 +450,19 @@ gigs.post('/', async (c) => {
               de: `Jam: ${body.instrument} gesucht in ${body.venue_city}`,
               it: `Jam: cercasi ${body.instrument} a ${body.venue_city}`,
             })
-          : t(lang, {
+          : (urgent ? t(lang, { en: 'URGENT — ', fr: 'URGENT — ', de: 'DRINGEND — ', it: 'URGENTE — ' }) : '') + (need === 'standby'
+            ? t(lang, {
+              en: `Standby: ${body.instrument} in ${body.venue_city} on ${body.gig_date} — ${currency} ${body.fee_chf} (only if needed)`,
+              fr: `Réserve : ${body.instrument} à ${body.venue_city} le ${body.gig_date} — ${currency} ${body.fee_chf} (seulement si besoin)`,
+              de: `Reserve: ${body.instrument} in ${body.venue_city} am ${body.gig_date} — ${currency} ${body.fee_chf} (nur bei Bedarf)`,
+              it: `Riserva: ${body.instrument} a ${body.venue_city} il ${body.gig_date} — ${currency} ${body.fee_chf} (solo se serve)`,
+            })
+            : t(lang, {
               en: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
               fr: `Concert : ${body.instrument} à ${body.venue_city} — ${currency} ${body.fee_chf}`,
               de: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
               it: `Concerto: ${body.instrument} a ${body.venue_city} — ${currency} ${body.fee_chf}`,
-            }),
+            })),
         body: `${body.gig_date ?? t(lang, { en: 'flexible', fr: 'flexible', de: 'flexibel', it: 'flessibile' })} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`,
       }), target.lang);
     }
@@ -499,9 +511,10 @@ gigs.get('/', async (c) => {
 
   const { results } = await c.env.DB.prepare(
     `SELECT g.*, (SELECT display_name FROM users u WHERE u.email = g.poster_email) AS poster_name,
-            (SELECT handle FROM musician_details md WHERE md.owner = g.poster_email) AS poster_handle
+            (SELECT handle FROM musician_details md WHERE md.owner = g.poster_email) AS poster_handle,
+            (SELECT status FROM gig_applications ga WHERE ga.gig_id = g.id AND ga.musician_email = ?) AS my_status
      FROM gigs g WHERE ${conds.join(' AND ')} ORDER BY ${kind === 'gig' ? 'gig_date ASC' : 'created_at DESC'} LIMIT 100`
-  ).bind(...binds).all();
+  ).bind(user?.email || '', ...binds).all();
 
   let rows = results as unknown as GigRow[];
   let withDistance = rows.map((r) => ({ row: r, distance_km: null as number | null }));
@@ -671,22 +684,21 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     return c.json({ ok: true, musician_email: application.musician_email });
   }
 
-  // Claim the gig first; meta.changes = 0 means someone was accepted concurrently.
-  const claim = await c.env.DB.prepare(
-    "UPDATE gigs SET status = 'booked' WHERE id = ? AND status = 'open'"
-  ).bind(gig.id).run();
-  if (!claim.meta.changes) return c.json({ error: 'Gig is no longer open' }, 409);
+  const booked = await bookApplication(c, gig, application);
+  if (!booked) return c.json({ error: 'Gig is no longer open' }, 409);
+  return c.json({ ok: true, musician_email: application.musician_email });
+});
 
+/** Book one application: claim the gig, create the booking, decline the rest, tell the musician. */
+async function bookApplication(c: Ctx, gig: GigRow, application: { id: number; musician_email: string }): Promise<boolean> {
+  const claim = await c.env.DB.prepare("UPDATE gigs SET status = 'booked' WHERE id = ? AND status = 'open'").bind(gig.id).run();
+  if (!claim.meta.changes) return false;
   await c.env.DB.batch([
     c.env.DB.prepare('INSERT INTO bookings (gig_id, musician_email, agreed_fee_chf, currency) VALUES (?, ?, ?, ?)')
       .bind(gig.id, application.musician_email, gig.fee_chf, gig.currency || 'CHF'),
-    c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?")
-      .bind(application.id),
-    c.env.DB.prepare(
-      "UPDATE gig_applications SET status = 'declined' WHERE gig_id = ? AND id != ? AND status IN ('applied','shortlisted')"
-    ).bind(gig.id, application.id),
+    c.env.DB.prepare("UPDATE gig_applications SET status = 'accepted' WHERE id = ?").bind(application.id),
+    c.env.DB.prepare("UPDATE gig_applications SET status = 'declined' WHERE gig_id = ? AND id != ? AND status IN ('applied','shortlisted')").bind(gig.id, application.id),
   ]);
-
   notify(c, application.musician_email, (lang: Lang) => ({
     subject: t(lang, {
       en: `You're booked! Gig on ${gig.gig_date} in ${gig.venue_city}`,
@@ -697,7 +709,89 @@ gigs.post('/:id/applications/:appId/accept', async (c) => {
     body: `${gig.currency || 'CHF'} ${gig.fee_chf} · ${gig.venue_city} · ${gig.gig_date}\n` +
       t(lang, { en: 'Contact', fr: 'Contact', de: 'Kontakt', it: 'Contatto' }) + `: ${gig.poster_email}`,
   }));
-  return c.json({ ok: true, musician_email: application.musician_email });
+  return true;
+}
+
+// Keep an applicant as standby ("shortlisted"): no booking yet, pinged only when needed.
+gigs.post('/:id/applications/:appId/shortlist', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const gig = await loadGig(c, c.req.param('id'));
+  if (!gig) return c.json({ error: 'Gig not found' }, 404);
+  if (gig.poster_email !== user.email) return c.json({ error: 'Only the poster can shortlist' }, 403);
+  if (gig.status !== 'open') return c.json({ error: `Gig is ${gig.status}, not open` }, 409);
+  const application = await c.env.DB.prepare("SELECT id, musician_email FROM gig_applications WHERE id = ? AND gig_id = ? AND status = 'applied'")
+    .bind(c.req.param('appId'), gig.id).first<{ id: number; musician_email: string }>();
+  if (!application) return c.json({ error: 'Application not found or no longer active' }, 404);
+  await c.env.DB.prepare("UPDATE gig_applications SET status = 'shortlisted' WHERE id = ?").bind(application.id).run();
+  notify(c, application.musician_email, (lang: Lang) => ({
+    subject: t(lang, {
+      en: `You're on standby for ${gig.gig_date} in ${gig.venue_city}`,
+      fr: `Vous êtes en réserve pour le ${gig.gig_date} à ${gig.venue_city}`,
+      de: `Du bist Reserve für den ${gig.gig_date} in ${gig.venue_city}`,
+      it: `Sei in riserva per il ${gig.gig_date} a ${gig.venue_city}`,
+    }),
+    body: t(lang, {
+      en: 'Nothing to do for now — you will get a message only if they need you. Then first to confirm gets the gig.',
+      fr: 'Rien à faire pour l’instant — vous recevrez un message seulement s’ils ont besoin de vous. Le premier qui confirme est engagé.',
+      de: 'Vorerst nichts zu tun — du bekommst nur eine Nachricht, wenn sie dich brauchen. Wer zuerst bestätigt, bekommt den Gig.',
+      it: 'Per ora niente da fare — riceverai un messaggio solo se hanno bisogno di te. Il primo che conferma è ingaggiato.',
+    }) + `\n\n${gig.instrument} · ${gig.venue_city} · ${gig.gig_date} · ${gig.currency || 'CHF'} ${gig.fee_chf}`,
+  }));
+  return c.json({ ok: true });
+});
+
+// The main musician dropped out: ping every standby, first to confirm is booked.
+gigs.post('/:id/activate-standby', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const gig = await loadGig(c, c.req.param('id'));
+  if (!gig) return c.json({ error: 'Gig not found' }, 404);
+  if (gig.poster_email !== user.email) return c.json({ error: 'Only the poster can activate standby' }, 403);
+  if (gig.status !== 'open') return c.json({ error: `Gig is ${gig.status}, not open` }, 409);
+  const { results } = await c.env.DB.prepare("SELECT musician_email FROM gig_applications WHERE gig_id = ? AND status = 'shortlisted'").bind(gig.id).all();
+  if (!(results as any[]).length) return c.json({ error: 'No standby musicians yet — keep someone on standby first', code: 'no_standby' }, 409);
+  await c.env.DB.prepare("UPDATE gigs SET standby_activated_at = datetime('now'), need = 'standby' WHERE id = ?").bind(gig.id).run();
+  const base = c.env.BASE_URL || 'https://jamwerk.app';
+  for (const r of results as any[]) {
+    notify(c, r.musician_email, (lang: Lang) => ({
+      subject: t(lang, {
+        en: `🚨 They need you on ${gig.gig_date} — ${gig.instrument}, ${gig.venue_city}, ${gig.currency || 'CHF'} ${gig.fee_chf}`,
+        fr: `🚨 On a besoin de toi le ${gig.gig_date} — ${gig.instrument}, ${gig.venue_city}, ${gig.currency || 'CHF'} ${gig.fee_chf}`,
+        de: `🚨 Du wirst gebraucht am ${gig.gig_date} — ${gig.instrument}, ${gig.venue_city}, ${gig.currency || 'CHF'} ${gig.fee_chf}`,
+        it: `🚨 Hanno bisogno di te il ${gig.gig_date} — ${gig.instrument}, ${gig.venue_city}, ${gig.currency || 'CHF'} ${gig.fee_chf}`,
+      }),
+      body: t(lang, {
+        en: 'Can you make it? Open the app and tap "Yes, I’m coming". First to confirm gets the gig.',
+        fr: 'Tu peux ? Ouvre l’app et appuie sur « Oui, je viens ». Le premier qui confirme est engagé.',
+        de: 'Kannst du? Öffne die App und tippe auf „Ja, ich komme“. Wer zuerst bestätigt, bekommt den Gig.',
+        it: 'Ci sei? Apri l’app e tocca «Sì, vengo». Il primo che conferma è ingaggiato.',
+      }) + `\n${base}/?gig=${gig.id}`,
+    }));
+  }
+  return c.json({ ok: true, pinged: (results as any[]).length });
+});
+
+// A standby musician says yes after activation — first one wins the booking.
+gigs.post('/:id/confirm', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const gig = await loadGig(c, c.req.param('id'));
+  if (!gig) return c.json({ error: 'Gig not found' }, 404);
+  if (!gig.standby_activated_at) return c.json({ error: 'Standby has not been activated for this gig' }, 409);
+  if (gig.status !== 'open') return c.json({ error: 'Someone already confirmed', code: 'taken' }, 409);
+  const application = await c.env.DB.prepare("SELECT id, musician_email FROM gig_applications WHERE gig_id = ? AND musician_email = ? AND status = 'shortlisted'")
+    .bind(gig.id, user.email).first<{ id: number; musician_email: string }>();
+  if (!application) return c.json({ error: 'You are not on standby for this gig' }, 403);
+  const booked = await bookApplication(c, gig, application);
+  if (!booked) return c.json({ error: 'Someone already confirmed', code: 'taken' }, 409);
+  const who = await c.env.DB.prepare('SELECT display_name FROM users WHERE email = ?').bind(user.email).first<{ display_name: string }>();
+  const name = who?.display_name || user.email.split('@')[0];
+  notify(c, gig.poster_email, (lang: Lang) => ({
+    subject: t(lang, { en: `${name} confirmed for ${gig.gig_date} — booked`, fr: `${name} a confirmé pour le ${gig.gig_date} — engagé`, de: `${name} hat für den ${gig.gig_date} bestätigt — gebucht`, it: `${name} ha confermato per il ${gig.gig_date} — ingaggiato` }),
+    body: `${gig.instrument} · ${gig.venue_city} · ${gig.currency || 'CHF'} ${gig.fee_chf}\n${t(lang, { en: 'Contact', fr: 'Contact', de: 'Kontakt', it: 'Contatto' })}: ${user.email}`,
+  }));
+  return c.json({ ok: true });
 });
 
 gigs.post('/:id/cancel', async (c) => {

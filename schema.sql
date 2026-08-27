@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS gigs (
   description TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','booked','completed','cancelled','expired')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  need TEXT NOT NULL DEFAULT 'dep' CHECK(need IN ('dep','standby')),
+  standby_activated_at TEXT,
   expires_at TEXT NOT NULL,
   CHECK(kind = 'practice' OR (fee_chf IS NOT NULL AND gig_date IS NOT NULL)),
   FOREIGN KEY (poster_email) REFERENCES users(email) ON DELETE CASCADE
