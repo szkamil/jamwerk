@@ -165,6 +165,7 @@ CREATE TABLE IF NOT EXISTS bands (
   fee_from INTEGER,
   fee_currency TEXT NOT NULL DEFAULT 'CHF' CHECK(fee_currency IN ('CHF','EUR')),
   pitch TEXT NOT NULL DEFAULT '',
+  cover_key TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (owner_email) REFERENCES users(email) ON DELETE CASCADE
 );
@@ -242,11 +243,25 @@ CREATE TABLE IF NOT EXISTS user_blocks (
   FOREIGN KEY (blocked_email) REFERENCES users(email) ON DELETE CASCADE
 );
 
+-- Reviews of a band by whoever booked them (after the band marks the inquiry done)
+CREATE TABLE IF NOT EXISTS band_reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  band_id INTEGER NOT NULL,
+  reviewer_email TEXT NOT NULL,
+  rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+  comment TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(band_id, reviewer_email),
+  FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewer_email) REFERENCES users(email) ON DELETE CASCADE
+);
+
 -- Booking / contact inquiries to a band (thread_type 'band' keys this id)
 CREATE TABLE IF NOT EXISTS band_inquiries (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   band_id INTEGER NOT NULL,
   from_email TEXT NOT NULL,
+  done_at TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE(band_id, from_email),
   FOREIGN KEY (band_id) REFERENCES bands(id) ON DELETE CASCADE,

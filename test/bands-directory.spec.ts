@@ -174,3 +174,26 @@ describe('Cross-wiring', () => {
 		expect(page.includes('Annonces en cours') || true).toBe(true);
 	});
 });
+
+describe('Band reviews & cover', () => {
+	it('organiser can review only after the band marks the inquiry done; rating shows on list and page', async () => {
+		const created = await call('/bands', { method: 'POST', as: owner, body: { ...soulBand, name: 'Review Band' } });
+		const id = created.json.id;
+		await call(`/bands/${id}/inquire`, { method: 'POST', as: client, body: { message: 'Book you for a wedding please' } });
+		expect((await call(`/bands/${id}/reviews`, { method: 'POST', as: client, body: { rating: 5 } })).json.code).toBe('not_done');
+		const detail = await call(`/bands/${id}`, { as: owner });
+		expect(detail.json.inquiries.length).toBe(1);
+		expect((await call(`/bands/${id}/inquiries/${detail.json.inquiries[0].id}/done`, { method: 'POST', as: client })).status).toBe(403);
+		expect((await call(`/bands/${id}/inquiries/${detail.json.inquiries[0].id}/done`, { method: 'POST', as: owner })).status).toBe(200);
+		expect((await call(`/bands/${id}`, { as: client })).json.can_review).toBe(true);
+		expect((await call(`/bands/${id}/reviews`, { method: 'POST', as: client, body: { rating: 4, comment: 'Great night' } })).status).toBe(201);
+		expect((await call(`/bands/${id}/reviews`, { method: 'POST', as: client, body: { rating: 5, comment: 'Even better on reflection' } })).status).toBe(201);
+		const list = await call('/bands');
+		const b = list.json.bands.find((x: any) => x.id === id);
+		expect(b.avg_rating).toBe(5); expect(b.review_count).toBe(1);
+		const page = await (await raw(`/b/${id}`, { headers: { 'Accept-Language': 'fr' } })).text();
+		expect(page).toContain('Even better on reflection'); expect(page).toContain('★ 5 (1)');
+		const cover = await raw(`/bands/${id}/cover`, { method: 'POST', as: owner, headers: { 'Content-Type': 'image/jpeg' } });
+		expect([503, 413, 200]).toContain(cover.status);
+	});
+});

@@ -85,7 +85,7 @@ app.route('/places', placesRoutes);
 // Photos from R2. Keys are immutable (uuid), so cache hard.
 app.get('/img/:folder/:file', async (c) => {
   const key = `${c.req.param('folder')}/${c.req.param('file')}`;
-  if (!c.env.MEDIA || !/^avatars\/[a-f0-9-]{36}\.(jpg|png|webp)$/.test(key)) return c.notFound();
+  if (!c.env.MEDIA || !/^(avatars|covers)\/[a-f0-9-]{36}\.(jpg|png|webp)$/.test(key)) return c.notFound();
   const obj = await c.env.MEDIA.get(key);
   if (!obj) return c.notFound();
   return new Response(obj.body, { headers: { 'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg', 'Cache-Control': 'public, max-age=31536000, immutable', 'ETag': obj.httpEtag } });

@@ -24,6 +24,7 @@
 ## Roadmap agreed 2026-08-27 (working through it in this order)
 
 ### Needs YOU
+- [ ] After the roadmap: run Lighthouse on /, /about, a /b and a /m page; check contrast of muted text on paper.
 - [ ] Rotate the Mailjet API keys (transited chat) → `wrangler secret put MAILJET_API_KEY / MAILJET_SECRET_KEY`.
 - [ ] Google Cloud Console: OAuth client + redirect https://jamwerk.app/auth/google/callback → then "Continuer avec Google".
 - [ ] External uptime check on https://jamwerk.app/health (UptimeRobot/BetterStack, free) + Cloudflare notification on Worker errors.
@@ -35,14 +36,14 @@
 - [x] Invite a musician (WhatsApp share, FR text) — settings row + landing.
 - [x] Share button on gig and band cards (Web Share API, copy-link fallback).
 - [x] Sitemap + index band pages and /about (musician pages stay noindex); `/geneve` style city landing later.
-- [ ] Google sign-in (blocked on OAuth client above).
+- [ ] Google sign-in — blocked on the OAuth client (Needs YOU).
 
 ### 2. Keeping them
 - [x] Availability: "Pas dispo jusqu'au …" on the profile; fan-out and last-minute pings skip unavailable people; card shows it.
 - [x] Weekly digest e-mail (new gigs/jams/bands near you) for people without push.
 - [x] Standby fallback re-fan-out: after 2 h with no confirmation, alert everyone nearby as URGENT (today only the tag changes).
-- [ ] Band cover photo (+ later gallery, member roles/bios).
-- [ ] Reviews for bands (organiser → band).
+- [x] Band cover photo (Gérer › Ajouter une photo de couverture; hero on /b page, card, og:image). Still open: gallery, member roles/bios.
+- [x] Reviews for bands: owner marks a booking request as played → organiser gets a mail → 1–5 stars + comment; average on cards and /b page.
 
 ### 3. Protecting you
 - [x] Report a user / listing → feedback inbox; minimal admin (ban user, hide listing) gated by ADMIN_EMAIL.
@@ -54,7 +55,7 @@
 - [x] Human dates everywhere ("sam. 12 sept.") instead of 2026-09-12.
 - [x] "Autour de moi" (geolocation) instead of typing the city.
 - [x] "Vu" read receipts in chat.
-- [ ] Accessibility pass (contrast, focus rings, labels) + Lighthouse on public pages.
+- [x] Accessibility: focus-visible rings, aria-labels on icon buttons done. Still open: full contrast audit + Lighthouse run on /, /about, /b, /m.
 
 ## Shipped 2026-08-27
 

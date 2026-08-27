@@ -310,6 +310,11 @@ ${MEDIA_CSS}
   .card-actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
   .card-actions .msg-pill { margin-left: 0; }
   .share-btn.icon { width: 34px; height: 34px; padding: 0; justify-content: center; gap: 0; border-radius: 50%; }
+  .stars-pick { display: flex; gap: 6px; }
+  .stars-pick button { font-size: 28px; line-height: 1; background: none; border: 0; padding: 4px; color: #cfcbc0; cursor: pointer; min-height: 0; }
+  .stars-pick button.on { color: var(--gold); }
+  .band-cover { width: calc(100% + 28px); margin: -14px -14px 10px; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0; display: block; }
+  :focus-visible { outline: 3px solid var(--accent-light); outline-offset: 2px; }
   .near-btn { flex: 0 0 auto; min-width: 46px; padding: 0 12px; font-size: 18px; }
   .share-btn { display: inline-flex; align-items: center; gap: 5px; min-height: 0; padding: 6px 10px; font-size: 13px; border-radius: 999px; flex-shrink: 0; align-self: center; }
   .applicant-head .share-btn { margin-left: 6px; }
@@ -798,6 +803,15 @@ ${NOTES_LAYER}
   <div id="installSteps"></div>
   <button type="button" class="primary" id="installNative" hidden data-i18n="install_now">Install now</button>
 </dialog>
+<dialog id="reviewDialog">
+  <button type="button" class="dlg-x" id="reviewClose" aria-label="Close" title="Close">&times;</button>
+  <form id="reviewForm">
+    <h2 style="margin-top:0" id="reviewTitle"></h2>
+    <div class="row"><label data-i18n="review_rating">Rating</label><div class="stars-pick" id="reviewStars" role="radiogroup"></div></div>
+    <div class="row"><label data-i18n="review_comment">Comment (optional)</label><textarea id="reviewComment" maxlength="2000" rows="4"></textarea></div>
+    <div class="actions" style="display: flex; gap: 8px; flex-wrap: wrap;"><button class="primary" data-i18n="review_send">Send review</button><button type="button" class="ghost" id="reviewCancel" data-i18n="cancel">Cancel</button></div>
+  </form>
+</dialog>
 <dialog id="reportDialog">
   <button type="button" class="dlg-x" id="reportClose" aria-label="Close" title="Close">&times;</button>
   <form id="reportForm">
@@ -875,6 +889,7 @@ const I18N = {
     away_l: 'I\u2019m not available for now', away_until: 'until', away_hint: '\u2014 no alerts, no pings; the board shows you as away.', away_until_x: 'away until {0}',
     report_t: 'Report', report_p: 'Tell us what is wrong. We read every report and act on it.', report_send: 'Send report', report_btn: 'Report', report_ok: 'Thanks \u2014 we\u2019ll look into it.', export_l: 'Download my data', delete_l: 'Delete my account', delete_t: 'Delete my account', delete_p: 'This removes your profile, listings, bands you own, applications and messages. It cannot be undone.', delete_btn: 'Delete for good', delete_bad_pw: 'Wrong password.', delete_done: 'Your account has been deleted.',
     near_me: 'Around me', near_unsupported: 'Location is not available on this device.', near_denied: 'Location was refused \u2014 type a city instead.', seen: 'Seen', digest_l: 'Weekly e-mail digest', digest_on: 'Weekly digest on.', digest_off: 'Weekly digest off.',
+    review_t: 'Your review of {0}', review_rating: 'Rating', review_comment: 'Comment (optional)', review_send: 'Send review', review_pick: 'Pick a number of stars.', review_saved: 'Thanks \u2014 review saved.', review_not_done: 'You can review a band once they played for you.', cover_add: 'Add a cover photo', cover_change: 'Change cover photo', cover_saved: 'Cover photo saved.', inquiries_h: '{0} booking request(s)', inq_done: 'played', inq_mark_done: 'We played this \u2192 ask for a review', inq_done_ok: 'Marked as played \u2014 they were asked for a review.',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -939,6 +954,7 @@ const I18N = {
     away_l: 'Je ne suis pas dispo pour le moment', away_until: 'jusqu\u2019au', away_hint: '\u2014 pas d\u2019alertes, pas de pings\u00a0; l\u2019annuaire vous affiche comme absent.', away_until_x: 'absent jusqu\u2019au {0}',
     report_t: 'Signaler', report_p: 'Dites-nous ce qui ne va pas. Nous lisons chaque signalement et agissons.', report_send: 'Envoyer le signalement', report_btn: 'Signaler', report_ok: 'Merci \u2014 on s\u2019en occupe.', export_l: 'T\u00e9l\u00e9charger mes donn\u00e9es', delete_l: 'Supprimer mon compte', delete_t: 'Supprimer mon compte', delete_p: 'Cela supprime votre profil, vos annonces, les groupes que vous g\u00e9rez, vos candidatures et vos messages. C\u2019est d\u00e9finitif.', delete_btn: 'Supprimer d\u00e9finitivement', delete_bad_pw: 'Mot de passe incorrect.', delete_done: 'Votre compte a \u00e9t\u00e9 supprim\u00e9.',
     near_me: 'Autour de moi', near_unsupported: 'La localisation n\u2019est pas disponible sur cet appareil.', near_denied: 'Localisation refus\u00e9e \u2014 tapez une ville.', seen: 'Vu', digest_l: 'R\u00e9sum\u00e9 hebdo par e-mail', digest_on: 'R\u00e9sum\u00e9 hebdo activ\u00e9.', digest_off: 'R\u00e9sum\u00e9 hebdo d\u00e9sactiv\u00e9.',
+    review_t: 'Votre avis sur {0}', review_rating: 'Note', review_comment: 'Commentaire (facultatif)', review_send: 'Envoyer l\u2019avis', review_pick: 'Choisissez un nombre d\u2019\u00e9toiles.', review_saved: 'Merci \u2014 avis enregistr\u00e9.', review_not_done: 'Vous pourrez noter le groupe une fois qu\u2019il a jou\u00e9 pour vous.', cover_add: 'Ajouter une photo de couverture', cover_change: 'Changer la photo de couverture', cover_saved: 'Photo de couverture enregistr\u00e9e.', inquiries_h: '{0} demande(s) de r\u00e9servation', inq_done: 'jou\u00e9', inq_mark_done: 'On a jou\u00e9 \u2192 demander un avis', inq_done_ok: 'Marqu\u00e9 comme jou\u00e9 \u2014 un avis leur a \u00e9t\u00e9 demand\u00e9.',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -1003,6 +1019,7 @@ const I18N = {
     away_l: 'Ich bin gerade nicht verf\u00fcgbar', away_until: 'bis', away_hint: '\u2014 keine Alerts, keine Pings; im Verzeichnis stehst du als abwesend.', away_until_x: 'abwesend bis {0}',
     report_t: 'Melden', report_p: 'Sag uns, was nicht stimmt. Wir lesen jede Meldung und handeln.', report_send: 'Meldung senden', report_btn: 'Melden', report_ok: 'Danke \u2014 wir k\u00fcmmern uns darum.', export_l: 'Meine Daten herunterladen', delete_l: 'Konto l\u00f6schen', delete_t: 'Konto l\u00f6schen', delete_p: 'Das entfernt dein Profil, Inserate, Bands, die du verwaltest, Bewerbungen und Nachrichten. Das l\u00e4sst sich nicht r\u00fcckg\u00e4ngig machen.', delete_btn: 'Endg\u00fcltig l\u00f6schen', delete_bad_pw: 'Falsches Passwort.', delete_done: 'Dein Konto wurde gel\u00f6scht.',
     near_me: 'In meiner N\u00e4he', near_unsupported: 'Standort ist auf diesem Ger\u00e4t nicht verf\u00fcgbar.', near_denied: 'Standort abgelehnt \u2014 gib eine Stadt ein.', seen: 'Gesehen', digest_l: 'W\u00f6chentliche E-Mail-Zusammenfassung', digest_on: 'W\u00f6chentliche Zusammenfassung an.', digest_off: 'W\u00f6chentliche Zusammenfassung aus.',
+    review_t: 'Deine Bewertung von {0}', review_rating: 'Bewertung', review_comment: 'Kommentar (optional)', review_send: 'Bewertung senden', review_pick: 'W\u00e4hle eine Sternezahl.', review_saved: 'Danke \u2014 Bewertung gespeichert.', review_not_done: 'Du kannst eine Band bewerten, sobald sie f\u00fcr dich gespielt hat.', cover_add: 'Titelbild hinzuf\u00fcgen', cover_change: 'Titelbild \u00e4ndern', cover_saved: 'Titelbild gespeichert.', inquiries_h: '{0} Buchungsanfrage(n)', inq_done: 'gespielt', inq_mark_done: 'Wir haben gespielt \u2192 um Bewertung bitten', inq_done_ok: 'Als gespielt markiert \u2014 um eine Bewertung gebeten.',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -1067,6 +1084,7 @@ const I18N = {
     away_l: 'Non sono disponibile per ora', away_until: 'fino al', away_hint: '\u2014 niente avvisi, niente ping; l\u2019elenco ti mostra come assente.', away_until_x: 'assente fino al {0}',
     report_t: 'Segnala', report_p: 'Dicci cosa non va. Leggiamo ogni segnalazione e interveniamo.', report_send: 'Invia segnalazione', report_btn: 'Segnala', report_ok: 'Grazie \u2014 ce ne occupiamo.', export_l: 'Scarica i miei dati', delete_l: 'Elimina il mio account', delete_t: 'Elimina il mio account', delete_p: 'Rimuove il tuo profilo, gli annunci, i gruppi che gestisci, le candidature e i messaggi. Non si pu\u00f2 annullare.', delete_btn: 'Elimina definitivamente', delete_bad_pw: 'Password errata.', delete_done: 'Il tuo account \u00e8 stato eliminato.',
     near_me: 'Vicino a me', near_unsupported: 'La posizione non \u00e8 disponibile su questo dispositivo.', near_denied: 'Posizione rifiutata \u2014 scrivi una citt\u00e0.', seen: 'Visto', digest_l: 'Riepilogo settimanale via e-mail', digest_on: 'Riepilogo settimanale attivo.', digest_off: 'Riepilogo settimanale disattivato.',
+    review_t: 'La tua recensione di {0}', review_rating: 'Voto', review_comment: 'Commento (facoltativo)', review_send: 'Invia recensione', review_pick: 'Scegli un numero di stelle.', review_saved: 'Grazie \u2014 recensione salvata.', review_not_done: 'Puoi recensire un gruppo dopo che ha suonato per te.', cover_add: 'Aggiungi una foto di copertina', cover_change: 'Cambia la foto di copertina', cover_saved: 'Foto di copertina salvata.', inquiries_h: '{0} richiesta/e di prenotazione', inq_done: 'suonato', inq_mark_done: 'Abbiamo suonato \u2192 chiedi una recensione', inq_done_ok: 'Segnato come suonato \u2014 \u00e8 stata chiesta una recensione.',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -1470,7 +1488,7 @@ function musicianCard(m) {
     dm.onclick = (e) => { e.stopPropagation(); dmUser(m.handle, m.display_name); };
     acts.append(dm);
   }
-  const shIcon = shareBtn('/m/' + m.handle, m.display_name); shIcon.classList.add('icon'); shIcon.lastChild.remove();
+  const shIcon = shareBtn('/m/' + m.handle, m.display_name); shIcon.classList.add('icon'); shIcon.lastChild.remove(); shIcon.setAttribute('aria-label', T('share'));
   acts.append(shIcon);
   card.append(acts);
   card.onclick = (e) => { if (e.target.closest('a, button')) return; location.href = '/m/' + m.handle; };
@@ -1599,6 +1617,24 @@ async function loadBoard() {
   board.append(askLine());
 }
 // What a musician can do on a listing, in plain words and one button.
+// Review a band (after they played for you).
+let reviewBand = null, reviewRating = 0;
+function openReview(bandId, name) {
+  reviewBand = bandId; reviewRating = 0;
+  $('reviewTitle').textContent = T('review_t', name || '');
+  $('reviewComment').value = '';
+  const box = $('reviewStars'); box.replaceChildren();
+  for (let i = 1; i <= 5; i++) { const b = el('button', '', '\u2605'); b.type = 'button'; b.setAttribute('aria-label', i + '/5'); b.onclick = () => { reviewRating = i; [...box.children].forEach((x, j) => x.classList.toggle('on', j < i)); }; box.append(b); }
+  $('reviewDialog').showModal();
+}
+$('reviewClose').onclick = () => $('reviewDialog').close();
+$('reviewCancel').onclick = () => $('reviewDialog').close();
+$('reviewForm').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!reviewRating) { flash(T('review_pick'), 'err'); return; }
+  const res = await api('/bands/' + reviewBand + '/reviews', { method: 'POST', body: { rating: reviewRating, comment: $('reviewComment').value } });
+  if (res.ok) { $('reviewDialog').close(); flash(T('review_saved'), 'ok'); } else flash(res.json.code === 'not_done' ? T('review_not_done') : (res.json.error || T('failed')), 'err');
+};
 // Report a user (via a thread), a gig or a band — opens a small dialog, never a prompt.
 let reportTarget = null;
 function openReport(target) { reportTarget = target; $('reportBody').value = ''; $('reportDialog').showModal(); }
@@ -2573,6 +2609,7 @@ async function renderBands(o) {
   else wrap.append(el('p', 'muted board-summary', summaryText));
   for (const b of list) {
     const card = el('div', 'card');
+    if (b.cover) { const im = el('img', 'band-cover'); im.src = b.cover; im.alt = ''; im.loading = 'lazy'; card.append(im); }
     const head = el('div', 'gig-head');
     const nameA = el('a', '', b.name);
     nameA.href = '/b/' + b.id + '-' + b.slug; nameA.style.fontWeight = '700'; nameA.style.color = 'inherit'; nameA.style.textDecoration = 'none';
@@ -2581,6 +2618,7 @@ async function renderBands(o) {
     if (b.kind === 'jam') metaBits.push(T('jam_group'));
     if (b.home_city) metaBits.push(b.home_city + (b.distance_km != null ? ' (' + b.distance_km + ' km)' : ''));
     metaBits.push(T('members_n2', b.member_count));
+    if (b.review_count) metaBits.push('\u2605 ' + b.avg_rating + ' (' + b.review_count + ')');
     head.append(el('span', 'muted', metaBits.join(' \u00b7 ')));
     card.append(head);
     const tags = el('div');
@@ -2628,9 +2666,54 @@ async function renderBands(o) {
   }
   wrap.append(askLine());
 }
+function resizeCover(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const W = 1200, H = 675, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+      const sw = W / scale, sh = H / scale, sx = (img.naturalWidth - sw) / 2, sy = (img.naturalHeight - sh) / 2;
+      c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+      c.toBlob((b) => (b ? resolve(b) : reject(new Error('resize failed'))), 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('not an image')); };
+    img.src = url;
+  });
+}
 async function showBandManage(bandId, card) {
   const r = await api('/bands/' + bandId);
   card.querySelectorAll('.application').forEach((n) => n.remove());
+  const coverRow = el('div', 'application');
+  const pick = el('button', 'ghost small', T(r.json.cover ? 'cover_change' : 'cover_add'));
+  const fileIn = el('input'); fileIn.type = 'file'; fileIn.accept = 'image/*'; fileIn.hidden = true;
+  pick.onclick = () => fileIn.click();
+  fileIn.onchange = async () => {
+    const f = fileIn.files[0]; fileIn.value = ''; if (!f) return;
+    try {
+      const blob = await resizeCover(f);
+      const res = await fetch('/bands/' + bandId + '/cover', { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok) { flash(T('cover_saved'), 'ok'); loadBands(); } else flash(j.error || T('failed'), 'err');
+    } catch { flash(T('photo_bad'), 'err'); }
+  };
+  coverRow.append(pick, fileIn);
+  if (r.json.cover) { const rm = el('button', 'ghost small', T('photo_remove')); rm.onclick = async () => { const res = await api('/bands/' + bandId + '/cover', { method: 'DELETE' }); if (res.ok) { flash(T('photo_removed'), 'ok'); loadBands(); } }; coverRow.append(document.createTextNode(' '), rm); }
+  card.append(coverRow);
+  const inqs = r.json.inquiries || [];
+  if (inqs.length) {
+    const box = el('div', 'application');
+    box.append(el('strong', '', T('inquiries_h', inqs.length)));
+    for (const i of inqs) {
+      const line = el('div', 'applicant-meta');
+      line.append(el('span', '', i.name), el('span', 'muted', fmtDate(i.created_at)));
+      if (i.done) line.append(el('span', 'tag status-completed', T('inq_done')));
+      else { const d = el('button', 'ghost small', T('inq_mark_done')); d.onclick = async () => { const res = await api('/bands/' + bandId + '/inquiries/' + i.id + '/done', { method: 'POST' }); if (res.ok) { flash(T('inq_done_ok'), 'ok'); showBandManage(bandId, card); } else flash(res.json.error || T('failed'), 'err'); }; line.append(d); }
+      box.append(line);
+    }
+    card.append(box);
+  }
   for (const s of r.json.seats || []) {
     const row = el('div', 'application');
     const head = el('div', 'applicant-head');
@@ -2775,7 +2858,7 @@ applyI18n();
       else flash(r.json.error || T('reset_failed'), 'err');
     }
   }
-  const deepBand = q.get('band'), deepTab = q.get('tab'), deepDm = q.get('dm');
+  const deepBand = q.get('band'), deepTab = q.get('tab'), deepDm = q.get('dm'), deepReview = q.get('review_band');
   if (q.toString()) history.replaceState(null, '', '/');
   const r = await api('/auth/me');
   if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null, name: r.json.name || '', handle: r.json.handle || null, digest: r.json.digest !== false };
@@ -2791,6 +2874,7 @@ applyI18n();
   } else if (!(deepTab === 'jams' || deepTab === 'band' || deepBand)) mountBoard('musicians');
   if (q.get('feedback') === '1') openFeedback();
   if (deepTab === 'help') $('howBtn').onclick();
+  if (deepReview) { if (!me) $('authDialog').showModal(); else { const bd = await api('/bands/' + deepReview); if (bd.ok) openReview(bd.json.id, bd.json.name); } }
   if (deepTab === 'jams') { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=jams]').click(); }
   if (deepDm) { if (!me) { $('authDialog').showModal(); } else dmUser(deepDm, ''); }
   if (deepTab === 'band' || deepBand) {
