@@ -59,6 +59,18 @@ app.route('/gigs', gigRoutes);
 app.route('/m', profilePage);
 app.route('/b', bandPage);
 app.route('/about', aboutPage);
+
+// SEO: sitemap with the public pages worth indexing (landing, about, band pages).
+// Musician pages stay noindex (people, not businesses).
+app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nDisallow: /m/\nSitemap: ${c.env.BASE_URL || 'https://jamwerk.app'}/sitemap.xml\n`));
+app.get('/sitemap.xml', async (c) => {
+  const base = c.env.BASE_URL || 'https://jamwerk.app';
+  const { results } = await c.env.DB.prepare('SELECT id, name, created_at FROM bands ORDER BY id DESC LIMIT 5000').all();
+  const slug = (n: string) => n.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'band';
+  const urls = [`${base}/`, `${base}/about`, ...(results as any[]).map((b) => `${base}/b/${b.id}-${slug(b.name)}`)];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u.replace(/&/g, '&amp;')}</loc></url>`).join('\n')}\n</urlset>\n`;
+  return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+});
 app.route('/push', pushRoutes);
 app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);

@@ -21,15 +21,40 @@
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
 6. [x] DECIDE: open musician-to-musician DMs — decided 2026-08-22: not during seeding; plan + trigger + anti-abuse rules in PLAN.md "Messaging".
 
-## To do
+## Roadmap agreed 2026-08-27 (working through it in this order)
 
+### Needs YOU
+- [ ] Rotate the Mailjet API keys (transited chat) → `wrangler secret put MAILJET_API_KEY / MAILJET_SECRET_KEY`.
+- [ ] Google Cloud Console: OAuth client + redirect https://jamwerk.app/auth/google/callback → then "Continuer avec Google".
+- [ ] External uptime check on https://jamwerk.app/health (UptimeRobot/BetterStack, free) + Cloudflare notification on Worker errors.
+- [ ] Legal review: lawyer reads /about terms + privacy (boilerplate, not legal advice; CO art. 100). 3 pre-gate accounts have no terms_accepted_at.
+- [ ] Outreach: seeding kit + flyer + WhatsApp message (docs/); the app cannot fix an empty board.
+- [ ] Delete old bridge workflow on poc-poc branch `claude/musician-matching-app-wefw3d`.
 
-## To do
+### 1. Getting people in
+- [x] Invite a musician (WhatsApp share, FR text) — settings row + landing.
+- [x] Share button on gig and band cards (Web Share API, copy-link fallback).
+- [x] Sitemap + index band pages and /about (musician pages stay noindex); `/geneve` style city landing later.
+- [ ] Google sign-in (blocked on OAuth client above).
 
-- [ ] Legal review: have a lawyer read the Conditions d'utilisation + privacy notice on
-      /about (src/about-page.ts) before pushing for scale. Written as boilerplate, not legal
-      advice; Swiss CO art. 100 limits what can be excluded. Existing accounts created before
-      the sign-up gate have no terms_accepted_at (3 on prod as of 2026-08-27).
+### 2. Keeping them
+- [ ] Availability: "Pas dispo jusqu'au …" on the profile; fan-out and last-minute pings skip unavailable people; card shows it.
+- [ ] Weekly digest e-mail (new gigs/jams/bands near you) for people without push.
+- [ ] Standby fallback re-fan-out: after 2 h with no confirmation, alert everyone nearby as URGENT (today only the tag changes).
+- [ ] Band cover photo (+ later gallery, member roles/bios).
+- [ ] Reviews for bands (organiser → band).
+
+### 3. Protecting you
+- [ ] Report a user / listing → feedback inbox; minimal admin (ban user, hide listing) gated by ADMIN_EMAIL.
+- [ ] Self-serve account deletion + data export (privacy notice promises deletion).
+- [ ] Daily D1 backup to R2; admin /stats (users, gigs, messages this week).
+- [ ] CI: verify push-to-main auto-deploys (suspected: my manual `gh workflow run` raced and cancelled the auto run via concurrency).
+
+### 4. Polish
+- [ ] Human dates everywhere ("sam. 12 sept.") instead of 2026-09-12.
+- [ ] "Autour de moi" (geolocation) instead of typing the city.
+- [ ] "Vu" read receipts in chat.
+- [ ] Accessibility pass (contrast, focus rings, labels) + Lighthouse on public pages.
 
 ## Shipped 2026-08-27
 
