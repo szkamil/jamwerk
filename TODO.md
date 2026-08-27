@@ -21,6 +21,12 @@
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
 6. [x] DECIDE: open musician-to-musician DMs — decided 2026-08-22: not during seeding; plan + trigger + anti-abuse rules in PLAN.md "Messaging".
 
+## Shipped 2026-08-27
+
+- Predefined genres (24 slugs, labels EN/FR/DE/IT) as checkboxes in profile,
+  band and listing forms; genre dropdown in Groupes filter; legacy free text
+  mapped by `normGenres()`.
+
 ## Shipped 2026-08-26
 
 - Landing rewritten (4 langs): 3-step "Comment ça marche", "100 % gratuit" line,

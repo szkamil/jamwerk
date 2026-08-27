@@ -24,6 +24,7 @@ import { Lang, normLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
 import { findPlace } from './places';
+import { normGenres } from './genres';
 
 export const INSTRUMENTS = [
   'vocals', 'guitar', 'bass', 'double_bass', 'drums', 'percussion', 'keys',
@@ -155,7 +156,7 @@ function gigToJson(row: GigRow, viewerEmail?: string) {
   const { poster_email, genres, requirements, ...rest } = row;
   return {
     ...rest,
-    genres: JSON.parse(genres || '[]'),
+    genres: normGenres(JSON.parse(genres || '[]')),
     requirements: JSON.parse(requirements || '{}'),
     is_mine: viewerEmail !== undefined && poster_email === viewerEmail,
   };
@@ -217,7 +218,7 @@ musicians.get('/', async (c) => {
     handle: r.handle,
     photo: r.photo_key ? `/img/${r.photo_key}` : null,
     instruments: JSON.parse(r.instruments || '[]'),
-    genres: JSON.parse(r.genres || '[]'),
+    genres: normGenres(JSON.parse(r.genres || '[]')),
     level: r.level,
     looking_for: JSON.parse(r.looking_for || '[]'),
     accepts_dm: r.accepts_dm !== 0,
@@ -246,7 +247,7 @@ musicians.get('/me', async (c) => {
   return c.json({
     ...row,
     instruments: JSON.parse((row.instruments as string) || '[]'),
-    genres: JSON.parse((row.genres as string) || '[]'),
+    genres: normGenres(JSON.parse((row.genres as string) || '[]')),
     demo_links: JSON.parse((row.demo_links as string) || '[]'),
     looking_for: JSON.parse((row.looking_for as string) || '[]'),
   });
@@ -259,7 +260,7 @@ musicians.post('/me', async (c) => {
   if (!body) return c.json({ error: 'Invalid JSON body' }, 400);
 
   const instruments = parseSlugArray(body.instruments);
-  const genres = parseSlugArray(body.genres);
+  const genres = body.genres === undefined ? null : normGenres(body.genres);
   const demoLinks = parseHttpUrlArray(body.demo_links);
   if (!instruments || instruments.length === 0 || !instruments.every((i) => (INSTRUMENTS as readonly string[]).includes(i))) {
     return c.json({ error: 'instruments must be a non-empty array of known instruments', known: INSTRUMENTS }, 400);
@@ -355,7 +356,7 @@ gigs.post('/', async (c) => {
   if (typeof body.instrument !== 'string' || !(INSTRUMENTS as readonly string[]).includes(body.instrument)) {
     errors.push(`instrument must be one of: ${INSTRUMENTS.join(', ')}`);
   }
-  const genres = parseSlugArray(body.genres) ?? [];
+  const genres = normGenres(body.genres);
   if (genres.length === 0) errors.push('genres must be a non-empty array of slugs');
   const today = new Date().toISOString().slice(0, 10);
   if (kind === 'gig') {
