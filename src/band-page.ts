@@ -33,7 +33,7 @@ bandPage.get('/:id', async (c) => {
   const baseUrl = c.env.BASE_URL || 'https://jamwerk.app';
 
   const b = await c.env.DB.prepare(
-    'SELECT b.*, u.display_name AS owner_name, (SELECT handle FROM musician_details md WHERE md.owner = b.owner_email) AS owner_handle FROM bands b JOIN users u ON u.email = b.owner_email WHERE b.id = ?'
+    'SELECT b.*, (SELECT AVG(rating) FROM band_reviews r WHERE r.band_id = b.id) AS avg_rating, (SELECT COUNT(*) FROM band_reviews r WHERE r.band_id = b.id) AS review_count, u.display_name AS owner_name, (SELECT handle FROM musician_details md WHERE md.owner = b.owner_email) AS owner_handle FROM bands b JOIN users u ON u.email = b.owner_email WHERE b.id = ?'
   ).bind(id).first<any>();
   if (!b) {
     return c.html(notFoundPage(lang, t(lang, { en: 'No such band.', fr: 'Ce groupe n’existe pas.', de: 'Diese Band gibt es nicht.', it: 'Questo gruppo non esiste.' })), 404);
@@ -45,6 +45,8 @@ bandPage.get('/:id', async (c) => {
   ).bind(id).all();
 
   const genres: string[] = normGenres(JSON.parse(b.genres || '[]'));
+  const { results: reviews } = await c.env.DB.prepare('SELECT r.rating, r.comment, r.created_at, u.display_name FROM band_reviews r JOIN users u ON u.email = r.reviewer_email WHERE r.band_id = ? ORDER BY r.id DESC LIMIT 20').bind(id).all();
+  const avg = b.avg_rating != null ? Math.round(b.avg_rating * 10) / 10 : null;
   const links: string[] = JSON.parse(b.links || '[]');
   const label = (s: string) => s.replace(/_/g, ' ');
   const isJam = b.kind === 'jam';
@@ -98,7 +100,7 @@ bandPage.get('/:id', async (c) => {
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="JamWerk">
 <meta property="og:url" content="${esc(baseUrl)}/b/${b.id}">
-<meta property="og:image" content="${esc(baseUrl)}/icons/icon-512.png">
+<meta property="og:image" content="${esc(baseUrl)}${b.cover_key ? '/img/' + esc(b.cover_key) : '/icons/icon-512.png'}">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,7 +111,7 @@ bandPage.get('/:id', async (c) => {
 </head>
 <body>
 ${NOTES_LAYER}
-<header>
+<header${b.cover_key ? ` style="background-image: linear-gradient(rgba(20,19,26,0.55), rgba(20,19,26,0.85)), url('/img/${esc(b.cover_key)}'); background-size: cover; background-position: center;"` : ''}>
   ${WAVE_SVG}
   <div class="inner">
     <a class="back" href="/?tab=band">&larr; JamWerk · ${t(lang, { en: 'Bands', fr: 'Groupes', de: 'Bands', it: 'Gruppi' })}</a>
@@ -131,6 +133,8 @@ ${NOTES_LAYER}
   ${demoHtml}
   <h2>${t(lang, { en: 'Line-up', fr: 'Formation', de: 'Besetzung', it: 'Formazione' })}</h2>
   <div class="lineup">${lineupHtml}</div>
+  <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}${avg != null ? ` · ★ ${avg} (${b.review_count})` : ''}</h2>
+  ${(reviews as any[]).length ? (reviews as any[]).map((r) => `<div class="card review"><div class="head"><span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span><span class="ctx">${esc(r.display_name || '')}</span></div>${r.comment ? `<p>${esc(r.comment)}</p>` : ''}</div>`).join('') : `<p class="empty">${t(lang, { en: 'No reviews yet — organisers can leave one after the band played for them.', fr: 'Pas encore d’avis — les organisateurs peuvent en laisser un après la prestation.', de: 'Noch keine Bewertungen — Veranstalter:innen können nach dem Auftritt eine abgeben.', it: 'Ancora nessuna recensione — gli organizzatori possono lasciarne una dopo l’esibizione.' })}</p>`}
 </main>
 <footer>
   ${WAVE_SVG}

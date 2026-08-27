@@ -74,6 +74,9 @@ function bandPublic(b: any) {
     genres: normGenres(JSON.parse(b.genres || '[]')), home_city: b.home_city, description: b.description,
     pitch: b.pitch || '', bookable: !!b.bookable, fee_from: b.fee_from ?? null, fee_currency: b.fee_currency || 'CHF',
     links, media: links.map(classifyMedia).filter(Boolean),
+    cover: b.cover_key ? `/img/${b.cover_key}` : null,
+    avg_rating: b.avg_rating != null ? Math.round(b.avg_rating * 10) / 10 : null,
+    review_count: b.review_count || 0,
   };
 }
 
@@ -174,7 +177,9 @@ bands.get('/', async (c) => {
   }
   const { results } = await c.env.DB.prepare(
     `SELECT b.*, u.display_name AS owner_name,
-       (SELECT COUNT(*) FROM band_seats s WHERE s.band_id = b.id AND s.status = 'filled') AS filled_count
+       (SELECT COUNT(*) FROM band_seats s WHERE s.band_id = b.id AND s.status = 'filled') AS filled_count,
+       (SELECT AVG(rating) FROM band_reviews r WHERE r.band_id = b.id) AS avg_rating,
+       (SELECT COUNT(*) FROM band_reviews r WHERE r.band_id = b.id) AS review_count
      FROM bands b JOIN users u ON u.email = b.owner_email
      WHERE ${conds.join(' AND ')}
      ORDER BY b.created_at DESC LIMIT 100`
@@ -231,6 +236,76 @@ bands.put('/:id', async (c) => {
   return c.json({ ok: true });
 });
 
+// Cover photo (owner). Client sends a resized JPEG; stored in R2 like avatars.
+const COVER_MAX = 900 * 1024;
+bands.post('/:id/cover', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email !== user.email) return c.json({ error: 'Not your band' }, 403);
+  if (!c.env.MEDIA) return c.json({ error: 'Photo storage is not configured' }, 503);
+  const type = (c.req.header('content-type') || '').split(';')[0].trim();
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(type)) return c.json({ error: 'Send a JPEG, PNG or WebP image' }, 415);
+  const bytes = await c.req.arrayBuffer();
+  if (bytes.byteLength < 100 || bytes.byteLength > COVER_MAX) return c.json({ error: `Image must be under ${Math.round(COVER_MAX / 1024)} KB` }, 413);
+  const ext = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg';
+  const key = `covers/${crypto.randomUUID()}.${ext}`;
+  await c.env.MEDIA.put(key, bytes, { httpMetadata: { contentType: type, cacheControl: 'public, max-age=31536000, immutable' } });
+  const prev = (band as any).cover_key as string | null;
+  await c.env.DB.prepare('UPDATE bands SET cover_key = ? WHERE id = ?').bind(key, band.id).run();
+  if (prev) { try { await c.env.MEDIA.delete(prev); } catch { /* best effort */ } }
+  return c.json({ ok: true, cover: `/img/${key}` });
+});
+bands.delete('/:id/cover', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email !== user.email) return c.json({ error: 'Not your band' }, 403);
+  const prev = (band as any).cover_key as string | null;
+  await c.env.DB.prepare('UPDATE bands SET cover_key = NULL WHERE id = ?').bind(band.id).run();
+  if (prev && c.env.MEDIA) { try { await c.env.MEDIA.delete(prev); } catch { /* best effort */ } }
+  return c.json({ ok: true });
+});
+
+// The band played the event: mark the inquiry done so the organiser can leave a review.
+bands.post('/:id/inquiries/:inqId/done', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email !== user.email) return c.json({ error: 'Not your band' }, 403);
+  const inq = await c.env.DB.prepare('SELECT id, from_email, done_at FROM band_inquiries WHERE id = ? AND band_id = ?').bind(c.req.param('inqId'), band.id).first<any>();
+  if (!inq) return c.json({ error: 'Inquiry not found' }, 404);
+  if (!inq.done_at) {
+    await c.env.DB.prepare("UPDATE band_inquiries SET done_at = datetime('now') WHERE id = ?").bind(inq.id).run();
+    const base = c.env.BASE_URL || 'https://jamwerk.app';
+    notify(c, inq.from_email, (lang: Lang) => ({
+      subject: t(lang, { en: `How was ${band.name}? Leave a review`, fr: `Comment c’était avec ${band.name} ? Laissez un avis`, de: `Wie war ${band.name}? Bewertung abgeben`, it: `Com’è andata con ${band.name}? Lascia una recensione` }),
+      body: t(lang, { en: 'Your review helps other organisers choose. One minute:', fr: 'Votre avis aide les autres organisateurs à choisir. Une minute :', de: 'Deine Bewertung hilft anderen Veranstalter:innen bei der Wahl. Eine Minute:', it: 'La tua recensione aiuta altri organizzatori a scegliere. Un minuto:' }) + `\n${base}/?review_band=${band.id}`,
+    }));
+  }
+  return c.json({ ok: true });
+});
+
+// Review a band — only after the band marked your inquiry as done. One per person, editable.
+bands.post('/:id/reviews', async (c) => {
+  const user = requireUser(c);
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const band = await loadBand(c, c.req.param('id'));
+  if (!band) return c.json({ error: 'Band not found' }, 404);
+  if (band.owner_email === user.email) return c.json({ error: 'You cannot review your own band' }, 403);
+  const inq = await c.env.DB.prepare('SELECT done_at FROM band_inquiries WHERE band_id = ? AND from_email = ?').bind(band.id, user.email).first<any>();
+  if (!inq?.done_at) return c.json({ error: 'You can review a band once they played for you', code: 'not_done' }, 403);
+  const body = await c.req.json().catch(() => null);
+  const rating = Number(body?.rating);
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) return c.json({ error: 'rating must be 1-5' }, 400);
+  const comment = typeof body?.comment === 'string' ? body.comment.trim().slice(0, 2000) : '';
+  await c.env.DB.prepare('INSERT INTO band_reviews (band_id, reviewer_email, rating, comment) VALUES (?, ?, ?, ?) ON CONFLICT(band_id, reviewer_email) DO UPDATE SET rating = excluded.rating, comment = excluded.comment').bind(band.id, user.email, rating, comment).run();
+  return c.json({ ok: true }, 201);
+});
+
 // Contact / book a band: opens (or reuses) a 'band' message thread with the owner.
 // Login + confirmed email, max 3 new inquiries per day — the anti-abuse rules from PLAN.md.
 bands.post('/:id/inquire', async (c) => {
@@ -284,8 +359,14 @@ bands.get('/:id', async (c) => {
   ).bind(band.id).all();
 
   const ownerRow = await c.env.DB.prepare('SELECT display_name FROM users WHERE email = ?').bind(band.owner_email).first<{ display_name: string }>();
+  const agg = await c.env.DB.prepare('SELECT AVG(rating) AS avg_rating, COUNT(*) AS review_count FROM band_reviews WHERE band_id = ?').bind(band.id).first<any>();
+  const { results: reviews } = await c.env.DB.prepare('SELECT r.rating, r.comment, r.created_at, u.display_name FROM band_reviews r JOIN users u ON u.email = r.reviewer_email WHERE r.band_id = ? ORDER BY r.id DESC LIMIT 20').bind(band.id).all();
+  const viewer = c.get('user');
+  const myInq = viewer ? await c.env.DB.prepare('SELECT id, done_at FROM band_inquiries WHERE band_id = ? AND from_email = ?').bind(band.id, viewer.email).first<any>() : null;
   const out: Record<string, unknown> = {
-    ...bandPublic(band),
+    ...bandPublic({ ...band, avg_rating: agg?.avg_rating, review_count: agg?.review_count }),
+    reviews: (reviews as any[]).map((r) => ({ rating: r.rating, comment: r.comment, created_at: r.created_at, reviewer: r.display_name })),
+    can_review: !!(myInq && myInq.done_at),
     owner_name: ownerRow?.display_name || band.owner_email.split('@')[0],
     is_mine: isOwner,
     seats: (seats as any[]).map((s) => ({
@@ -302,6 +383,8 @@ bands.get('/:id', async (c) => {
   };
 
   if (isOwner) {
+    const { results: inqs } = await c.env.DB.prepare('SELECT i.id, i.done_at, i.created_at, u.display_name FROM band_inquiries i JOIN users u ON u.email = i.from_email WHERE i.band_id = ? ORDER BY i.id DESC LIMIT 50').bind(band.id).all();
+    out.inquiries = (inqs as any[]).map((i) => ({ id: i.id, done: !!i.done_at, created_at: i.created_at, name: i.display_name }));
     const { results: apps } = await c.env.DB.prepare(
       `SELECT a.id, a.seat_id, a.musician_email, a.note, a.status, u.display_name, m.handle, m.instruments, m.gigs_played, m.home_city,
               (SELECT ROUND(AVG(rating), 1) FROM gig_reviews r WHERE r.reviewee_email = a.musician_email AND r.direction = 'poster_to_musician') AS avg_rating,
