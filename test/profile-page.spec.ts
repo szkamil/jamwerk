@@ -23,7 +23,7 @@ async function call(path: string, opts: { method?: string; body?: unknown; cooki
 async function registerAndProfile(email: string, displayName: string) {
 	const reg = await call('/auth/register', {
 		method: 'POST',
-		body: { email, password: 'longenough1', display_name: displayName },
+		body: { accept_terms: true, email, password: 'longenough1', display_name: displayName },
 	});
 	const cookie = (reg.headers.get('set-cookie') || '').split(';')[0];
 	const prof = await call('/musicians/me', {

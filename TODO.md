@@ -23,9 +23,14 @@
 
 ## To do
 
-- [ ] /about legal notice: fill in the operator name placeholder (src/about-page.ts)
 
 ## Shipped 2026-08-27
+
+- Terms of use (7 clauses: intermediary only, agreements between users, content,
+  no warranty, liability cap CHF 100 to the extent Swiss law allows, indemnity,
+  Swiss law / Geneva) + privacy notice on /about, 4 langs; Éditeur/Hébergement
+  removed; sign-up requires ticking the terms (client + server, timestamp kept).
+  Boilerplate written without a lawyer — have it reviewed before real scale.
 
 - Replacement / standby gigs with one-tap activation (first to confirm is booked),
   Dernière minute tag, URGENT in alert subjects; plain-language buttons (Je suis
