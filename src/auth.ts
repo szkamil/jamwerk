@@ -50,7 +50,7 @@ function sendConfirmEmail(c: Context<AppEnv>, email: string, lang: Lang, confirm
       fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : touchez la cloche dans l'en-tête de l'app pour recevoir les alertes de concerts près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
       de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Tippe auf die Glocke in der App, um Gig-Alerts für dein Instrument in deiner Nähe zu erhalten.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
       it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: tocca la campanella nell'app per ricevere avvisi sui concerti vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
-    }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`));
+    }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`), { lang });
 }
 
 auth.post('/register', async (c) => {
@@ -138,7 +138,7 @@ auth.post('/forgot', async (c) => {
           fr: `Quelqu'un a demandé la réinitialisation du mot de passe de ce compte JamWerk.\n\nDéfinissez un nouveau mot de passe (lien valable 1 heure) :\n{link}\n\nSi ce n'était pas vous, ignorez ce message.`,
           de: `Jemand hat das Zurücksetzen des Passworts für dieses JamWerk-Konto angefordert.\n\nNeues Passwort festlegen (Link 1 Stunde gültig):\n{link}\n\nFalls das nicht du warst, ignoriere diese Nachricht.`,
           it: `Qualcuno ha chiesto di reimpostare la password di questo account JamWerk.\n\nImposta una nuova password (link valido 1 ora):\n{link}\n\nSe non sei stato tu, ignora questo messaggio.`,
-        }).replace('{link}', `${baseUrl(c)}/?reset=${token}`));
+        }).replace('{link}', `${baseUrl(c)}/?reset=${token}`), { lang });
       try { c.executionCtx.waitUntil(task); } catch { /* no execution context in some test setups */ }
     }
   }
