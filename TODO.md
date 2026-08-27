@@ -21,7 +21,15 @@
 5. [ ] Rotate the Mailjet API keys at some point (they transited chat once).
 6. [x] DECIDE: open musician-to-musician DMs — decided 2026-08-22: not during seeding; plan + trigger + anti-abuse rules in PLAN.md "Messaging".
 
+## To do
+
+- [ ] /about legal notice: fill in the operator name placeholder (src/about-page.ts)
+
 ## Shipped 2026-08-27
+
+- /about page (story, what it is, free, contact, legal) in 4 langs, linked from
+  all footers; help mode hides the tab bar with a Back button; toasts are quick
+  and never block; no self-DM.
 
 - Profile tab as an account screen: hero (photo, name, instruments · city, stats,
   Modifier le profil / page publique), Mon activité with 3 recent rows + Voir tout,
