@@ -14,6 +14,7 @@ import feedbackRoutes from './feedback';
 import { PAGE } from './ui';
 import type { AppEnv, Env } from './types';
 import { notFound } from './not-found';
+import { fanOutGig } from './gigs';
 import placesRoutes from './places-api';
 
 const app = new Hono<AppEnv>();
@@ -94,9 +95,16 @@ async function scheduled(_controller: ScheduledController, env: Env): Promise<vo
   const expired = await env.DB.prepare(
     "UPDATE gigs SET status = 'expired' WHERE status = 'open' AND expires_at < date()"
   ).run();
+  // Standby that nobody confirmed within 2 h → becomes an urgent replacement and everyone nearby is alerted.
+  const { results: fallenRows } = await env.DB.prepare(
+    "SELECT * FROM gigs WHERE status = 'open' AND need = 'standby' AND standby_activated_at IS NOT NULL AND standby_activated_at < datetime('now', '-2 hours')"
+  ).all();
   const fallen = await env.DB.prepare(
     "UPDATE gigs SET need = 'dep' WHERE status = 'open' AND need = 'standby' AND standby_activated_at IS NOT NULL AND standby_activated_at < datetime('now', '-2 hours')"
   ).run();
+  for (const g of fallenRows as any[]) {
+    await fanOutGig(env, { id: g.id, kind: 'gig', instrument: g.instrument, venue_city: g.venue_city, venue_lat: g.venue_lat, venue_lng: g.venue_lng, gig_date: g.gig_date, fee_chf: g.fee_chf, currency: g.currency || 'CHF', description: g.description || '', need: 'dep', poster_email: g.poster_email }, true);
+  }
   const pruned = await env.DB.prepare(
     "DELETE FROM rate_limits WHERE attempted_at < datetime('now', '-1 day')"
   ).run();

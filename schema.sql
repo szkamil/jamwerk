@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS musician_details (
   level TEXT,
   looking_for TEXT NOT NULL DEFAULT '[]',
   accepts_dm INTEGER NOT NULL DEFAULT 1,
+  unavailable_until TEXT,
   home_city TEXT,
   home_lat REAL,
   home_lng REAL,

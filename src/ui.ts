@@ -730,6 +730,9 @@ ${NOTES_LAYER}
         </div>
       </div>
       <div class="row checks"><label><input type="checkbox" id="mDm" checked> <span data-i18n="dm_accept_l">Other musicians can send me direct messages</span></label></div>
+      <div class="row"><label style="display: flex; gap: 8px; align-items: center; font-weight: 600;"><input type="checkbox" id="mAway"> <span data-i18n="away_l">I'm not available for now</span></label>
+        <div id="mAwayRow" hidden style="display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap;"><span class="muted" data-i18n="away_until">until</span><input type="date" id="mAwayUntil" style="max-width: 200px;"><span class="muted" data-i18n="away_hint">— no alerts, no pings; the board still shows you as away.</span></div>
+      </div>
       <div class="row checks">
         <label><input type="checkbox" id="mCharts"> <span data-i18n="reads_charts">reads charts</span></label>
         <label><input type="checkbox" id="mBacking"> <span data-i18n="backing">backing vocals</span></label>
@@ -841,6 +844,7 @@ const I18N = {
     ask_missing: 'Something missing or unclear?', ask_missing_field: 'A field missing for your case?', ask_btn: 'Tell us \u2192',
     terms_accept: 'I accept the {terms} and the {privacy}.', terms_link: 'Terms of use', privacy_link: 'privacy notice', terms_needed: 'Please accept the terms of use to create your account.',
     invite_l: 'Invite a musician', invite_t: 'Know musicians?', invite_p: 'The more people here, the more it works. Send them the link \u2014 one tap.', invite_btn: 'Invite via WhatsApp', invite_text: 'Hey! I\u2019m on JamWerk, a free app to find musicians, bands, jams and paid gigs around Geneva. Join me:', share: 'Share', link_copied: 'Link copied.',
+    away_l: 'I\u2019m not available for now', away_until: 'until', away_hint: '\u2014 no alerts, no pings; the board shows you as away.', away_until_x: 'away until {0}',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -902,6 +906,7 @@ const I18N = {
     ask_missing: 'Il manque quelque chose\u00a0? Pas clair\u00a0?', ask_missing_field: 'Il manque un champ pour votre cas\u00a0?', ask_btn: 'Dites-le-nous \u2192',
     terms_accept: 'J\u2019accepte les {terms} et la {privacy}.', terms_link: 'Conditions d\u2019utilisation', privacy_link: 'politique de confidentialit\u00e9', terms_needed: 'Veuillez accepter les conditions d\u2019utilisation pour cr\u00e9er votre compte.',
     invite_l: 'Inviter un musicien', invite_t: 'Tu connais des musiciens\u00a0?', invite_p: 'Plus on est nombreux, plus \u00e7a marche. Envoie-leur le lien \u2014 un clic.', invite_btn: 'Inviter via WhatsApp', invite_text: 'Salut\u00a0! Je suis sur JamWerk, une app gratuite pour trouver des musiciens, des groupes, des jams et des concerts pay\u00e9s autour de Gen\u00e8ve. Rejoins-moi\u00a0:', share: 'Partager', link_copied: 'Lien copi\u00e9.',
+    away_l: 'Je ne suis pas dispo pour le moment', away_until: 'jusqu\u2019au', away_hint: '\u2014 pas d\u2019alertes, pas de pings\u00a0; l\u2019annuaire vous affiche comme absent.', away_until_x: 'absent jusqu\u2019au {0}',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -963,6 +968,7 @@ const I18N = {
     ask_missing: 'Fehlt etwas? Unklar?', ask_missing_field: 'Fehlt ein Feld f\u00fcr deinen Fall?', ask_btn: 'Sag es uns \u2192',
     terms_accept: 'Ich akzeptiere die {terms} und die {privacy}.', terms_link: 'Nutzungsbedingungen', privacy_link: 'Datenschutzhinweise', terms_needed: 'Bitte akzeptiere die Nutzungsbedingungen, um dein Konto zu erstellen.',
     invite_l: 'Musiker:in einladen', invite_t: 'Kennst du Musiker:innen?', invite_p: 'Je mehr Leute hier sind, desto besser funktioniert es. Schick ihnen den Link \u2014 ein Tipp.', invite_btn: 'Per WhatsApp einladen', invite_text: 'Hey! Ich bin auf JamWerk, einer Gratis-App f\u00fcr Musiker:innen, Bands, Jams und bezahlte Gigs rund um Genf. Komm dazu:', share: 'Teilen', link_copied: 'Link kopiert.',
+    away_l: 'Ich bin gerade nicht verf\u00fcgbar', away_until: 'bis', away_hint: '\u2014 keine Alerts, keine Pings; im Verzeichnis stehst du als abwesend.', away_until_x: 'abwesend bis {0}',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -1024,6 +1030,7 @@ const I18N = {
     ask_missing: 'Manca qualcosa? Non \u00e8 chiaro?', ask_missing_field: 'Manca un campo per il tuo caso?', ask_btn: 'Diccelo \u2192',
     terms_accept: 'Accetto le {terms} e l\u2019{privacy}.', terms_link: 'Condizioni d\u2019uso', privacy_link: 'informativa sulla privacy', terms_needed: 'Accetta le condizioni d\u2019uso per creare il tuo account.',
     invite_l: 'Invita un musicista', invite_t: 'Conosci musicisti?', invite_p: 'Pi\u00f9 siamo, meglio funziona. Mandagli il link \u2014 un tocco.', invite_btn: 'Invita via WhatsApp', invite_text: 'Ciao! Sono su JamWerk, un\u2019app gratuita per trovare musicisti, gruppi, jam e concerti pagati intorno a Ginevra. Unisciti:', share: 'Condividi', link_copied: 'Link copiato.',
+    away_l: 'Non sono disponibile per ora', away_until: 'fino al', away_hint: '\u2014 niente avvisi, niente ping; l\u2019elenco ti mostra come assente.', away_until_x: 'assente fino al {0}',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -1196,6 +1203,7 @@ const flash = (text, kind) => {
 };
 const label = (i) => (I18N[lang].inst && I18N[lang].inst[i]) || i.replace(/_/g, ' ');
 const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+const fmtDate = (iso) => { if (!iso) return ''; const d = new Date(iso.slice(0, 10) + 'T12:00:00'); if (isNaN(d)) return iso; return d.toLocaleDateString(lang, { weekday: 'short', day: 'numeric', month: 'short', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' }); };
 const genreLabel = (g) => (GENRE_LABELS[g] && GENRE_LABELS[g][lang]) || String(g).replace(/_/g, ' ');
 const checkedValues = (id) => [...document.querySelectorAll('#' + id + ' input:checked')].map((x) => x.value);
 const setChecked = (id, values) => document.querySelectorAll('#' + id + ' input').forEach((x) => { x.checked = (values || []).includes(x.value); });
@@ -1255,6 +1263,7 @@ $('sHow').onclick = () => $('howBtn').onclick();
 $('sFeedback').onclick = () => openFeedback();
 $('sInstall').onclick = () => openInstallDialog();
 $('langSel2').onchange = () => { $('langSel').value = $('langSel2').value; $('langSel').onchange(); };
+$('mAway').onchange = () => { $('mAwayRow').hidden = !$('mAway').checked; if ($('mAway').checked && !$('mAwayUntil').value) { const d = new Date(); d.setDate(d.getDate() + 14); $('mAwayUntil').value = d.toISOString().slice(0, 10); } };
 function updateLfDep() {
   const ins = [...document.querySelectorAll('#mInstruments input:checked')].map((x) => label(x.value));
   const city = $('mCity').value.trim();
@@ -1273,6 +1282,7 @@ function renderHero(p) {
     if ((p.instruments || []).length) bits.push(p.instruments.map(label).join(' \u00b7 '));
     if (p.home_city) bits.push('\u{1F4CD} ' + p.home_city);
     if (p.level) bits.push(T({ hobby: 'lvl_hobby', semi_pro: 'lvl_semi', pro: 'lvl_pro' }[p.level] || 'lvl_hobby'));
+    if (p.unavailable_until && p.unavailable_until >= new Date().toISOString().slice(0, 10)) bits.push('\u23F8 ' + T('away_until_x', fmtDate(p.unavailable_until)));
     $('heroMeta').textContent = bits.join('  \u00b7  ');
     $('heroStats').textContent = T('gigs_through', p.gigs_played || 0).trim();
   } else {
@@ -1368,7 +1378,7 @@ function gigCard(g, actions) {
   const head = el('div', 'gig-head');
   head.append(el('strong', '', label(g.instrument)));
   head.append(el('span', 'tag status-' + g.status, TS(g.status)));
-  head.append(el('span', 'muted', (g.gig_date || T('flexible')) + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
+  head.append(el('span', 'muted', (g.gig_date ? fmtDate(g.gig_date) : T('flexible')) + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
   head.append(el('span', 'fee', g.kind === 'practice' ? T('jam') : (g.currency || 'CHF') + ' ' + g.fee_chf));
   if (g.kind === 'gig' && g.status === 'open') {
     if (g.need === 'standby') head.append(el('span', 'tag standby', T('tag_standby')));
@@ -1403,6 +1413,7 @@ function musicianCard(m) {
   const bits = [];
   if (m.home_city) bits.push('\u{1F4CD} ' + m.home_city + (m.distance_km != null ? ' (' + m.distance_km + ' km)' : ''));
   if (m.level) bits.push(T({ hobby: 'lvl_hobby', semi_pro: 'lvl_semi', pro: 'lvl_pro' }[m.level] || 'lvl_hobby'));
+  if (m.unavailable_until) bits.push('\u23F8 ' + T('away_until_x', fmtDate(m.unavailable_until)));
   if (m.review_count > 0) bits.push('\u2605 ' + m.avg_rating + ' (' + m.review_count + ')');
   if (m.gigs_played) bits.push(T('gigs_through', m.gigs_played).trim());
   if (bits.length) who.append(el('div', 'm-meta', bits.join('  \u00b7  ')));
@@ -1926,8 +1937,8 @@ async function refreshActivity() {
   }
   setBadge(n);
   const items = [];
-  for (const g of r.json.posted || []) items.push({ at: g.created_at || '', text: (g.kind === 'practice' ? T('jam') : T('gig_short')) + ' \u00b7 ' + label(g.instrument) + ' \u00b7 ' + g.venue_city + (g.gig_date ? ' \u00b7 ' + g.gig_date : ''), tag: g.status === 'open' && g.application_count ? T('applications_n', g.application_count).trim() : TS(g.status) });
-  for (const g of r.json.applications || []) items.push({ at: g.created_at || '', text: T('application_short') + ' \u00b7 ' + label(g.instrument) + ' \u00b7 ' + g.venue_city + (g.gig_date ? ' \u00b7 ' + g.gig_date : ''), tag: TS(g.application_status) });
+  for (const g of r.json.posted || []) items.push({ at: g.created_at || '', text: (g.kind === 'practice' ? T('jam') : T('gig_short')) + ' \u00b7 ' + label(g.instrument) + ' \u00b7 ' + g.venue_city + (g.gig_date ? ' \u00b7 ' + fmtDate(g.gig_date) : ''), tag: g.status === 'open' && g.application_count ? T('applications_n', g.application_count).trim() : TS(g.status) });
+  for (const g of r.json.applications || []) items.push({ at: g.created_at || '', text: T('application_short') + ' \u00b7 ' + label(g.instrument) + ' \u00b7 ' + g.venue_city + (g.gig_date ? ' \u00b7 ' + fmtDate(g.gig_date) : ''), tag: TS(g.application_status) });
   items.sort((a, b) => b.at.localeCompare(a.at));
   const rec = $('activityRecent'); rec.replaceChildren();
   for (const it of items.slice(0, 3)) {
@@ -2108,6 +2119,8 @@ async function loadProfile() {
   $('mLevel').value = r.json.level || '';
   document.querySelectorAll('#mLooking input').forEach((x) => { x.checked = (r.json.looking_for || []).includes(x.value); });
   $('mDm').checked = r.json.accepts_dm !== 0;
+  const away = r.json.unavailable_until && r.json.unavailable_until >= new Date().toISOString().slice(0, 10);
+  $('mAway').checked = !!away; $('mAwayUntil').value = away ? r.json.unavailable_until : ''; $('mAwayRow').hidden = !away;
   updateLfDep();
   lastProfile = r.json; renderOnboard();
   $('mCharts').checked = !!r.json.reads_charts;
@@ -2132,6 +2145,7 @@ $('profileForm').onsubmit = async (e) => {
     level: $('mLevel').value || undefined,
     looking_for: [...document.querySelectorAll('#mLooking input:checked')].map((x) => x.value),
     accepts_dm: $('mDm').checked,
+    unavailable_until: $('mAway').checked && $('mAwayUntil').value ? $('mAwayUntil').value : null,
     reads_charts: $('mCharts').checked,
     sings_backing: $('mBacking').checked,
     own_transport: $('mTransport').checked,

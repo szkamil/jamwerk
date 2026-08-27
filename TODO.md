@@ -38,9 +38,9 @@
 - [ ] Google sign-in (blocked on OAuth client above).
 
 ### 2. Keeping them
-- [ ] Availability: "Pas dispo jusqu'au …" on the profile; fan-out and last-minute pings skip unavailable people; card shows it.
+- [x] Availability: "Pas dispo jusqu'au …" on the profile; fan-out and last-minute pings skip unavailable people; card shows it.
 - [ ] Weekly digest e-mail (new gigs/jams/bands near you) for people without push.
-- [ ] Standby fallback re-fan-out: after 2 h with no confirmation, alert everyone nearby as URGENT (today only the tag changes).
+- [x] Standby fallback re-fan-out: after 2 h with no confirmation, alert everyone nearby as URGENT (today only the tag changes).
 - [ ] Band cover photo (+ later gallery, member roles/bios).
 - [ ] Reviews for bands (organiser → band).
 
@@ -48,10 +48,10 @@
 - [ ] Report a user / listing → feedback inbox; minimal admin (ban user, hide listing) gated by ADMIN_EMAIL.
 - [ ] Self-serve account deletion + data export (privacy notice promises deletion).
 - [ ] Daily D1 backup to R2; admin /stats (users, gigs, messages this week).
-- [ ] CI: verify push-to-main auto-deploys (suspected: my manual `gh workflow run` raced and cancelled the auto run via concurrency).
+- [x] CI: verified 2026-08-27 — push to main auto-deploys (manual `gh workflow run` used to race and cancel it). Don't trigger manually.
 
 ### 4. Polish
-- [ ] Human dates everywhere ("sam. 12 sept.") instead of 2026-09-12.
+- [x] Human dates everywhere ("sam. 12 sept.") instead of 2026-09-12.
 - [ ] "Autour de moi" (geolocation) instead of typing the city.
 - [ ] "Vu" read receipts in chat.
 - [ ] Accessibility pass (contrast, focus rings, labels) + Lighthouse on public pages.

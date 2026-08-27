@@ -210,7 +210,7 @@ ${NOTES_LAYER}
   ${myBands.length ? `<h2>${t(lang, { en: 'Groups', fr: 'Groupes', de: 'Gruppen', it: 'Gruppi' })}</h2>
   <div class="chips">${myBands.map((b) => `<a class="chip hot" href="/b/${b.id}-${esc(b.slug)}" style="text-decoration: none;">${esc(b.name)}${b.kind === 'jam' ? ' · ' + t(lang, { en: 'jam group', fr: 'groupe de jam', de: 'Jam-Gruppe', it: 'gruppo jam' }) : ''}</a>`).join('')}</div>` : ''}
   ${(listings as any[]).length ? `<h2>${t(lang, { en: 'Open listings', fr: 'Annonces en cours', de: 'Offene Inserate', it: 'Annunci aperti' })}</h2>
-  <div class="chips">${(listings as any[]).map((g) => `<a class="chip" href="/?gig=${g.id}" style="text-decoration: none;">${g.kind === 'practice' ? t(lang, { en: 'jam', fr: 'jam', de: 'Jam', it: 'jam' }) : t(lang, { en: 'gig', fr: 'concert', de: 'Gig', it: 'concerto' })} · ${esc(label(g.instrument))} · ${esc(g.venue_city)}${g.gig_date ? ' · ' + esc(g.gig_date) : ''}</a>`).join('')}</div>` : ''}
+  <div class="chips">${(listings as any[]).map((g) => `<a class="chip" href="/?gig=${g.id}" style="text-decoration: none;">${g.kind === 'practice' ? t(lang, { en: 'jam', fr: 'jam', de: 'Jam', it: 'jam' }) : t(lang, { en: 'gig', fr: 'concert', de: 'Gig', it: 'concerto' })} · ${esc(label(g.instrument))} · ${esc(g.venue_city)}${g.gig_date ? ' · ' + esc(new Date(g.gig_date + 'T12:00:00').toLocaleDateString(lang, { weekday: 'short', day: 'numeric', month: 'short' })) : ''}</a>`).join('')}</div>` : ''}
   <h2>${t(lang, { en: 'Demos', fr: 'Démos', de: 'Demos', it: 'Demo' })}</h2>
   ${demoHtml}
   <h2>${t(lang, { en: 'Reviews', fr: 'Avis', de: 'Bewertungen', it: 'Recensioni' })}</h2>

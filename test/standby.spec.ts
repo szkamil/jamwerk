@@ -31,6 +31,32 @@ beforeAll(async () => {
 });
 const gigBody = { kind: 'gig', instrument: 'bass', genres: ['soul'], gig_date: soon, venue_city: 'Genève', fee_chf: 300, description: 'Wedding, three sets.' };
 
+describe('Availability & standby fallback', () => {
+	it('unavailable musicians are hidden from fan-out targets and flagged in the directory', async () => {
+		const future = new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10);
+		const save = await call('/musicians/me', { method: 'POST', as: a, body: { instruments: ['bass'], genres: ['soul'], demo_links: [], unavailable_until: future } });
+		expect(save.status).toBe(200);
+		const dir = await call('/musicians');
+		expect(dir.json.musicians.find((m: any) => m.handle === 'ann-a').unavailable_until).toBe(future);
+		const { fanOutGig } = await import('../src/gigs');
+		const n = await fanOutGig(env as any, { id: 1, kind: 'gig', instrument: 'bass', venue_city: 'Genève', venue_lat: null, venue_lng: null, gig_date: future, fee_chf: 300, currency: 'CHF', description: 'x', need: 'dep', poster_email: leader }, false);
+		expect(n).toBe(0);
+	});
+	it('cron turns an unanswered standby into an urgent replacement', async () => {
+		const g = await call('/gigs', { method: 'POST', as: leader, body: { ...gigBody, need: 'standby' } });
+		await call(`/gigs/${g.json.id}/apply`, { method: 'POST', as: b, body: { note: '' } });
+		const apps = (await call(`/gigs/${g.json.id}`, { as: leader })).json.applications;
+		await call(`/gigs/${g.json.id}/applications/${apps[0].id}/shortlist`, { method: 'POST', as: leader });
+		await call(`/gigs/${g.json.id}/activate-standby`, { method: 'POST', as: leader });
+		await env.DB.prepare("UPDATE gigs SET standby_activated_at = datetime('now', '-3 hours') WHERE id = ?").bind(g.json.id).run();
+		const ctx = createExecutionContext();
+		await (worker as any).scheduled({ scheduledTime: Date.now(), cron: '17 3 * * *' }, env, ctx);
+		await waitOnExecutionContext(ctx);
+		const row = await env.DB.prepare('SELECT need, status FROM gigs WHERE id = ?').bind(g.json.id).first<any>();
+		expect(row.need).toBe('dep'); expect(row.status).toBe('open');
+	});
+});
+
 describe('Standby gigs', () => {
 	it('stores need, exposes my_status, and runs shortlist → activate → first confirm wins', async () => {
 		const g = await call('/gigs', { method: 'POST', as: leader, body: { ...gigBody, need: 'standby' } });
