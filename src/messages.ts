@@ -31,7 +31,7 @@ interface Thread {
   context: string;        // human label for the conversation
 }
 
-async function loadThread(c: Ctx, type: string, appId: string): Promise<Thread | null> {
+export async function loadThread(c: Ctx, type: string, appId: string): Promise<Thread | null> {
   if (!/^\d+$/.test(appId)) return null;
   if (type === 'gig') {
     const row = await c.env.DB.prepare(

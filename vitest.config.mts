@@ -30,6 +30,7 @@ export default defineWorkersConfig({
 						TEST_SCHEMA_STATEMENTS: schemaStatements,
 						// Never hit Nominatim from tests; specs seed geocode_cache instead.
 						GEOCODE_OFF: '1',
+						ADMIN_EMAIL: 'admin@example.com',
 						// Prod holds these as Worker secrets (not in wrangler.toml); tests get
 						// throwaway values. The VAPID pair below is test-only.
 						JWT_SECRET: 'test-only-jwt-secret',
