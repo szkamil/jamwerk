@@ -188,9 +188,11 @@ messages.get('/:type/:appId', async (c) => {
 
   const other = thread.applicant === user.email ? thread.counterparty : thread.applicant;
   const blk = await c.env.DB.prepare('SELECT 1 AS x FROM user_blocks WHERE blocker_email = ? AND blocked_email = ?').bind(user.email, other).first();
+  const seen = await c.env.DB.prepare('SELECT MAX(id) AS id FROM messages WHERE thread_type = ? AND thread_id = ? AND sender_email = ? AND is_read = 1').bind(c.req.param('type'), c.req.param('appId'), user.email).first<{ id: number | null }>();
   return c.json({
     context: thread.context,
     blocked_by_me: !!blk,
+    seen_up_to: seen?.id ?? 0,
     messages: (results as any[]).map((m) => ({
       id: m.id,
       mine: m.sender_email === user.email,

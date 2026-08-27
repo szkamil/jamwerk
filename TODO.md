@@ -39,7 +39,7 @@
 
 ### 2. Keeping them
 - [x] Availability: "Pas dispo jusqu'au …" on the profile; fan-out and last-minute pings skip unavailable people; card shows it.
-- [ ] Weekly digest e-mail (new gigs/jams/bands near you) for people without push.
+- [x] Weekly digest e-mail (new gigs/jams/bands near you) for people without push.
 - [x] Standby fallback re-fan-out: after 2 h with no confirmation, alert everyone nearby as URGENT (today only the tag changes).
 - [ ] Band cover photo (+ later gallery, member roles/bios).
 - [ ] Reviews for bands (organiser → band).
@@ -52,8 +52,8 @@
 
 ### 4. Polish
 - [x] Human dates everywhere ("sam. 12 sept.") instead of 2026-09-12.
-- [ ] "Autour de moi" (geolocation) instead of typing the city.
-- [ ] "Vu" read receipts in chat.
+- [x] "Autour de moi" (geolocation) instead of typing the city.
+- [x] "Vu" read receipts in chat.
 - [ ] Accessibility pass (contrast, focus rings, labels) + Lighthouse on public pages.
 
 ## Shipped 2026-08-27

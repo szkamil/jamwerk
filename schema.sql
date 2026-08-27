@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
   confirmed INTEGER DEFAULT 0,
   terms_accepted_at TEXT,
   banned INTEGER NOT NULL DEFAULT 0,
+  digest INTEGER NOT NULL DEFAULT 1,
+  digest_sent_at TEXT,
   photo_key TEXT,
   confirm_token TEXT,
   reset_token TEXT,
