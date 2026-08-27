@@ -180,8 +180,8 @@ auth.post('/logout', (c) => {
 auth.get('/me', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Not logged in' }, 401);
-  const row = await c.env.DB.prepare('SELECT confirmed, photo_key FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null }>();
-  return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key) });
+  const row = await c.env.DB.prepare('SELECT confirmed, photo_key, display_name FROM users WHERE email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null; display_name: string | null }>();
+  return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key), name: row?.display_name || '' });
 });
 
 // Profile photo: the client resizes to a 512px JPEG before upload (see ui.ts),

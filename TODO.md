@@ -23,6 +23,12 @@
 
 ## Shipped 2026-08-27
 
+- Profile tab as an account screen: hero (photo, name, instruments · city, stats,
+  Modifier le profil / page publique), Mon activité with 3 recent rows + Voir tout,
+  settings list (langue, alertes, aide, retours, écran d'accueil), red Déconnexion
+  at the bottom; edit form on its own screen. Help mode for "?" (board hidden,
+  ask-us cards top and bottom).
+
 - Predefined genres (24 slugs, labels EN/FR/DE/IT) as checkboxes in profile,
   band and listing forms; genre dropdown in Groupes filter; legacy free text
   mapped by `normGenres()`.
