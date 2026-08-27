@@ -30,6 +30,8 @@ reports.post('/', async (c) => {
   }
   const reason = typeof body?.reason === 'string' ? body.reason.trim().slice(0, 2000) : '';
   if (!['user', 'gig', 'band'].includes(type) || !id) return c.json({ error: 'type (user|gig|band) and id are required' }, 400);
+  if (type !== 'user' && !/^\d{1,12}$/.test(id)) return c.json({ error: 'id must be numeric' }, 400);
+  if (type === 'user' && !/^[^\s<>"'`]+@[^\s<>"'`]+$/.test(id)) return c.json({ error: 'Report a user from a conversation' }, 400);
   if (reason.length < 3) return c.json({ error: 'Tell us briefly what is wrong' }, 400);
   await c.env.DB.prepare('INSERT INTO reports (reporter_email, target_type, target_id, reason) VALUES (?, ?, ?, ?)').bind(user.email, type, id, reason).run();
   const to = c.env.FEEDBACK_EMAIL;
@@ -69,9 +71,9 @@ admin.get('/', async (c) => {
   const { results: reps } = await c.env.DB.prepare("SELECT * FROM reports WHERE status = 'open' ORDER BY id DESC LIMIT 100").all();
   const { results: recentUsers } = await c.env.DB.prepare('SELECT email, display_name, created_at, confirmed, banned FROM users ORDER BY created_at DESC LIMIT 30').all();
   const row = (r: any) => `<tr><td>${r.id}</td><td>${esc(r.target_type)} ${esc(r.target_id)}</td><td>${esc(r.reason)}</td><td>${esc(r.reporter_email)}</td><td>${esc(r.created_at)}</td>
-    <td>${r.target_type === 'user' ? `<button onclick="act('/admin/ban',{email:'${esc(r.target_id)}'})">Ban user</button>` : r.target_type === 'gig' ? `<button onclick="act('/admin/hide-gig',{id:${Number(r.target_id) || 0}})">Hide gig</button>` : `<button onclick="act('/admin/delete-band',{id:${Number(r.target_id) || 0}})">Delete band</button>`}
-    <button onclick="act('/admin/resolve',{id:${r.id}})">Resolve</button></td></tr>`;
-  const urow = (u: any) => `<tr><td>${esc(u.email)}</td><td>${esc(u.display_name || '')}</td><td>${esc(u.created_at)}</td><td>${u.confirmed ? '✓' : '–'}</td><td>${u.banned ? '<b>banned</b> <button onclick="act(\'/admin/unban\',{email:\'' + esc(u.email) + '\'})">Unban</button>' : `<button onclick="act('/admin/ban',{email:'${esc(u.email)}'})">Ban</button>`}</td></tr>`;
+    <td>${r.target_type === 'user' ? `<button data-act="/admin/ban" data-email="${esc(r.target_id)}">Ban user</button>` : r.target_type === 'gig' ? `<button data-act="/admin/hide-gig" data-id="${Number(r.target_id) || 0}">Hide gig</button>` : `<button data-act="/admin/delete-band" data-id="${Number(r.target_id) || 0}">Delete band</button>`}
+    <button data-act="/admin/resolve" data-id="${Number(r.id)}">Resolve</button></td></tr>`;
+  const urow = (u: any) => `<tr><td>${esc(u.email)}</td><td>${esc(u.display_name || '')}</td><td>${esc(u.created_at)}</td><td>${u.confirmed ? '✓' : '–'}</td><td>${u.banned ? `<b>banned</b> <button data-act="/admin/unban" data-email="${esc(u.email)}">Unban</button>` : `<button data-act="/admin/ban" data-email="${esc(u.email)}">Ban</button>`}</td></tr>`;
   return c.html(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JamWerk admin</title>
 <style>body{font:14px/1.5 system-ui,sans-serif;margin:20px;color:#1b1a16;background:#f4f2ec}h1,h2{font-weight:800}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e5e1d8;padding:6px 8px;text-align:left;vertical-align:top;font-size:13px}button{font:inherit;padding:4px 10px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}.k{display:inline-block;background:#fff;border:1px solid #e5e1d8;border-radius:10px;padding:8px 12px;margin:0 8px 8px 0}.k b{font-size:20px;display:block}</style>
 <h1>JamWerk admin</h1>
@@ -80,7 +82,18 @@ admin.get('/', async (c) => {
 <table><tr><th>#</th><th>Target</th><th>Reason</th><th>By</th><th>When</th><th></th></tr>${(reps as any[]).map(row).join('') || '<tr><td colspan="6">None</td></tr>'}</table>
 <h2>Recent users</h2>
 <table><tr><th>Email</th><th>Name</th><th>Joined</th><th>Conf.</th><th></th></tr>${(recentUsers as any[]).map(urow).join('')}</table>
-<script>async function act(path, body){ if(!confirm(path + ' ' + JSON.stringify(body) + ' ?')) return; const r = await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); alert(r.ok ? 'OK' : 'Failed: ' + r.status); if(r.ok) location.reload(); }</script>`);
+<script>
+// Data never goes through inline JS: buttons carry data-* attributes (HTML-escaped), read here.
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const path = b.dataset.act;
+  if (!/^\/admin\/[a-z-]+$/.test(path)) return;
+  const body = b.dataset.email !== undefined ? { email: b.dataset.email } : { id: Number(b.dataset.id) };
+  if (!confirm(path + ' ' + JSON.stringify(body) + ' ?')) return;
+  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  alert(r.ok ? 'OK' : 'Failed: ' + r.status); if (r.ok) location.reload();
+});
+</script>`);
 });
 
 admin.post('/ban', async (c) => {

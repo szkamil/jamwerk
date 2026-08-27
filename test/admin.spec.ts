@@ -40,6 +40,16 @@ describe('Reports & admin', () => {
 		expect(page).toContain('Fake listing');
 		expect((await call('/admin/hide-gig', { method: 'POST', as: adminE, body: { id: Number(gig.meta.last_row_id) } })).json.changed).toBe(1);
 	});
+	it('admin page never puts report data into inline JS, and refuses junk targets', async () => {
+		expect((await call('/report', { method: 'POST', as: u1, body: { type: 'user', id: "x'); alert(1); ('", reason: 'xss attempt' } })).status).toBe(400);
+		expect((await call('/report', { method: 'POST', as: u1, body: { type: 'gig', id: "1'); alert(1); ('", reason: 'xss attempt' } })).status).toBe(400);
+		await env.DB.prepare("INSERT INTO reports (reporter_email, target_type, target_id, reason) VALUES (?, 'user', ?, ?)").bind(u1, "evil'); alert(1); ('@example.com", '<img src=x onerror=alert(1)>').run();
+		const page = await (await raw('/admin', { as: adminE })).text();
+		expect(page).not.toContain("alert(1); ('@example.com'");
+		expect(page).not.toContain('onclick=');
+		expect(page).not.toContain('<img src=x');
+		expect(page).toContain('data-email="evil');
+	});
 	it('report a user via a DM thread resolves the counterpart', async () => {
 		const dm = await call('/messages/dm', { method: 'POST', as: u1, body: { handle: 'user-two', message: 'hello there friend' } });
 		expect(dm.status).toBe(201);
