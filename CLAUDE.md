@@ -31,7 +31,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 - Nav: bottom bar is Musiciens · Groupes · Jams · Concerts · Messages (+ avatar); Musiciens is the default tab; the Publier tab button exists but is hidden — reached via the intro-card buttons on Concerts/Jams and `[data-tab=post].click()`. `#boardHost` (filters + board) is one DOM node moved between the Musiciens, Concerts and Jams tabs by `mountBoard(tab)`; `#kindSeg` buttons carry `data-group`.
 - Cross-wiring: `bandsForUser()` (gigs.ts) → `bands` on `/musicians` rows and a *Groupes* section on `/m/:handle`; band pages link members to `/m/:handle`; `/gigs` rows carry `poster_name`/`poster_handle` (shown as "par X" on cards); `/m/:handle` lists open listings linking to `/?gig=ID` (board opens scrolled to `#gig-ID`). "Mes concerts" lives under Profile as *Mon activité* (`refreshActivity()` badge on the avatar)
 - Replacement vs standby gigs (migration 018 `gigs.need`, `standby_activated_at`): `POST /gigs/:id/applications/:appId/shortlist` (keep on standby), `POST /gigs/:id/activate-standby` (owner; pings all shortlisted), `POST /gigs/:id/confirm` (shortlisted musician; first wins via `bookApplication()`); `/gigs` rows carry `need`, `standby_activated_at`, `my_status` for the viewer; cron reopens activated standby gigs as `dep` after 2 h. UI: `gigActions()` = one plain-language button/state chip per card; onboarding checklist `renderOnboard()`; `askLine()` feedback prompt at the end of every list
-- `src/about-page.ts` — `/about` (story, what it is, contact, legal) ×4 langs; `?lang=` override; legal operator line is a placeholder to fill
+- `src/about-page.ts` — `/about` (story, what it is, contact, `#terms` 7-clause terms of use, `#privacy`) ×4 langs; `?lang=` override. Sign-up requires `accept_terms: true` (400 `terms_required` otherwise) and stores `users.terms_accepted_at` (migration 019)
 - Deep links on `/`: `?tab=jams|band|help`, `?band=ID`, `?dm=handle`, `?gig=ID`, `?feedback=1`
 - `src/genres.ts` — fixed genre list (slugs) + labels ×4 + `normGenres()` (maps legacy free text / any-language labels to slugs; applied on write and on read). Client renders checkbox groups from `GENRES`/`GENRE_LABELS`; never store free-text genres
 - `src/media.ts` — demo/promo URL → embed descriptor (YouTube/Vimeo/Spotify/SoundCloud), used by the public profile page and the bands API
@@ -39,7 +39,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 - `schema.sql` — full-schema mirror; `migrations/NNN_*.sql` — incremental
   patches for the already-provisioned prod DB. Keep BOTH in sync for any
   schema change. Prod D1: `jamwerk-db`, id `9b956c5a-b8e2-41e4-930c-8a647501b6cb`.
-  Migrations 001–018 are applied to prod.
+  Migrations 001–019 are applied to prod.
 - `test/*.spec.ts` — @cloudflare/vitest-pool-workers. 44 tests. Run:
   `CI=true npx vitest run`. Isolated per-test D1 storage: multi-step
   lifecycle flows must live in a SINGLE `it` block. Schema is replayed from

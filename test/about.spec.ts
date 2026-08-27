@@ -16,11 +16,14 @@ describe('About page', () => {
 		expect(fr.status).toBe(200);
 		expect(fr.html).toContain('À propos de JamWerk');
 		expect(fr.html).toContain('100 % gratuit pour les musiciens');
-		expect(fr.html).toContain('Mentions légales');
+		expect(fr.html).toContain('id="terms"');
+		expect(fr.html).toContain('Limitation de responsabilité');
+		expect(fr.html).not.toContain('Éditeur');
+		expect(fr.html).not.toContain('Hébergement');
 		expect(fr.html).toContain('/?feedback=1');
-		expect((await page('/about?lang=de')).html).toContain('Impressum');
-		expect((await page('/about?lang=it')).html).toContain('Note legali');
-		expect((await page('/about?lang=en')).html).toContain('Legal notice');
+		expect((await page('/about?lang=de')).html).toContain('Haftungsbeschränkung');
+		expect((await page('/about?lang=it')).html).toContain('Limitazione di responsabilità');
+		expect((await page('/about?lang=en')).html).toContain('Limitation of liability');
 	});
 	it('is linked from the app footer and the public pages', async () => {
 		expect((await page('/')).html).toContain('href="/about"');

@@ -63,6 +63,7 @@ auth.post('/register', async (c) => {
   const displayName = typeof body?.display_name === 'string' ? body.display_name.trim().slice(0, 100) : '';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return c.json({ error: 'Valid email required' }, 400);
   if (password.length < 8) return c.json({ error: 'Password must be at least 8 characters' }, 400);
+  if (body?.accept_terms !== true) return c.json({ error: 'You must accept the terms of use to create an account', code: 'terms_required' }, 400);
   if (!(await turnstileOk(c.env, body?.turnstile_token, clientIp(c)))) {
     return c.json({ error: 'Verification failed — please try again' }, 403);
   }
@@ -74,7 +75,7 @@ auth.post('/register', async (c) => {
     : pickLang(c.req.header('Accept-Language'));
   try {
     await c.env.DB.prepare(
-      'INSERT INTO users (email, password_hash, display_name, confirm_token, lang) VALUES (?, ?, ?, ?, ?)'
+      "INSERT INTO users (email, password_hash, display_name, confirm_token, lang, terms_accepted_at) VALUES (?, ?, ?, ?, ?, datetime('now'))"
     ).bind(email, hash, displayName, confirmToken, lang).run();
   } catch (err: any) {
     if (String(err?.message || err).includes('UNIQUE')) {

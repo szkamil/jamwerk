@@ -29,7 +29,7 @@ async function get(path: string) {
 
 describe('Auth flows', () => {
 	it('registration stores a confirm token; the link flips confirmed', async () => {
-		const r = await post('/auth/register', { email: 'confirm-me@example.com', password: 'longenough1' });
+		const r = await post('/auth/register', { accept_terms: true, email: 'confirm-me@example.com', password: 'longenough1' });
 		expect(r.status).toBe(201);
 		const row = await env.DB.prepare('SELECT confirmed, confirm_token FROM users WHERE email = ?')
 			.bind('confirm-me@example.com').first<{ confirmed: number; confirm_token: string }>();
@@ -48,7 +48,7 @@ describe('Auth flows', () => {
 	});
 
 	it('forgot/reset round-trip changes the password', async () => {
-		await post('/auth/register', { email: 'resetter@example.com', password: 'oldpassword1' });
+		await post('/auth/register', { accept_terms: true, email: 'resetter@example.com', password: 'oldpassword1' });
 		const r = await post('/auth/forgot', { email: 'resetter@example.com' });
 		expect(r.status).toBe(200);
 		const row = await env.DB.prepare('SELECT reset_token FROM users WHERE email = ?')
@@ -74,13 +74,13 @@ describe('Auth flows', () => {
 	it('rate limits registrations per IP', async () => {
 		const ip = '198.51.100.42';
 		for (let i = 0; i < 5; i++) {
-			const r = await post('/auth/register', { email: `bulk${i}@example.com`, password: 'longenough1' }, ip);
+			const r = await post('/auth/register', { accept_terms: true, email: `bulk${i}@example.com`, password: 'longenough1' }, ip);
 			expect(r.status).toBe(201);
 		}
-		const sixth = await post('/auth/register', { email: 'bulk5@example.com', password: 'longenough1' }, ip);
+		const sixth = await post('/auth/register', { accept_terms: true, email: 'bulk5@example.com', password: 'longenough1' }, ip);
 		expect(sixth.status).toBe(429);
 		// a different IP is unaffected
-		const other = await post('/auth/register', { email: 'other@example.com', password: 'longenough1' }, '198.51.100.99');
+		const other = await post('/auth/register', { accept_terms: true, email: 'other@example.com', password: 'longenough1' }, '198.51.100.99');
 		expect(other.status).toBe(201);
 	});
 });

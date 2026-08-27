@@ -28,7 +28,7 @@ describe('i18n', () => {
 		const reg = await req('/auth/register', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', 'Accept-Language': 'fr-CH,fr;q=0.9' },
-			body: JSON.stringify({ email: 'romand@example.com', password: 'longenough1' }),
+			body: JSON.stringify({ accept_terms: true, email: 'romand@example.com', password: 'longenough1' }),
 		});
 		expect(reg.status).toBe(201);
 		const row = await env.DB.prepare("SELECT lang FROM users WHERE email = 'romand@example.com'").first<{ lang: string }>();
@@ -56,7 +56,7 @@ describe('i18n', () => {
 		const reg = await req('/auth/register', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email: 'seiten@example.com', password: 'longenough1', display_name: 'Anna Keller' }),
+			body: JSON.stringify({ accept_terms: true, email: 'seiten@example.com', password: 'longenough1', display_name: 'Anna Keller' }),
 		});
 		const cookie = (reg.headers.get('set-cookie') || '').split(';')[0];
 		const prof = await req('/musicians/me', {

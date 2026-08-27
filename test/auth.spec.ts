@@ -19,7 +19,7 @@ async function post(path: string, body: unknown, cookie?: string) {
 
 describe('Auth', () => {
 	it('register -> me -> login round-trip; bad creds rejected', async () => {
-		const reg = await post('/auth/register', { email: 'sam@example.com', password: 'hunter2hunter2' });
+		const reg = await post('/auth/register', { accept_terms: true, email: 'sam@example.com', password: 'hunter2hunter2' });
 		expect(reg.status).toBe(201);
 		const cookie = (reg.headers.get('set-cookie') || '').split(';')[0];
 		expect(cookie).toMatch(/^token=/);
@@ -31,7 +31,7 @@ describe('Auth', () => {
 		expect(me.status).toBe(200);
 		expect(((await me.json()) as any).email).toBe('sam@example.com');
 
-		const dup = await post('/auth/register', { email: 'sam@example.com', password: 'hunter2hunter2' });
+		const dup = await post('/auth/register', { accept_terms: true, email: 'sam@example.com', password: 'hunter2hunter2' });
 		expect(dup.status).toBe(409);
 		const bad = await post('/auth/login', { email: 'sam@example.com', password: 'wrong-password' });
 		expect(bad.status).toBe(401);
@@ -40,8 +40,8 @@ describe('Auth', () => {
 	});
 
 	it('rejects weak passwords and bad emails', async () => {
-		expect((await post('/auth/register', { email: 'not-an-email', password: 'hunter2hunter2' })).status).toBe(400);
-		expect((await post('/auth/register', { email: 'ok@example.com', password: 'short' })).status).toBe(400);
+		expect((await post('/auth/register', { accept_terms: true, email: 'not-an-email', password: 'hunter2hunter2' })).status).toBe(400);
+		expect((await post('/auth/register', { accept_terms: true, email: 'ok@example.com', password: 'short' })).status).toBe(400);
 	});
 
 	it('serves the UI page at /', async () => {
@@ -56,5 +56,20 @@ describe('Auth', () => {
 		// logged-out landing pitch is part of the page
 		expect(html).toContain('Just here to jam?');
 		expect(html).toContain('Create your free profile');
+	});
+});
+
+describe('Terms acceptance', () => {
+	it('refuses sign-up without accepting the terms and records when they were accepted', async () => {
+		const ctx = createExecutionContext();
+		const mk = (body: any) => new IncomingRequest('http://localhost/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+		const no = await worker.fetch(mk({ email: 'noterms@example.com', password: 'hunter2hunter2' }), env, ctx);
+		expect(no.status).toBe(400);
+		expect(((await no.json()) as any).code).toBe('terms_required');
+		const yes = await worker.fetch(mk({ email: 'yesterms@example.com', password: 'hunter2hunter2', accept_terms: true }), env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(yes.status).toBe(201);
+		const row = await env.DB.prepare('SELECT terms_accepted_at FROM users WHERE email = ?').bind('yesterms@example.com').first<any>();
+		expect(row.terms_accepted_at).toBeTruthy();
 	});
 });
