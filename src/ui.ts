@@ -482,7 +482,11 @@ ${NOTES_LAYER}
       <button type="button" class="ghost small" id="resendConfirmBtn" data-i18n="resend_confirm">Resend the email</button>
     </div>
     <div class="card"><form id="postForm">
-      <div class="row"><label data-i18n="listing_type">Listing type</label>
+      <div id="postHead" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+        <div class="display" id="postTitle" style="font-size: 20px; font-weight: 800; flex: 1;"></div>
+        <button type="button" class="ghost small" id="postSwitch"></button>
+      </div>
+      <div class="row" id="pKindRow" hidden><label data-i18n="listing_type">Listing type</label>
         <select id="pKind">
           <option value="gig" data-i18n="opt_gig">Paid gig — dated, fixed fee</option>
           <option value="practice" data-i18n="opt_practice">Practice partner — free, open-ended</option>
@@ -495,8 +499,8 @@ ${NOTES_LAYER}
         <div class="row" id="pFeeRow"><label data-i18n="fee">Fee (whole gig)</label>
           <div style="display: flex; gap: 8px;"><select id="pCurrency" style="width: auto; flex: 0 0 auto;" aria-label="Currency"><option value="CHF">CHF</option><option value="EUR">EUR</option></select><input type="number" id="pFee" min="1" required placeholder="300" style="flex: 1;"></div>
         </div>
-        <div class="row"><label data-i18n="call_time">Call time</label><input type="time" id="pCall"></div>
-        <div class="row"><label data-i18n="end_time">End time</label><input type="time" id="pEnd"></div>
+        <div class="row" id="pCallRow"><label data-i18n="call_time">Call time</label><input type="time" id="pCall"></div>
+        <div class="row" id="pEndRow"><label data-i18n="end_time">End time</label><input type="time" id="pEnd"></div>
       </div>
       <div class="row"><label data-i18n="genres_l">Genres</label><div class="checks" id="pGenres"></div></div>
       <div class="row"><label data-i18n="description">Description</label><textarea id="pDesc" required placeholder="Two 45-min sets, charts provided, backline on site…" data-i18n-ph="ph_desc"></textarea></div>
@@ -725,6 +729,7 @@ const I18N = {
     land_d_jams: 'Free and casual: people who want to jam, and groups that meet regularly. Ask to join.',
     land_d_msgs: 'All conversations in one place \u2014 direct messages, applications, booking requests. Alerts on your phone.',
     genres_l: 'Genres', all_genres: 'All genres',
+    post_gig_title: 'Post a paid gig', post_jam_title: 'Post a jam listing \u2014 free', switch_to_gig: 'Post a paid gig instead', switch_to_jam: 'Post a jam listing instead',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -777,6 +782,7 @@ const I18N = {
     land_d_jams: 'Gratuit et sans pression\u00a0: des musiciens qui veulent jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement. Demandez \u00e0 rejoindre.',
     land_d_msgs: 'Toutes vos conversations au m\u00eame endroit \u2014 messages directs, candidatures, demandes de r\u00e9servation. Alertes sur votre t\u00e9l\u00e9phone.',
     genres_l: 'Genres', all_genres: 'Tous les genres',
+    post_gig_title: 'Publier un concert pay\u00e9', post_jam_title: 'Publier une annonce de jam \u2014 gratuit', switch_to_gig: 'Plut\u00f4t un concert pay\u00e9', switch_to_jam: 'Plut\u00f4t une annonce de jam',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -829,6 +835,7 @@ const I18N = {
     land_d_jams: 'Kostenlos und locker: Leute, die jammen wollen, und Gruppen, die sich regelm\u00e4ssig treffen. Frag nach einem Platz.',
     land_d_msgs: 'Alle Gespr\u00e4che an einem Ort \u2014 Direktnachrichten, Bewerbungen, Buchungsanfragen. Alerts aufs Handy.',
     genres_l: 'Genres', all_genres: 'Alle Genres',
+    post_gig_title: 'Bezahlten Gig einstellen', post_jam_title: 'Jam-Inserat einstellen \u2014 gratis', switch_to_gig: 'Lieber einen bezahlten Gig', switch_to_jam: 'Lieber ein Jam-Inserat',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -881,6 +888,7 @@ const I18N = {
     land_d_jams: 'Gratis e senza pressioni: musicisti che vogliono jammare e gruppi che si trovano regolarmente. Chiedi di unirti.',
     land_d_msgs: 'Tutte le conversazioni in un posto \u2014 messaggi diretti, candidature, richieste di prenotazione. Avvisi sul telefono.',
     genres_l: 'Generi', all_genres: 'Tutti i generi',
+    post_gig_title: 'Pubblica un concerto pagato', post_jam_title: 'Pubblica un annuncio jam \u2014 gratis', switch_to_gig: 'Piuttosto un concerto pagato', switch_to_jam: 'Piuttosto un annuncio jam',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -940,6 +948,7 @@ const T = (k, a) => {
 };
 const TS = (s) => T('st_' + s) === 'st_' + s ? s : T('st_' + s);
 function applyI18n() {
+  if ($('postTitle') && typeof T === 'function' && $('pKind').onchange) $('pKind').onchange();
   if (typeof renderGenreChecks === 'function' && $('pGenres')) {
     const keep = { pGenres: checkedValues('pGenres'), bGenres: checkedValues('bGenres'), mGenres: checkedValues('mGenres') };
     for (const id in keep) { renderGenreChecks(id); setChecked(id, keep[id]); }
@@ -1388,11 +1397,17 @@ $('pKind').onchange = () => {
   if (typeof refreshConfirmBanner === 'function') refreshConfirmBanner();
   const practice = $('pKind').value === 'practice';
   $('pFeeRow').hidden = practice;
+  $('pCallRow').hidden = practice;
+  $('pEndRow').hidden = practice;
   $('pLevelRow').hidden = !practice;
+  $('postTitle').textContent = T(practice ? 'post_jam_title' : 'post_gig_title');
+  $('postSwitch').textContent = T(practice ? 'switch_to_gig' : 'switch_to_jam');
   $('pFee').required = !practice;
   $('pDate').required = !practice;
   $('pDateRow').querySelector('label').textContent = practice ? T('date_opt') : T('date');
 };
+
+$('postSwitch').onclick = () => { $('pKind').value = $('pKind').value === 'practice' ? 'gig' : 'practice'; $('pKind').onchange(); };
 
 // ── Post ─────────────────────────────────────────────
 function refreshConfirmBanner() {
@@ -1841,6 +1856,7 @@ $('profileForm').onsubmit = async (e) => {
 
 // ── Init ─────────────────────────────────────────────
 ['pGenres', 'bGenres', 'mGenres'].forEach(renderGenreChecks);
+$('pKind').onchange();
 for (const g of GENRES) $('bGenreF').append(new Option(genreLabel(g), g));
 for (const i of INSTRUMENTS) {
   $('fInstrument').append(new Option(label(i), i));
