@@ -140,6 +140,19 @@ export const PAGE = `<!doctype html>
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
   nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
   #profileBtn { position: relative; }
+  .ask-line { margin: 18px 0 6px; text-align: center; font-size: 13.5px; color: var(--muted); }
+  .ask-line button { background: none; border: 0; padding: 0; font: inherit; color: var(--accent-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  button.danger { background: #b3261e !important; }
+  .tag.urgent { background: #fde8e6; color: #b3261e; border-color: #f5c2bd; font-weight: 700; }
+  .tag.standby { background: var(--accent-tint); color: var(--accent-deep); border-color: var(--accent-tint-line); font-weight: 700; }
+  .state-chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  .state-chip.good { background: #e7f6ec; border-color: #bfe5cb; color: #1e6b3a; font-weight: 600; }
+  .onboard ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .onboard li { display: flex; gap: 12px; align-items: center; }
+  .onboard .tick { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; color: var(--muted); }
+  .onboard .tick.done { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .onboard .txt { flex: 1; font-size: 15px; }
+  .onboard .txt.done { text-decoration: line-through; color: var(--muted); }
   body.help-mode nav#tabs { display: none !important; }
   body.help-mode main { padding-bottom: 24px; }
   #helpClose { display: none; }
@@ -468,6 +481,14 @@ ${NOTES_LAYER}
       </div>
     </div>
   <section id="tab-musicians">
+    <div class="card onboard" id="onboard" hidden>
+      <div class="display" style="font-size: 17px; font-weight: 700; margin-bottom: 10px;" data-i18n="onboard_t">Two things and you're set</div>
+      <ol>
+        <li><span class="tick" id="ob1t">1</span><span class="txt" id="ob1x" data-i18n="onboard_1">Add your instrument and your city</span><button class="ghost small" id="ob1b" data-i18n="onboard_1b">Do it</button></li>
+        <li><span class="tick" id="ob2t">2</span><span class="txt" id="ob2x" data-i18n="onboard_2">Turn on alerts</span><button class="ghost small" id="ob2b" data-i18n="onboard_2b">Turn on</button></li>
+        <li><span class="tick" id="ob3t">3</span><span class="txt" data-i18n="onboard_3">That's it — we ping you when someone needs you.</span></li>
+      </ol>
+    </div>
     <div id="musiciansHost"></div>
   </section>
 
@@ -532,6 +553,12 @@ ${NOTES_LAYER}
           <option value="practice" data-i18n="opt_practice">Practice partner — free, open-ended</option>
         </select>
       </div>
+      <div class="row" id="pNeedRow"><label data-i18n="need_l">What do you need?</label>
+        <div class="checks" style="flex-direction: column; gap: 8px;">
+          <label style="align-items: flex-start;"><input type="radio" name="pNeed" value="dep" checked style="margin-top: 4px;"> <span><b data-i18n="need_dep_t">A replacement</b><br><span class="muted" data-i18n="need_dep_p">I need someone on that date. Matching musicians nearby get alerted now.</span></span></label>
+          <label style="align-items: flex-start;"><input type="radio" name="pNeed" value="standby" style="margin-top: 4px;"> <span><b data-i18n="need_standby_t">A standby</b><br><span class="muted" data-i18n="need_standby_p">I have my musician, I want a plan B. Keep people on standby; if someone drops out, one tap alerts them and the first to say yes is booked.</span></span></label>
+        </div>
+      </div>
       <div class="grid2">
         <div class="row"><label data-i18n="instrument_needed">Instrument needed</label><select id="pInstrument" required></select></div>
         <div class="row" id="pDateRow"><label data-i18n="date">Date</label><input type="date" id="pDate" required></div>
@@ -557,6 +584,7 @@ ${NOTES_LAYER}
         <label><input type="checkbox" id="pRehearsal"> <span data-i18n="req_rehearsal">one rehearsal</span></label>
       </div>
       <button class="primary" data-i18n="post_gig_btn">Post gig</button>
+      <div class="ask-line"><span data-i18n="ask_missing_field">A field missing for your case?</span> <button type="button" class="ask-open" data-fb="post" data-i18n="ask_btn">Tell us</button></div>
       <p class="muted" style="margin: 14px 0 0;"><span data-i18n="missing_q">Missing an instrument, a genre or an option?</span> <button type="button" class="linkish" data-fb="post" data-i18n="tell_us">Tell us →</button></p>
     </form></div>
   </section>
@@ -652,6 +680,7 @@ ${NOTES_LAYER}
         <button type="button" class="srow" id="sInstall"><span data-i18n="install_link">Add to Home Screen</span><span class="val">&rsaquo;</span></button>
       </div>
       <button type="button" class="logout" id="logoutBtn2" data-i18n="logout">Log out</button>
+      <div class="ask-line"><span data-i18n="ask_missing">Something missing or unclear?</span> <button type="button" class="ask-open" data-i18n="ask_btn">Tell us</button></div>
     </div>
     <div id="profileEdit" hidden>
     <div class="card" style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;"><button type="button" class="chat-back" id="editBack">&larr;</button><div class="display" style="font-size: 18px; font-weight: 800;" data-i18n="edit_profile">Edit profile</div></div>
@@ -685,7 +714,7 @@ ${NOTES_LAYER}
       </div>
       <div class="row"><label data-i18n="looking_l">I'm looking for</label>
         <div class="checks" id="mLooking">
-          <label><input type="checkbox" value="dep"> <span data-i18n="lf_dep">paid dep gigs</span></label>
+          <label style="align-items: flex-start;"><input type="checkbox" value="dep" style="margin-top: 4px;"> <span id="lfDepText"></span></label>
           <label><input type="checkbox" value="jam"> <span data-i18n="lf_jam">jam partners</span></label>
           <label><input type="checkbox" value="join_band"> <span data-i18n="lf_join_band">to join a band</span></label>
           <label><input type="checkbox" value="start_band"> <span data-i18n="lf_start_band">to start a band</span></label>
@@ -798,6 +827,8 @@ const I18N = {
     help_ask_t: 'A question? Something unclear?', help_ask_p: 'Tell us what you were trying to do \u2014 we read every message and fix things fast.', help_ask_btn: 'Write to us',
     about_link: 'About', help_title: 'Help', dm_self: 'That is your own profile.',
     post_gig_sub: 'You need a musician for a specific date \u2014 a last-minute replacement or an extra player. The fee is shown up front, and matching musicians near you are alerted.', post_jam_sub: 'Free and without a fixed date: you are looking for someone to play with, regularly or for a session. No fee, no ratings.',
+    need_l: 'What do you need?', need_dep_t: 'A replacement', need_dep_p: 'I need someone on that date. Matching musicians nearby are alerted now.', need_standby_t: 'A standby', need_standby_p: 'I have my musician, I want a plan B. Keep people on standby; if someone drops out, one tap alerts them and the first to say yes is booked.', tag_urgent: 'Last minute', tag_standby: 'Standby', btn_available: 'I\u2019m available', btn_standby: 'I can be on standby', btn_jam_in: 'I\u2019m in', btn_yes_coming: 'Yes, I\u2019m coming', state_sent: 'Sent \u2014 the bandleader will answer you in Messages', state_standby: 'You\u2019re on standby \u2014 we ping you only if needed', state_booked: 'You\u2019re booked', state_declined: 'Not this time', standby_now: 'They need you! First to confirm gets the gig.', confirmed_ok: 'Confirmed \u2014 you\u2019re booked. Details in Messages.', taken: 'Someone confirmed before you \u2014 thanks anyway.', keep_standby: 'Keep on standby', kept_standby: '{0} is on standby.', standby_ready: '{0} on standby. If your musician drops out, alert them here.', activate_standby: 'My musician dropped out', activate_confirm: 'Confirm \u2014 alert {0} standby musician(s)', standby_alerted: 'Standby alerted ({0}). The first to confirm is booked automatically.', standby_pinged: '{0} musician(s) alerted.', lf_dep_dyn: 'Alert me when someone needs {ins} within {km} km of {city} \u2014 even at the last minute.', your_instrument: 'my instrument', your_city: 'my city', onboard_t: 'Two things and you\u2019re set', onboard_1: 'Add your instrument and your city', onboard_1b: 'Do it', onboard_2: 'Turn on alerts', onboard_2b: 'Turn on', onboard_3: 'That\u2019s it \u2014 we ping you when someone needs you.',
+    ask_missing: 'Something missing or unclear?', ask_missing_field: 'A field missing for your case?', ask_btn: 'Tell us \u2192',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -812,7 +843,7 @@ const I18N = {
     demo_links_l: 'Demo links (one per line, max 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (one per line, max 5)', save_profile: 'Save profile', photo_l: 'Profile photo', photo_pick: 'Choose a photo', photo_remove: 'Remove', photo_hint: 'Shown to bandleaders on your applications and on your public page.', photo_saved: 'Photo saved.', photo_removed: 'Photo removed.', photo_bad: 'Could not read that image.', public_page: 'View my public page \u2197',
     results_n: '{0} listings', loading: 'Loading…', empty_gigs_near: 'No paid gigs near {0} yet.', empty_practice_near: 'No jam partners near {0} yet.', empty_sub_on: 'You will be notified the moment a listing is posted for your instrument near you.', empty_gigs: 'No paid gigs found at the moment.', empty_practice: 'No jam or practice partners found at the moment.', empty_sub: 'Turn on alerts and you’ll hear the moment something is posted for your instrument near you.', empty_alerts_btn: 'Enable alerts', alerts_already: 'Alerts are already on — you’ll hear as soon as something is posted.',
     your_gig: 'Your gig — manage it under \u201cMy gigs\u201d.', apply: 'Apply', jam: 'Jam', flexible: 'flexible',
-    applied_ok: 'Applied. The bandleader will see your profile.', could_not_apply: 'Could not apply',
+    applied_ok: 'Sent. The bandleader sees your profile and answers you here, in Messages.', could_not_apply: 'Could not apply',
     gig_posted: 'Gig posted.', practice_posted: 'Practice listing posted.', profile_saved: 'Profile saved.', failed: 'Failed',
     review_saved: 'Review saved.', booked_ok: 'Booked {0}. Others were declined.', connected_ok: 'Connected with {0} — they got your contact.',
     gig_cancelled: 'Gig cancelled.', listing_closed: 'Listing closed.', gig_completed_ok: 'Gig completed — you can now leave a review.',
@@ -855,6 +886,8 @@ const I18N = {
     help_ask_t: 'Une question\u00a0? Quelque chose pas clair\u00a0?', help_ask_p: 'Dites-nous ce que vous vouliez faire \u2014 on lit chaque message et on corrige vite.', help_ask_btn: '\u00c9crivez-nous',
     about_link: '\u00c0 propos', help_title: 'Aide', dm_self: 'C\u2019est votre propre profil.',
     post_gig_sub: 'Vous cherchez un musicien pour une date pr\u00e9cise \u2014 remplacement de derni\u00e8re minute ou renfort. Le cachet est affich\u00e9 d\u2019avance et les musiciens correspondants pr\u00e8s de chez vous sont alert\u00e9s.', post_jam_sub: 'Gratuit et sans date fixe\u00a0: vous cherchez quelqu\u2019un avec qui jouer, r\u00e9guli\u00e8rement ou pour une session. Pas de cachet, pas de notes.',
+    need_l: 'De quoi avez-vous besoin\u00a0?', need_dep_t: 'Un rempla\u00e7ant', need_dep_p: 'Il me faut quelqu\u2019un ce jour-l\u00e0. Les musiciens correspondants pr\u00e8s de chez vous sont alert\u00e9s tout de suite.', need_standby_t: 'Une r\u00e9serve', need_standby_p: 'J\u2019ai mon musicien, je veux un plan B. Gardez des gens en r\u00e9serve\u00a0; si quelqu\u2019un l\u00e2che, un bouton les alerte et le premier qui dit oui est engag\u00e9.', tag_urgent: 'Derni\u00e8re minute', tag_standby: 'R\u00e9serve', btn_available: 'Je suis dispo', btn_standby: 'Je peux \u00eatre en r\u00e9serve', btn_jam_in: 'Je suis partant', btn_yes_coming: 'Oui, je viens', state_sent: 'Envoy\u00e9 \u2014 le chef de groupe te r\u00e9pond dans Messages', state_standby: 'Tu es en r\u00e9serve \u2014 on te pingue seulement si besoin', state_booked: 'Tu es engag\u00e9', state_declined: 'Pas cette fois', standby_now: 'On a besoin de toi\u00a0! Le premier qui confirme est engag\u00e9.', confirmed_ok: 'Confirm\u00e9 \u2014 tu es engag\u00e9. Les d\u00e9tails dans Messages.', taken: 'Quelqu\u2019un a confirm\u00e9 avant toi \u2014 merci quand m\u00eame.', keep_standby: 'Garder en r\u00e9serve', kept_standby: '{0} est en r\u00e9serve.', standby_ready: '{0} en r\u00e9serve. Si votre musicien l\u00e2che, alertez-les ici.', activate_standby: 'Mon musicien a l\u00e2ch\u00e9', activate_confirm: 'Confirmer \u2014 alerter {0} musicien(s) en r\u00e9serve', standby_alerted: 'R\u00e9serve alert\u00e9e ({0}). Le premier qui confirme est engag\u00e9 automatiquement.', standby_pinged: '{0} musicien(s) alert\u00e9(s).', lf_dep_dyn: 'Pr\u00e9viens-moi quand on cherche {ins} \u00e0 moins de {km} km de {city} \u2014 m\u00eame \u00e0 la derni\u00e8re minute.', your_instrument: 'mon instrument', your_city: 'ma ville', onboard_t: 'Deux choses et c\u2019est r\u00e9gl\u00e9', onboard_1: 'Ajoute ton instrument et ta ville', onboard_1b: 'Je le fais', onboard_2: 'Active les alertes', onboard_2b: 'Activer', onboard_3: 'C\u2019est tout \u2014 on te pingue quand quelqu\u2019un a besoin de toi.',
+    ask_missing: 'Il manque quelque chose\u00a0? Pas clair\u00a0?', ask_missing_field: 'Il manque un champ pour votre cas\u00a0?', ask_btn: 'Dites-le-nous \u2192',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -869,7 +902,7 @@ const I18N = {
     demo_links_l: 'Liens démos (un par ligne, max 5)', links_l: 'Liens \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (un par ligne, max 5)', save_profile: 'Enregistrer le profil', photo_l: 'Photo de profil', photo_pick: 'Choisir une photo', photo_remove: 'Supprimer', photo_hint: 'Visible par les chefs de groupe sur vos candidatures et sur votre page publique.', photo_saved: 'Photo enregistrée.', photo_removed: 'Photo supprimée.', photo_bad: 'Impossible de lire cette image.', public_page: 'Voir ma page publique \u2197',
     results_n: '{0} annonces', loading: 'Chargement…', empty_gigs_near: 'Aucun concert payé autour de {0} pour le moment.', empty_practice_near: 'Aucun partenaire de jam autour de {0} pour le moment.', empty_sub_on: 'Vous serez prévenu dès qu\u2019une annonce sera publiée pour votre instrument près de chez vous.', empty_gigs: 'Aucun concert payé trouvé pour le moment.', empty_practice: 'Aucun partenaire de jam ni annonce trouvés pour le moment.', empty_sub: 'Activez les alertes et vous serez prévenu dès qu’une annonce est publiée pour votre instrument près de chez vous.', empty_alerts_btn: 'Activer les alertes', alerts_already: 'Les alertes sont déjà activées — vous serez prévenu dès la prochaine annonce.',
     your_gig: 'Votre annonce — gérez-la dans \u00ab Mes concerts \u00bb.', apply: 'Postuler', jam: 'Jam', flexible: 'flexible',
-    applied_ok: 'Candidature envoyée. Le chef de groupe verra votre profil.', could_not_apply: 'Candidature impossible',
+    applied_ok: 'C\u2019est envoy\u00e9. Le chef de groupe voit ton profil et te r\u00e9pond ici, dans Messages.', could_not_apply: 'Candidature impossible',
     gig_posted: 'Concert publié.', practice_posted: 'Annonce de répétition publiée.', profile_saved: 'Profil enregistré.', failed: 'Échec',
     review_saved: 'Avis enregistré.', booked_ok: '{0} engagé·e. Les autres ont été déclinés.', connected_ok: 'Mis en contact avec {0} — il/elle a reçu vos coordonnées.',
     gig_cancelled: 'Concert annulé.', listing_closed: 'Annonce fermée.', gig_completed_ok: 'Concert terminé — vous pouvez laisser un avis.',
@@ -912,6 +945,8 @@ const I18N = {
     help_ask_t: 'Eine Frage? Etwas unklar?', help_ask_p: 'Sag uns, was du tun wolltest \u2014 wir lesen jede Nachricht und bessern schnell nach.', help_ask_btn: 'Schreib uns',
     about_link: '\u00dcber uns', help_title: 'Hilfe', dm_self: 'Das ist dein eigenes Profil.',
     post_gig_sub: 'Du brauchst jemanden f\u00fcr ein bestimmtes Datum \u2014 Ersatz in letzter Minute oder Verst\u00e4rkung. Die Gage steht vorab, passende Leute in deiner N\u00e4he werden benachrichtigt.', post_jam_sub: 'Gratis und ohne festes Datum: du suchst jemanden zum Spielen, regelm\u00e4ssig oder f\u00fcr eine Session. Keine Gage, keine Bewertungen.',
+    need_l: 'Was brauchst du?', need_dep_t: 'Einen Ersatz', need_dep_p: 'Ich brauche jemanden an diesem Datum. Passende Leute in der N\u00e4he werden sofort benachrichtigt.', need_standby_t: 'Eine Reserve', need_standby_p: 'Ich habe meine Person, will aber einen Plan B. Halte Leute in Reserve; f\u00e4llt jemand aus, alarmiert ein Tipp sie und wer zuerst ja sagt, ist gebucht.', tag_urgent: 'Letzte Minute', tag_standby: 'Reserve', btn_available: 'Ich bin verf\u00fcgbar', btn_standby: 'Ich kann Reserve sein', btn_jam_in: 'Ich bin dabei', btn_yes_coming: 'Ja, ich komme', state_sent: 'Gesendet \u2014 die Antwort kommt unter Nachrichten', state_standby: 'Du bist Reserve \u2014 wir melden uns nur bei Bedarf', state_booked: 'Du bist gebucht', state_declined: 'Diesmal nicht', standby_now: 'Du wirst gebraucht! Wer zuerst best\u00e4tigt, bekommt den Gig.', confirmed_ok: 'Best\u00e4tigt \u2014 du bist gebucht. Details unter Nachrichten.', taken: 'Jemand war schneller \u2014 trotzdem danke.', keep_standby: 'In Reserve behalten', kept_standby: '{0} ist in Reserve.', standby_ready: '{0} in Reserve. F\u00e4llt deine Person aus, alarmiere sie hier.', activate_standby: 'Meine Person ist ausgefallen', activate_confirm: 'Best\u00e4tigen \u2014 {0} Reserve-Musiker:in(nen) alarmieren', standby_alerted: 'Reserve alarmiert ({0}). Wer zuerst best\u00e4tigt, wird automatisch gebucht.', standby_pinged: '{0} Musiker:in(nen) alarmiert.', lf_dep_dyn: 'Sag mir Bescheid, wenn jemand {ins} im Umkreis von {km} km um {city} sucht \u2014 auch in letzter Minute.', your_instrument: 'mein Instrument', your_city: 'meine Stadt', onboard_t: 'Zwei Dinge und du bist startklar', onboard_1: 'Instrument und Stadt eintragen', onboard_1b: 'Los', onboard_2: 'Alerts einschalten', onboard_2b: 'Einschalten', onboard_3: 'Das war\u2019s \u2014 wir melden uns, wenn dich jemand braucht.',
+    ask_missing: 'Fehlt etwas? Unklar?', ask_missing_field: 'Fehlt ein Feld f\u00fcr deinen Fall?', ask_btn: 'Sag es uns \u2192',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -926,7 +961,7 @@ const I18N = {
     demo_links_l: 'Demo-Links (einer pro Zeile, max. 5)', links_l: 'Links \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (einer pro Zeile, max. 5)', save_profile: 'Profil speichern', photo_l: 'Profilfoto', photo_pick: 'Foto wählen', photo_remove: 'Entfernen', photo_hint: 'Bandleader sehen es bei deinen Bewerbungen und auf deiner öffentlichen Seite.', photo_saved: 'Foto gespeichert.', photo_removed: 'Foto entfernt.', photo_bad: 'Dieses Bild konnte nicht gelesen werden.', public_page: 'Meine öffentliche Seite \u2197',
     results_n: '{0} Anzeigen', loading: 'Lädt…', empty_gigs_near: 'Noch keine bezahlten Gigs rund um {0}.', empty_practice_near: 'Noch keine Jam-Partner rund um {0}.', empty_sub_on: 'Du wirst benachrichtigt, sobald eine Anzeige f\u00fcr dein Instrument in deiner N\u00e4he erscheint.', empty_gigs: 'Im Moment keine bezahlten Gigs gefunden.', empty_practice: 'Im Moment keine Jam-Partner oder Anzeigen gefunden.', empty_sub: 'Schalte Alerts ein und du erfährst sofort, wenn etwas für dein Instrument in deiner Nähe eingestellt wird.', empty_alerts_btn: 'Alerts einschalten', alerts_already: 'Alerts sind schon an — du erfährst es, sobald etwas eingestellt wird.',
     your_gig: 'Dein Gig — verwalte ihn unter \u201eMeine Gigs\u201c.', apply: 'Bewerben', jam: 'Jam', flexible: 'flexibel',
-    applied_ok: 'Beworben. Der Bandleader sieht dein Profil.', could_not_apply: 'Bewerbung nicht möglich',
+    applied_ok: 'Gesendet. Die Bandleitung sieht dein Profil und antwortet dir hier unter Nachrichten.', could_not_apply: 'Bewerbung nicht möglich',
     gig_posted: 'Gig veröffentlicht.', practice_posted: 'Übungs-Anzeige veröffentlicht.', profile_saved: 'Profil gespeichert.', failed: 'Fehlgeschlagen',
     review_saved: 'Bewertung gespeichert.', booked_ok: '{0} gebucht. Die anderen wurden abgesagt.', connected_ok: 'Mit {0} verbunden — deine Kontaktdaten wurden geteilt.',
     gig_cancelled: 'Gig abgesagt.', listing_closed: 'Anzeige geschlossen.', gig_completed_ok: 'Gig abgeschlossen — du kannst jetzt bewerten.',
@@ -969,6 +1004,8 @@ const I18N = {
     help_ask_t: 'Una domanda? Qualcosa non \u00e8 chiaro?', help_ask_p: 'Dicci cosa volevi fare \u2014 leggiamo ogni messaggio e sistemiamo in fretta.', help_ask_btn: 'Scrivici',
     about_link: 'Chi siamo', help_title: 'Aiuto', dm_self: '\u00c8 il tuo stesso profilo.',
     post_gig_sub: 'Cerchi un musicista per una data precisa \u2014 sostituzione dell\u2019ultimo minuto o rinforzo. Il cachet \u00e8 indicato in anticipo e i musicisti giusti vicino a te vengono avvisati.', post_jam_sub: 'Gratis e senza data fissa: cerchi qualcuno con cui suonare, regolarmente o per una sessione. Niente cachet, niente voti.',
+    need_l: 'Di cosa hai bisogno?', need_dep_t: 'Un sostituto', need_dep_p: 'Mi serve qualcuno quel giorno. I musicisti giusti vicino a te vengono avvisati subito.', need_standby_t: 'Una riserva', need_standby_p: 'Ho il mio musicista, voglio un piano B. Tieni gente in riserva; se qualcuno molla, un tocco li avvisa e il primo che dice s\u00ec \u00e8 ingaggiato.', tag_urgent: 'Ultimo minuto', tag_standby: 'Riserva', btn_available: 'Sono disponibile', btn_standby: 'Posso essere in riserva', btn_jam_in: 'Ci sto', btn_yes_coming: 'S\u00ec, vengo', state_sent: 'Inviato \u2014 il capobanda ti risponde in Messaggi', state_standby: 'Sei in riserva \u2014 ti avvisiamo solo se serve', state_booked: 'Sei ingaggiato', state_declined: 'Non stavolta', standby_now: 'Hanno bisogno di te! Il primo che conferma \u00e8 ingaggiato.', confirmed_ok: 'Confermato \u2014 sei ingaggiato. Dettagli in Messaggi.', taken: 'Qualcuno ha confermato prima di te \u2014 grazie comunque.', keep_standby: 'Tieni in riserva', kept_standby: '{0} \u00e8 in riserva.', standby_ready: '{0} in riserva. Se il tuo musicista molla, avvisali qui.', activate_standby: 'Il mio musicista ha mollato', activate_confirm: 'Conferma \u2014 avvisa {0} musicista/i in riserva', standby_alerted: 'Riserva avvisata ({0}). Il primo che conferma \u00e8 ingaggiato automaticamente.', standby_pinged: '{0} musicista/i avvisato/i.', lf_dep_dyn: 'Avvisami quando cercano {ins} entro {km} km da {city} \u2014 anche all\u2019ultimo minuto.', your_instrument: 'il mio strumento', your_city: 'la mia citt\u00e0', onboard_t: 'Due cose e sei a posto', onboard_1: 'Aggiungi il tuo strumento e la tua citt\u00e0', onboard_1b: 'Fatto', onboard_2: 'Attiva gli avvisi', onboard_2b: 'Attiva', onboard_3: '\u00c8 tutto \u2014 ti avvisiamo quando qualcuno ha bisogno di te.',
+    ask_missing: 'Manca qualcosa? Non \u00e8 chiaro?', ask_missing_field: 'Manca un campo per il tuo caso?', ask_btn: 'Diccelo \u2192',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -983,7 +1020,7 @@ const I18N = {
     demo_links_l: 'Link demo (uno per riga, max 5)', links_l: 'Link \u2014 YouTube, Spotify, SoundCloud, Vimeo, Bandcamp\u2026 (uno per riga, max 5)', save_profile: 'Salva profilo', photo_l: 'Foto profilo', photo_pick: 'Scegli una foto', photo_remove: 'Rimuovi', photo_hint: 'Visibile ai bandleader nelle tue candidature e sulla tua pagina pubblica.', photo_saved: 'Foto salvata.', photo_removed: 'Foto rimossa.', photo_bad: 'Impossibile leggere questa immagine.', public_page: 'La mia pagina pubblica \u2197',
     results_n: '{0} annunci', loading: 'Caricamento…', empty_gigs_near: 'Ancora nessun concerto pagato vicino a {0}.', empty_practice_near: 'Ancora nessun partner di jam vicino a {0}.', empty_sub_on: 'Sarai avvisato appena verr\u00e0 pubblicato un annuncio per il tuo strumento vicino a te.', empty_gigs: 'Nessun concerto pagato trovato al momento.', empty_practice: 'Nessun partner di jam o annuncio trovato al momento.', empty_sub: 'Attiva gli avvisi e saprai subito quando viene pubblicato qualcosa per il tuo strumento vicino a te.', empty_alerts_btn: 'Attiva gli avvisi', alerts_already: 'Gli avvisi sono già attivi — saprai subito quando viene pubblicato qualcosa.',
     your_gig: 'Il tuo annuncio — gestiscilo in \u00abI miei concerti\u00bb.', apply: 'Candidati', jam: 'Jam', flexible: 'flessibile',
-    applied_ok: 'Candidatura inviata. Il bandleader vedrà il tuo profilo.', could_not_apply: 'Candidatura non possibile',
+    applied_ok: 'Inviato. Il capobanda vede il tuo profilo e ti risponde qui, in Messaggi.', could_not_apply: 'Candidatura non possibile',
     gig_posted: 'Concerto pubblicato.', practice_posted: 'Annuncio di prova pubblicato.', profile_saved: 'Profilo salvato.', failed: 'Errore',
     review_saved: 'Recensione salvata.', booked_ok: '{0} ingaggiato/a. Gli altri sono stati declinati.', connected_ok: 'In contatto con {0} — ha ricevuto i tuoi recapiti.',
     gig_cancelled: 'Concerto annullato.', listing_closed: 'Annuncio chiuso.', gig_completed_ok: 'Concerto completato — ora puoi lasciare una recensione.',
@@ -1068,6 +1105,7 @@ $('howBtn').onclick = () => {
   window.scrollTo({ top: 0 });
 };
 document.querySelectorAll('.help-ask-btn').forEach((b) => { b.onclick = () => openFeedback(); });
+document.querySelectorAll('.ask-open').forEach((b) => { b.onclick = () => openFeedback(b.dataset.fb ? T('fb_prefill_post') : undefined); });
 $('helpBack').onclick = () => { (document.querySelector('[data-tab=' + (lastBrowse || 'musicians') + ']') || document.querySelector('[data-tab=musicians]')).click(); };
 $('logoHome').onclick = () => {
   landingDismissed = false;
@@ -1178,6 +1216,7 @@ function renderAuth() {
   refreshNotifBtn();
   refreshActivity();
   if (me) renderHero(null); else showProfileEdit(false);
+  renderOnboard();
 }
 $('authBtn').onclick = async () => {
   if (me) {
@@ -1198,6 +1237,13 @@ $('sHow').onclick = () => $('howBtn').onclick();
 $('sFeedback').onclick = () => openFeedback();
 $('sInstall').onclick = () => openInstallDialog();
 $('langSel2').onchange = () => { $('langSel').value = $('langSel2').value; $('langSel').onchange(); };
+function updateLfDep() {
+  const ins = [...document.querySelectorAll('#mInstruments input:checked')].map((x) => label(x.value));
+  const city = $('mCity').value.trim();
+  const km = parseInt($('mRadius').value, 10) || 30;
+  $('lfDepText').textContent = T('lf_dep_dyn').replace('{ins}', ins.length ? ins.join(' / ') : T('your_instrument')).replace('{km}', km).replace('{city}', city || T('your_city'));
+}
+['mInstruments', 'mCity', 'mRadius'].forEach((id) => { $(id).addEventListener('change', updateLfDep); $(id).addEventListener('input', updateLfDep); });
 function renderHero(p) {
   const name = (me && me.name) || (me ? me.email.split('@')[0] : '');
   const av = $('heroAvatar'); av.replaceChildren();
@@ -1303,6 +1349,10 @@ function gigCard(g, actions) {
   head.append(el('span', 'tag status-' + g.status, TS(g.status)));
   head.append(el('span', 'muted', (g.gig_date || T('flexible')) + ' · ' + g.venue_city + (g.distance_km != null ? ' · ' + g.distance_km + ' km' : '')));
   head.append(el('span', 'fee', g.kind === 'practice' ? T('jam') : (g.currency || 'CHF') + ' ' + g.fee_chf));
+  if (g.kind === 'gig' && g.status === 'open') {
+    if (g.need === 'standby') head.append(el('span', 'tag standby', T('tag_standby')));
+    else if (g.gig_date && Date.parse(g.gig_date) - Date.now() < 72 * 3600 * 1000) head.append(el('span', 'tag urgent', T('tag_urgent')));
+  }
   if (g.poster_name && !g.is_mine) {
     const by = el(g.poster_handle ? 'a' : 'span', 'muted', T('by_poster', g.poster_name));
     if (g.poster_handle) { by.href = '/m/' + g.poster_handle; by.style.textDecoration = 'underline'; }
@@ -1399,6 +1449,7 @@ async function loadMusicians(params) {
     return;
   }
   list.forEach((m) => board.append(musicianCard(m)));
+  board.append(askLine());
 }
 let boardSeq = 0;
 async function loadBoard() {
@@ -1462,6 +1513,7 @@ async function loadBoard() {
     board.append(card);
     // The people are the content while listings are scarce.
     params.set('limit', '6');
+    board.append(askLine());
     const r2 = await api('/musicians?' + params);
     if (seq !== boardSeq || !r2.ok) return;
     const near = r2.json.musicians || [];
@@ -1469,20 +1521,48 @@ async function loadBoard() {
     if (r2.json.total > near.length) { const more = el('button', 'ghost small', T('see_all_musicians', r2.json.total)); more.onclick = () => document.querySelector('[data-tab=musicians]').click(); board.append(more); }
     return;
   }
-  r.json.gigs.forEach((g) => board.append(gigCard(g, (gig) => {
-    const bar = el('div');
-    if (gig.is_mine) { bar.append(el('span', 'muted', T('your_gig'))); return bar; }
-    const btn = el('button', 'primary small', T('apply'));
-    btn.onclick = async () => {
-      if (!me) { $('authDialog').showModal(); return; }
-      const note = prompt(T('note_prompt')) || '';
-      const res = await api('/gigs/' + gig.id + '/apply', { method: 'POST', body: { note } });
-      if (res.ok) flash(T('applied_ok'), 'ok');
-      else flash(res.json.error || T('could_not_apply'), 'err');
+  r.json.gigs.forEach((g) => board.append(gigCard(g, gigActions)));
+  board.append(askLine());
+}
+// What a musician can do on a listing, in plain words and one button.
+// "Something missing?" line at the end of every list and form.
+function askLine(prefill) {
+  const d = el('div', 'ask-line');
+  const b = el('button', '', T('ask_btn'));
+  b.onclick = () => openFeedback(prefill !== undefined ? T(prefill) : undefined);
+  d.append(document.createTextNode(T('ask_missing') + ' '), b);
+  return d;
+}
+function gigActions(gig) {
+  const bar = el('div', 'actions');
+  if (gig.is_mine) { bar.append(el('span', 'muted', T('your_gig'))); return bar; }
+  const st = gig.my_status;
+  if (st === 'accepted') { bar.append(el('span', 'state-chip good', '\u2713 ' + T('state_booked'))); return bar; }
+  if (st === 'declined') { bar.append(el('span', 'state-chip', T('state_declined'))); return bar; }
+  if (st === 'shortlisted' && gig.standby_activated_at && gig.status === 'open') {
+    const yes = el('button', 'primary', T('btn_yes_coming'));
+    yes.onclick = async () => {
+      const res = await api('/gigs/' + gig.id + '/confirm', { method: 'POST' });
+      if (res.ok) { flash(T('confirmed_ok'), 'ok'); loadBoard(); }
+      else if (res.json.code === 'taken') { flash(T('taken'), 'err'); loadBoard(); }
+      else flash(res.json.error || T('failed'), 'err');
     };
-    bar.append(btn);
+    bar.append(el('p', 'muted', T('standby_now')), yes);
     return bar;
-  })));
+  }
+  if (st === 'shortlisted') { bar.append(el('span', 'state-chip good', '\u2713 ' + T('state_standby'))); return bar; }
+  if (st === 'applied') { bar.append(el('span', 'state-chip', '\u2713 ' + T('state_sent'))); return bar; }
+  const btn = el('button', 'primary', T(gig.kind === 'practice' ? 'btn_jam_in' : gig.need === 'standby' ? 'btn_standby' : 'btn_available'));
+  btn.onclick = async () => {
+    if (!me) { $('authDialog').showModal(); return; }
+    btn.disabled = true;
+    const res = await api('/gigs/' + gig.id + '/apply', { method: 'POST', body: { note: '' } });
+    btn.disabled = false;
+    if (res.ok) { flash(T('applied_ok'), 'ok'); loadBoard(); }
+    else flash(res.json.error || T('could_not_apply'), 'err');
+  };
+  bar.append(btn);
+  return bar;
 }
 $('fGo').onclick = loadBoard;
 $('fRadius').onchange = loadBoard;
@@ -1517,6 +1597,7 @@ $('pKind').onchange = () => {
   const practice = $('pKind').value === 'practice';
   $('pFeeRow').hidden = practice;
   $('pCallRow').hidden = practice;
+  $('pNeedRow').hidden = practice;
   $('pEndRow').hidden = practice;
   $('pLevelRow').hidden = !practice;
   $('postTitle').textContent = T(practice ? 'post_jam_title' : 'post_gig_title');
@@ -1722,6 +1803,7 @@ $('postForm').onsubmit = async (e) => {
   const practice = $('pKind').value === 'practice';
   const body = {
     kind: $('pKind').value,
+    need: (document.querySelector('input[name=pNeed]:checked') || {}).value || 'dep',
     instrument: $('pInstrument').value,
     genres: checkedValues('pGenres'),
     gig_date: $('pDate').value || undefined,
@@ -1856,6 +1938,24 @@ async function loadMine() {
 async function showManage(gigId, bar) {
   const r = await api('/gigs/' + gigId);
   bar.querySelectorAll('.application').forEach((n) => n.remove());
+  const standbys = (r.json.applications || []).filter((a) => a.status === 'shortlisted').length;
+  if (r.json.kind === 'gig' && r.json.status === 'open' && standbys) {
+    const row = el('div', 'application');
+    if (r.json.standby_activated_at) {
+      row.append(el('p', 'muted', T('standby_alerted', standbys)));
+    } else {
+      row.append(el('p', 'muted', T('standby_ready', standbys)));
+      const act = el('button', 'primary small', '\u{1F6A8} ' + T('activate_standby'));
+      let armed = false;
+      act.onclick = async () => {
+        if (!armed) { armed = true; act.textContent = T('activate_confirm', standbys); act.classList.add('danger'); return; }
+        const res = await api('/gigs/' + gigId + '/activate-standby', { method: 'POST' });
+        if (res.ok) { flash(T('standby_pinged', res.json.pinged), 'ok'); showManage(gigId, bar); } else flash(res.json.error || T('failed'), 'err');
+      };
+      row.append(act);
+    }
+    bar.append(row);
+  }
   for (const a of r.json.applications || []) {
     const row = el('div', 'application');
     const head = el('div', 'applicant-head');
@@ -1889,9 +1989,17 @@ async function showManage(gigId, bar) {
       const link = el('a', '', T('demo')); link.href = u; link.target = '_blank'; link.rel = 'noopener noreferrer';
       row.append(document.createTextNode(' '), link);
     });
+    if (a.status === 'applied' && r.json.kind === 'gig' && r.json.status === 'open') {
+      const keep = el('button', (r.json.need === 'standby' ? 'primary' : 'ghost') + ' small', T('keep_standby'));
+      keep.onclick = async () => {
+        const res = await api('/gigs/' + gigId + '/applications/' + a.id + '/shortlist', { method: 'POST' });
+        if (res.ok) { flash(T('kept_standby', a.display_name), 'ok'); showManage(gigId, bar); } else flash(res.json.error || T('failed'), 'err');
+      };
+      row.append(keep);
+    }
     if (a.status === 'applied' || a.status === 'shortlisted') {
       const practice = r.json.kind === 'practice';
-      const acc = el('button', 'primary small', practice ? T('connect', a.display_name) : T('book', a.display_name));
+      const acc = el('button', (r.json.need === 'standby' && a.status === 'applied' ? 'ghost' : 'primary') + ' small', practice ? T('connect', a.display_name) : T('book', a.display_name));
       acc.onclick = async () => {
         const res = await api('/gigs/' + gigId + '/applications/' + a.id + '/accept', { method: 'POST' });
         if (res.ok) {
@@ -1954,6 +2062,8 @@ async function loadProfile() {
   $('mLevel').value = r.json.level || '';
   document.querySelectorAll('#mLooking input').forEach((x) => { x.checked = (r.json.looking_for || []).includes(x.value); });
   $('mDm').checked = r.json.accepts_dm !== 0;
+  updateLfDep();
+  lastProfile = r.json; renderOnboard();
   $('mCharts').checked = !!r.json.reads_charts;
   $('mBacking').checked = !!r.json.sings_backing;
   $('mTransport').checked = !!r.json.own_transport;
@@ -2039,6 +2149,7 @@ async function loadThreads() {
     card.onclick = () => openThread(th.thread_type, th.thread_id, th.counterpart);
     wrap.append(card);
   }
+  wrap.append(askLine());
 }
 function showMsgsTab() {
   document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === 'msgs'));
@@ -2195,11 +2306,27 @@ async function loadThreads() {
     card.onclick = () => openThread(th.thread_type, th.thread_id, th.counterpart);
     wrap.append(card);
   }
+  wrap.append(askLine());
 }
 // A conversation page that does not exist yet (first DM, first band inquiry):
 // same layout as a thread, the first send creates it and hands over to openThread.
 
 // ── Bands ────────────────────────────────────────────
+let lastProfile = null;
+function renderOnboard() {
+  const box = $('onboard');
+  if (!me || localStorage.getItem('onboard_done') === '1') { box.hidden = true; return; }
+  const p = lastProfile;
+  const d1 = !!(p && (p.instruments || []).length && p.home_city);
+  const d2 = $('notifBtn').classList.contains('on');
+  $('ob1t').classList.toggle('done', d1); $('ob1t').textContent = d1 ? '\u2713' : '1'; $('ob1x').classList.toggle('done', d1); $('ob1b').hidden = d1;
+  $('ob2t').classList.toggle('done', d2); $('ob2t').textContent = d2 ? '\u2713' : '2'; $('ob2x').classList.toggle('done', d2); $('ob2b').hidden = d2;
+  $('ob3t').classList.toggle('done', d1 && d2); $('ob3t').textContent = d1 && d2 ? '\u2713' : '3';
+  if (d1 && d2) { localStorage.setItem('onboard_done', '1'); box.hidden = true; return; }
+  box.hidden = false;
+}
+$('ob1b').onclick = () => { document.querySelector('[data-tab=profile]').click(); showProfileEdit(true); };
+$('ob2b').onclick = () => $('notifBtn').click();
 let editingBand = null;
 let bandFilter = '';
 function showBandForm(b) {
@@ -2356,6 +2483,7 @@ async function renderBands(o) {
     card.append(bar);
     wrap.append(card);
   }
+  wrap.append(askLine());
 }
 async function showBandManage(bandId, card) {
   const r = await api('/bands/' + bandId);
@@ -2435,7 +2563,8 @@ async function currentSub() {
   const reg = await navigator.serviceWorker.ready;
   return reg.pushManager.getSubscription();
 }
-async function refreshNotifBtn() {
+async function refreshNotifBtn() { try { return await refreshNotifBtnInner(); } finally { if (typeof renderOnboard === 'function') renderOnboard(); } }
+async function refreshNotifBtnInner() {
   const supported = me && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   if (!supported) { $('notifBtn').hidden = true; return; }
   if (vapidKey === null) vapidKey = (await api('/push/vapid')).json.key || false;

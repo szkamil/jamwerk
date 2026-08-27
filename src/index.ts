@@ -82,10 +82,13 @@ async function scheduled(_controller: ScheduledController, env: Env): Promise<vo
   const expired = await env.DB.prepare(
     "UPDATE gigs SET status = 'expired' WHERE status = 'open' AND expires_at < date()"
   ).run();
+  const fallen = await env.DB.prepare(
+    "UPDATE gigs SET need = 'dep' WHERE status = 'open' AND need = 'standby' AND standby_activated_at IS NOT NULL AND standby_activated_at < datetime('now', '-2 hours')"
+  ).run();
   const pruned = await env.DB.prepare(
     "DELETE FROM rate_limits WHERE attempted_at < datetime('now', '-1 day')"
   ).run();
-  console.log(`Housekeeping: ${expired.meta.changes} listings expired, ${pruned.meta.changes} rate-limit rows pruned`);
+  console.log(`Housekeeping: ${expired.meta.changes} listings expired, ${fallen.meta.changes} standby gigs reopened as replacements, ${pruned.meta.changes} rate-limit rows pruned`);
 }
 
 export default {

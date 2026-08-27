@@ -27,6 +27,14 @@
 
 ## Shipped 2026-08-27
 
+- Replacement / standby gigs with one-tap activation (first to confirm is booked),
+  Dernière minute tag, URGENT in alert subjects; plain-language buttons (Je suis
+  dispo / Je peux être en réserve / Oui, je viens) and state chips; consequence
+  sentence for alerts on the profile; new-user 2-step checklist; "Il manque
+  quelque chose ?" feedback line on every list and form. Migration 018.
+- Note: when an activated standby falls back to a replacement (cron, 2 h), no
+  re-fan-out is sent yet — the gig just shows as urgent on the board.
+
 - /about page (story, what it is, free, contact, legal) in 4 langs, linked from
   all footers; help mode hides the tab bar with a Back button; toasts are quick
   and never block; no self-DM.
