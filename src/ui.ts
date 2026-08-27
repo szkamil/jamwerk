@@ -330,7 +330,7 @@ ${MEDIA_CSS}
   .empty { text-align: center; padding: 36px 10px; color: var(--muted); }
   dialog { border: 0; box-shadow: 0 0 0 1px var(--line), 0 24px 48px rgba(20,19,26,0.25); border-radius: var(--r); padding: 20px; max-width: 420px; width: 92%; background: var(--card); background-clip: padding-box; overflow: auto; -webkit-mask-image: -webkit-radial-gradient(white, black); }
   dialog::backdrop { background: rgba(20,19,26,.5); }
-  dialog { position: relative; }
+  dialog { position: fixed; inset: 0; margin: auto; max-height: min(90dvh, 90vh); overflow: auto; }
   .dlg-x { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font: inherit; font-size: 26px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .dlg-x:hover { background: var(--paper); color: #1b1a16; }
   dialog h2 { padding-right: 36px; }
