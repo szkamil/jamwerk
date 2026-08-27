@@ -33,6 +33,8 @@
 
 ## Shipped 2026-08-27
 
+- Branded HTML e-mail template for every mail (header, violet CTA, 4-lang footer).
+
 - Terms of use (7 clauses: intermediary only, agreements between users, content,
   no warranty, liability cap CHF 100 to the extent Swiss law allows, indemnity,
   Swiss law / Geneva) + privacy notice on /about, 4 langs; Éditeur/Hébergement

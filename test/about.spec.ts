@@ -29,3 +29,17 @@ describe('About page', () => {
 		expect((await page('/')).html).toContain('href="/about"');
 	});
 });
+
+describe('E-mail template', () => {
+	it('wraps every e-mail in the branded layout with a localized button for the first link', async () => {
+		const { renderEmail } = await import('../src/email');
+		const fr = renderEmail('Confirmez votre compte JamWerk', 'Bonjour.\n\nhttps://jamwerk.app/auth/confirm?token=x\n\n<script>bad</script>', 'fr');
+		expect(fr).toContain('Jam<span style="color:#a58bff;">Werk</span>');
+		expect(fr).toContain('Confirmer mon adresse e-mail');
+		expect(fr).toContain('href="https://jamwerk.app/auth/confirm?token=x"');
+		expect(fr).not.toContain('<script>');
+		expect(fr).toContain('Vous recevez cet e-mail');
+		expect(renderEmail('x', 'https://jamwerk.app/?reset=t', 'de')).toContain('Neues Passwort wählen');
+		expect(renderEmail('x', 'no link here', 'it')).toContain('Apri JamWerk');
+	});
+});
