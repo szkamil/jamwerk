@@ -315,6 +315,7 @@ ${MEDIA_CSS}
   .stars-pick button.on { color: var(--gold); }
   .band-cover { width: calc(100% + 28px); margin: -14px -14px 10px; height: 150px; object-fit: cover; border-radius: 12px 12px 0 0; display: block; }
   :focus-visible { outline: 3px solid var(--accent-light); outline-offset: 2px; }
+  .help-ask .muted { color: #3a382f; }
   .near-btn { flex: 0 0 auto; min-width: 46px; padding: 0 12px; font-size: 18px; }
   .share-btn { display: inline-flex; align-items: center; gap: 5px; min-height: 0; padding: 6px 10px; font-size: 13px; border-radius: 999px; flex-shrink: 0; align-self: center; }
   .applicant-head .share-btn { margin-left: 6px; }
@@ -526,10 +527,10 @@ ${NOTES_LAYER}
         <button type="button" data-kind="practice" data-group="jams" data-i18n="seg_practice">Practice partners</button>
         <button type="button" data-kind="jamgroups" data-group="jams" data-i18n="seg_jam_groups">Jam groups</button>
       </div>
-      <select id="fInstrument"><option value="" data-i18n="all_instruments">All instruments</option></select>
+      <select id="fInstrument" aria-label="Instrument"><option value="" data-i18n="all_instruments">All instruments</option></select>
       <input type="text" id="fCity" placeholder="City" data-i18n-ph="ph_city">
       <button type="button" class="ghost near-btn" id="fNear" title="Around me" aria-label="Around me">&#128205;</button>
-      <select id="fRadius">
+      <select id="fRadius" aria-label="Radius">
         <option value="5">5 km</option>
         <option value="10">10 km</option>
         <option value="15">15 km</option>
@@ -651,9 +652,9 @@ ${NOTES_LAYER}
         <button type="button" data-bkind="" class="active" data-i18n="seg_all_bands">All</button>
         <button type="button" data-bkind="bookable" data-i18n="seg_bookable">Bookable</button>
       </div>
-      <select id="bGenreF"><option value="" data-i18n="all_genres">All genres</option></select>
+      <select id="bGenreF" aria-label="Genre"><option value="" data-i18n="all_genres">All genres</option></select>
       <input type="text" id="bCityF" placeholder="City" data-i18n-ph="ph_city">
-      <select id="bRadiusF">
+      <select id="bRadiusF" aria-label="Radius">
         <option value="10">10 km</option>
         <option value="25">25 km</option>
         <option value="50" selected>50 km</option>
