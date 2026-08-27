@@ -24,7 +24,7 @@
 ## Roadmap agreed 2026-08-27 (working through it in this order)
 
 ### Needs YOU
-- [ ] After the roadmap: run Lighthouse on /, /about, a /b and a /m page; check contrast of muted text on paper.
+- [x] Lighthouse (mobile, /) 2026-08-27: SEO 100, Accessibility 90 → contrast on help cards + select labels fixed; Best practices 73 = Turnstile third-party cookies + expected 401 from /auth/me when logged out (nothing to do).
 - [ ] Rotate the Mailjet API keys (transited chat) → `wrangler secret put MAILJET_API_KEY / MAILJET_SECRET_KEY`.
 - [ ] Google Cloud Console: OAuth client + redirect https://jamwerk.app/auth/google/callback → then "Continuer avec Google".
 - [ ] External uptime check on https://jamwerk.app/health (UptimeRobot/BetterStack, free) + Cloudflare notification on Worker errors.

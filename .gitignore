@@ -3,3 +3,4 @@ dist/
 .wrangler/
 .dev.vars
 design/jamwerk-ui.html
+docs/lighthouse/
