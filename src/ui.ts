@@ -310,7 +310,9 @@ ${MEDIA_CSS}
   .seg { display: flex; background: #232230; border-radius: 12px; padding: 4px; gap: 4px; flex: 1 1 100%; max-width: 360px; }
   .card-actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
   .card-actions .msg-pill { margin-left: 0; }
-  .share-btn.icon { width: 34px; height: 34px; padding: 0; justify-content: center; gap: 0; border-radius: 50%; }
+  .share-btn.icon { width: 32px; height: 32px; min-height: 32px !important; max-height: 32px; padding: 0 !important; justify-content: center; gap: 0; border-radius: 8px; flex: 0 0 32px; }
+  .card.musician { position: relative; }
+  .share-btn.corner { position: absolute; top: 12px; right: 12px; }
   .stars-pick { display: flex; gap: 6px; }
   .stars-pick button { font-size: 28px; line-height: 1; background: none; border: 0; padding: 4px; color: #cfcbc0; cursor: pointer; min-height: 0; }
   .stars-pick button.on { color: var(--gold); }
@@ -1494,9 +1496,9 @@ function musicianCard(m) {
     dm.onclick = (e) => { e.stopPropagation(); dmUser(m.handle, m.display_name); };
     acts.append(dm);
   }
-  const shIcon = shareBtn('/m/' + m.handle, m.display_name); shIcon.classList.add('icon'); shIcon.lastChild.remove(); shIcon.setAttribute('aria-label', T('share'));
-  acts.append(shIcon);
-  card.append(acts);
+  const shIcon = shareBtn('/m/' + m.handle, m.display_name); shIcon.classList.add('icon', 'corner'); shIcon.lastChild.remove(); shIcon.setAttribute('aria-label', T('share'));
+  card.append(shIcon);
+  if (acts.childElementCount) card.append(acts);
   card.onclick = (e) => { if (e.target.closest('a, button')) return; location.href = '/m/' + m.handle; };
   return card;
 }
