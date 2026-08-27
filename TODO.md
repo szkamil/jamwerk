@@ -24,6 +24,13 @@
 ## To do
 
 
+## To do
+
+- [ ] Legal review: have a lawyer read the Conditions d'utilisation + privacy notice on
+      /about (src/about-page.ts) before pushing for scale. Written as boilerplate, not legal
+      advice; Swiss CO art. 100 limits what can be excluded. Existing accounts created before
+      the sign-up gate have no terms_accepted_at (3 on prod as of 2026-08-27).
+
 ## Shipped 2026-08-27
 
 - Terms of use (7 clauses: intermediary only, agreements between users, content,
