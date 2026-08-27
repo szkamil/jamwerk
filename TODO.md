@@ -32,9 +32,9 @@
 - [ ] Delete old bridge workflow on poc-poc branch `claude/musician-matching-app-wefw3d`.
 
 ### 1. Getting people in
-- [ ] Invite a musician (WhatsApp share, FR text) — settings row + landing.
-- [ ] Share button on gig and band cards (Web Share API, copy-link fallback).
-- [ ] Sitemap + index band pages and /about (musician pages stay noindex); `/geneve` style city landing later.
+- [x] Invite a musician (WhatsApp share, FR text) — settings row + landing.
+- [x] Share button on gig and band cards (Web Share API, copy-link fallback).
+- [x] Sitemap + index band pages and /about (musician pages stay noindex); `/geneve` style city landing later.
 - [ ] Google sign-in (blocked on OAuth client above).
 
 ### 2. Keeping them
