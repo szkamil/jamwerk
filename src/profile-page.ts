@@ -205,7 +205,7 @@ ${NOTES_LAYER}
   <div class="stat"><b class="display">${m.rate_min != null ? 'CHF ' + m.rate_min + '+' : '–'}</b><span>${t(lang, { en: 'per gig', fr: 'par concert', de: 'pro Gig', it: 'a concerto' })}</span></div>
 </div></div>
 <main>
-  ${m.accepts_dm !== 0 ? `<a class="dm-btn" href="/?dm=${esc(m.handle)}">${t(lang, { en: 'Send a message', fr: 'Envoyer un message', de: 'Nachricht senden', it: 'Invia un messaggio' })}</a>` : ''}
+  ${m.accepts_dm !== 0 && !(c.get('user') && c.get('user')!.email === m.owner) ? `<a class="dm-btn" href="/?dm=${esc(m.handle)}">${t(lang, { en: 'Send a message', fr: 'Envoyer un message', de: 'Nachricht senden', it: 'Invia un messaggio' })}</a>` : ''}
   <div class="chips">${flagChips}</div>
   ${myBands.length ? `<h2>${t(lang, { en: 'Groups', fr: 'Groupes', de: 'Gruppen', it: 'Gruppi' })}</h2>
   <div class="chips">${myBands.map((b) => `<a class="chip hot" href="/b/${b.id}-${esc(b.slug)}" style="text-decoration: none;">${esc(b.name)}${b.kind === 'jam' ? ' · ' + t(lang, { en: 'jam group', fr: 'groupe de jam', de: 'Jam-Gruppe', it: 'gruppo jam' }) : ''}</a>`).join('')}</div>` : ''}
@@ -221,6 +221,7 @@ ${NOTES_LAYER}
   <div class="inner">
     <a href="/" style="text-decoration: none;"><span class="brand">Jam<span>Werk</span></span></a>
     <span>${t(lang, { en: 'Booked through JamWerk — gigs · jams · bands', fr: 'Réservé via JamWerk — concerts · jams · groupes', de: 'Gebucht über JamWerk — Gigs · Jams · Bands', it: 'Prenotato tramite JamWerk — concerti · jam · band' })}</span>
+    <a href="/about">${t(lang, { en: 'About', fr: 'À propos', de: 'Über uns', it: 'Chi siamo' })}</a>
     <span style="margin-left: auto;">© ${new Date().getFullYear()} JamWerk</span>
   </div>
 </footer>

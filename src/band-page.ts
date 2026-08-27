@@ -137,6 +137,7 @@ ${NOTES_LAYER}
   <div class="inner">
     <a href="/" style="text-decoration: none;"><span class="brand">Jam<span>Werk</span></span></a>
     <span>${t(lang, { en: 'Booked through JamWerk — gigs · jams · bands', fr: 'Réservé via JamWerk — concerts · jams · groupes', de: 'Gebucht über JamWerk — Gigs · Jams · Bands', it: 'Prenotato tramite JamWerk — concerti · jam · band' })}</span>
+    <a href="/about">${t(lang, { en: 'About', fr: 'À propos', de: 'Über uns', it: 'Chi siamo' })}</a>
     <span style="margin-left: auto;">© ${new Date().getFullYear()} JamWerk</span>
   </div>
 </footer>

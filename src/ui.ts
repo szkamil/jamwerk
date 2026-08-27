@@ -133,6 +133,10 @@ export const PAGE = `<!doctype html>
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
   nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
   #profileBtn { position: relative; }
+  body.help-mode nav#tabs { display: none !important; }
+  body.help-mode main { padding-bottom: 24px; }
+  #helpClose { display: none; }
+  body.help-mode #helpClose { display: flex; }
   .profile-hero { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
   .profile-hero .avatar { width: 72px; height: 72px; font-size: 26px; overflow: hidden; flex-shrink: 0; }
   .profile-hero .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -246,16 +250,14 @@ ${MEDIA_CSS}
   /* Floating toast in the backstage style: ink pill, icon disc, draining
      accent bar. Inline .msg boxes inside forms keep the flat look. */
   #flash { position: fixed; top: 14px; left: 50%; transform: translateX(-50%) translateY(-10px); z-index: 3000; margin: 0; max-width: min(92vw, 480px);
-    display: flex !important; align-items: center; gap: 11px; padding: 12px 18px 15px 12px; border-radius: 16px; overflow: hidden;
+    display: flex !important; align-items: center; gap: 11px; padding: 10px 16px 10px 10px; border-radius: 14px; overflow: hidden;
     background-color: var(--ink); background-image: radial-gradient(circle at 88% -40%, rgba(100,64,251,0.45), transparent 60%);
     color: #fff; font-size: 14.5px; font-weight: 500; box-shadow: 0 14px 38px rgba(20,19,26,0.35);
-    opacity: 0; pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease; cursor: pointer; }
-  #flash.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; }
+  #flash.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   #flash .fi { flex: 0 0 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; }
   #flash.ok .fi { background: var(--ok); color: #fff; }
   #flash.err .fi { background: #e0524a; color: #fff; }
-  #flash .fbar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent-light); transform-origin: left; animation: fbar 5s linear forwards; }
-  @keyframes fbar { to { transform: scaleX(0); } }
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
   /* City typeahead (see attachPlaces) */
   .place-wrap { position: relative; }
@@ -370,6 +372,7 @@ ${NOTES_LAYER}
   <div class="msg" id="flash"></div>
 
     <div id="landing" hidden>
+      <div id="helpClose" style="align-items: center; gap: 10px; margin-bottom: 10px;"><button type="button" class="ghost small" id="helpBack">&larr; <span data-i18n="back">Back</span></button><span class="muted" data-i18n="help_title">Help</span></div>
       <div style="background-color: var(--ink); background-image: radial-gradient(circle at 85% -20%, rgba(100,64,251,0.45), transparent 60%); border-radius: 16px; padding: 34px 24px 40px; text-align: center; position: relative; z-index: 0; overflow: hidden; margin-bottom: 12px; color: #fff;">
         ${WAVE_SVG}
         <div class="display" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px;" data-i18n="land_head">Find a dep. Fill a gig. Start a band.</div>
@@ -705,6 +708,7 @@ ${NOTES_LAYER}
     <button type="button" id="footFeedback" data-i18n="feedback">Feedback</button>
     <button type="button" id="footHow" data-i18n="how_it_works">How it works</button>
     <button type="button" id="footInstall" data-i18n="install_link">Install the app</button>
+    <a id="footAbout" href="/about" data-i18n="about_link">About</a>
     <span class="copy">&copy; 2026 JamWerk</span>
   </div>
 </footer>
@@ -783,6 +787,7 @@ const I18N = {
     post_gig_title: 'Post a paid gig', post_jam_title: 'Post a jam listing \u2014 free', switch_to_gig: 'Post a paid gig instead', switch_to_jam: 'Post a jam listing instead',
     edit_profile: 'Edit profile', s_lang: 'Language', alerts_state_on: 'On', alerts_state_off: 'Off', profile_incomplete: 'Your profile is empty \u2014 add your instruments and city so people can find you.', gig_short: 'Gig', application_short: 'Application',
     help_ask_t: 'A question? Something unclear?', help_ask_p: 'Tell us what you were trying to do \u2014 we read every message and fix things fast.', help_ask_btn: 'Write to us',
+    about_link: 'About', help_title: 'Help', dm_self: 'That is your own profile.',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -838,6 +843,7 @@ const I18N = {
     post_gig_title: 'Publier un concert pay\u00e9', post_jam_title: 'Publier une annonce de jam \u2014 gratuit', switch_to_gig: 'Plut\u00f4t un concert pay\u00e9', switch_to_jam: 'Plut\u00f4t une annonce de jam',
     edit_profile: 'Modifier le profil', s_lang: 'Langue', alerts_state_on: 'Activ\u00e9es', alerts_state_off: 'D\u00e9sactiv\u00e9es', profile_incomplete: 'Votre profil est vide \u2014 ajoutez vos instruments et votre ville pour qu\u2019on vous trouve.', gig_short: 'Concert', application_short: 'Candidature',
     help_ask_t: 'Une question\u00a0? Quelque chose pas clair\u00a0?', help_ask_p: 'Dites-nous ce que vous vouliez faire \u2014 on lit chaque message et on corrige vite.', help_ask_btn: '\u00c9crivez-nous',
+    about_link: '\u00c0 propos', help_title: 'Aide', dm_self: 'C\u2019est votre propre profil.',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -893,6 +899,7 @@ const I18N = {
     post_gig_title: 'Bezahlten Gig einstellen', post_jam_title: 'Jam-Inserat einstellen \u2014 gratis', switch_to_gig: 'Lieber einen bezahlten Gig', switch_to_jam: 'Lieber ein Jam-Inserat',
     edit_profile: 'Profil bearbeiten', s_lang: 'Sprache', alerts_state_on: 'An', alerts_state_off: 'Aus', profile_incomplete: 'Dein Profil ist leer \u2014 trag Instrumente und Stadt ein, damit man dich findet.', gig_short: 'Gig', application_short: 'Bewerbung',
     help_ask_t: 'Eine Frage? Etwas unklar?', help_ask_p: 'Sag uns, was du tun wolltest \u2014 wir lesen jede Nachricht und bessern schnell nach.', help_ask_btn: 'Schreib uns',
+    about_link: '\u00dcber uns', help_title: 'Hilfe', dm_self: 'Das ist dein eigenes Profil.',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -948,6 +955,7 @@ const I18N = {
     post_gig_title: 'Pubblica un concerto pagato', post_jam_title: 'Pubblica un annuncio jam \u2014 gratis', switch_to_gig: 'Piuttosto un concerto pagato', switch_to_jam: 'Piuttosto un annuncio jam',
     edit_profile: 'Modifica profilo', s_lang: 'Lingua', alerts_state_on: 'Attivi', alerts_state_off: 'Disattivati', profile_incomplete: 'Il tuo profilo \u00e8 vuoto \u2014 aggiungi strumenti e citt\u00e0 per farti trovare.', gig_short: 'Concerto', application_short: 'Candidatura',
     help_ask_t: 'Una domanda? Qualcosa non \u00e8 chiaro?', help_ask_p: 'Dicci cosa volevi fare \u2014 leggiamo ogni messaggio e sistemiamo in fretta.', help_ask_btn: 'Scrivici',
+    about_link: 'Chi siamo', help_title: 'Aiuto', dm_self: '\u00c8 il tuo stesso profilo.',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -1038,6 +1046,7 @@ let helpMode = false;
 $('howBtn').onclick = () => {
   stopChat();
   helpMode = true;
+  document.body.classList.add('help-mode');
   landingDismissed = false;
   TABS.forEach((t) => { $('tab-' + t).hidden = true; });
   document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
@@ -1046,6 +1055,7 @@ $('howBtn').onclick = () => {
   window.scrollTo({ top: 0 });
 };
 document.querySelectorAll('.help-ask-btn').forEach((b) => { b.onclick = () => openFeedback(); });
+$('helpBack').onclick = () => { (document.querySelector('[data-tab=' + (lastBrowse || 'musicians') + ']') || document.querySelector('[data-tab=musicians]')).click(); };
 $('logoHome').onclick = () => {
   landingDismissed = false;
   document.querySelector('[data-tab=board]').click();
@@ -1111,10 +1121,9 @@ const flash = (text, kind) => {
   const f = $('flash');
   f.className = kind + ' show';
   f.textContent = '';
-  f.append(el('span', 'fi', kind === 'ok' ? '\u2713' : '!'), el('span', '', text), el('span', 'fbar'));
-  f.onclick = () => { f.classList.remove('show'); clearTimeout(flashTimer); };
+  f.append(el('span', 'fi', kind === 'ok' ? '\u2713' : '!'), el('span', '', text));
   clearTimeout(flashTimer);
-  flashTimer = setTimeout(() => f.classList.remove('show'), 5000);
+  flashTimer = setTimeout(() => f.classList.remove('show'), kind === 'err' ? 3200 : 2200);
 };
 const label = (i) => (I18N[lang].inst && I18N[lang].inst[i]) || i.replace(/_/g, ' ');
 const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
@@ -1259,7 +1268,7 @@ function mountBoard(tab) {
 document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
     stopChat();
-    if (helpMode) { helpMode = false; landingDismissed = true; $('landing').hidden = true; $('helpAsk1').hidden = true; $('helpAsk2').hidden = true; }
+    if (helpMode) { helpMode = false; document.body.classList.remove('help-mode'); landingDismissed = true; $('landing').hidden = true; $('helpAsk1').hidden = true; $('helpAsk2').hidden = true; }
     document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
     b.classList.add('active');
     if (b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -1333,6 +1342,7 @@ function musicianCard(m) {
 }
 async function dmUser(handle, name) {
   if (!me) { $('authDialog').showModal(); return; }
+  if (me.handle && me.handle === handle) { flash(T('dm_self'), 'err'); return; }
   if (!me.confirmed) { flash(T('confirm_to_contact'), 'err'); return; }
   const w = await api('/messages/dm/with/' + encodeURIComponent(handle));
   if (!w.ok) { flash(w.json.error || T('failed'), 'err'); return; }
@@ -2483,7 +2493,7 @@ applyI18n();
   const deepBand = q.get('band'), deepTab = q.get('tab'), deepDm = q.get('dm');
   if (q.toString()) history.replaceState(null, '', '/');
   const r = await api('/auth/me');
-  if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null, name: r.json.name || '' };
+  if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null, name: r.json.name || '', handle: r.json.handle || null };
   renderAuth(); loadProfile();
   const deepGig = q.get('gig');
   if (deepGig) {
@@ -2494,6 +2504,8 @@ applyI18n();
     const card = $('gig-' + deepGig);
     if (card) { card.scrollIntoView({ block: 'center' }); card.classList.add('hilite'); setTimeout(() => card.classList.remove('hilite'), 2500); }
   } else if (!(deepTab === 'jams' || deepTab === 'band' || deepBand)) mountBoard('musicians');
+  if (q.get('feedback') === '1') openFeedback();
+  if (deepTab === 'help') $('howBtn').onclick();
   if (deepTab === 'jams') { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=jams]').click(); }
   if (deepDm) { if (!me) { $('authDialog').showModal(); } else dmUser(deepDm, ''); }
   if (deepTab === 'band' || deepBand) {
