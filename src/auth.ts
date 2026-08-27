@@ -167,6 +167,15 @@ auth.post('/reset', async (c) => {
 });
 
 // Persist the user's UI language so emails and push match it.
+// Small preferences that are not part of the musician profile.
+auth.post('/prefs', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Authentication required' }, 401);
+  const body = await c.req.json().catch(() => ({}));
+  if (typeof body?.digest === 'boolean') await c.env.DB.prepare('UPDATE users SET digest = ? WHERE email = ?').bind(body.digest ? 1 : 0, user.email).run();
+  return c.json({ ok: true });
+});
+
 auth.post('/lang', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Authentication required' }, 401);
@@ -185,8 +194,8 @@ auth.post('/logout', (c) => {
 auth.get('/me', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Not logged in' }, 401);
-  const row = await c.env.DB.prepare('SELECT u.confirmed, u.photo_key, u.display_name, m.handle FROM users u LEFT JOIN musician_details m ON m.owner = u.email WHERE u.email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null; display_name: string | null }>();
-  return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key), name: row?.display_name || '', handle: (row as any)?.handle || null });
+  const row = await c.env.DB.prepare('SELECT u.confirmed, u.photo_key, u.display_name, u.digest, m.handle FROM users u LEFT JOIN musician_details m ON m.owner = u.email WHERE u.email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null; display_name: string | null }>();
+  return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key), name: row?.display_name || '', handle: (row as any)?.handle || null, digest: (row as any)?.digest !== 0 });
 });
 
 // Profile photo: the client resizes to a 512px JPEG before upload (see ui.ts),

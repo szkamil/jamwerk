@@ -113,5 +113,8 @@ describe('Chat polling', () => {
 		const newer = await call(`/messages/dm/${a.json.thread_id}?after=${lastId}`, { as: bob });
 		expect(newer.json.messages.map((m: any) => m.body)).toEqual(['second one']);
 		expect((await call('/messages/threads', { as: bob })).json.unread_total).toBe(0);
+		// alice sees her messages as seen once bob opened the thread
+		const mine = await call(`/messages/dm/${a.json.thread_id}`, { as: alice });
+		expect(mine.json.seen_up_to).toBeGreaterThan(0);
 	});
 });

@@ -16,6 +16,7 @@ import type { AppEnv, Env } from './types';
 import { notFound } from './not-found';
 import { fanOutGig } from './gigs';
 import { admin, reports, backupToR2 } from './admin';
+import { sendWeeklyDigests } from './digest';
 import placesRoutes from './places-api';
 
 const app = new Hono<AppEnv>();
@@ -108,12 +109,14 @@ async function scheduled(_controller: ScheduledController, env: Env): Promise<vo
   for (const g of fallenRows as any[]) {
     await fanOutGig(env, { id: g.id, kind: 'gig', instrument: g.instrument, venue_city: g.venue_city, venue_lat: g.venue_lat, venue_lng: g.venue_lng, gig_date: g.gig_date, fee_chf: g.fee_chf, currency: g.currency || 'CHF', description: g.description || '', need: 'dep', poster_email: g.poster_email }, true);
   }
+  let digests = 0;
+  try { digests = await sendWeeklyDigests(env); } catch (err) { console.error('Digest failed:', err); }
   let backup: string | null = null;
   try { backup = await backupToR2(env); } catch (err) { console.error('Backup failed:', err); }
   const pruned = await env.DB.prepare(
     "DELETE FROM rate_limits WHERE attempted_at < datetime('now', '-1 day')"
   ).run();
-  console.log(`Housekeeping: ${expired.meta.changes} listings expired, ${fallen.meta.changes} standby gigs reopened as replacements, backup=${backup ?? 'skipped'}, ${pruned.meta.changes} rate-limit rows pruned`);
+  console.log(`Housekeeping: ${expired.meta.changes} listings expired, ${fallen.meta.changes} standby gigs reopened as replacements, backup=${backup ?? 'skipped'}, digests=${digests}, ${pruned.meta.changes} rate-limit rows pruned`);
 }
 
 export default {
