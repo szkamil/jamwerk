@@ -116,8 +116,15 @@ export const PAGE = `<!doctype html>
   /* Same orientation as the header: bars stand on the footer's bottom edge. */
   footer .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
   footer .inner { max-width: 860px; margin: 0 auto; display: flex; gap: 8px 18px; align-items: center; flex-wrap: wrap; }
-  footer .copy { margin-left: auto; }
-  @media (max-width: 640px) { footer .copy { flex-basis: 100%; text-align: right; margin-left: 0; } }
+  footer a { color: rgba(255,255,255,0.75); text-underline-offset: 3px; }
+  footer .flinks { display: flex; gap: 6px 18px; flex-wrap: wrap; align-items: center; margin-left: 12px; }
+  footer .copy { margin-left: auto; white-space: nowrap; }
+  @media (max-width: 640px) {
+    footer .inner { gap: 10px 0; }
+    footer .brand { flex-basis: 100%; }
+    footer .flinks { flex-basis: 100%; margin-left: 0; gap: 8px 16px; }
+    footer .copy { flex-basis: 100%; text-align: right; margin-left: 0; }
+  }
   footer .brand { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.4px; color: #fff; cursor: pointer; }
   footer .brand span { color: var(--accent-light); }
   footer button { background: none; border: 0; padding: 0; font: inherit; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -704,11 +711,12 @@ ${NOTES_LAYER}
   ${WAVE_SVG}
   <div class="inner">
     <span class="brand" id="footLogo">Jam<span>Werk</span></span>
-    <span class="spacer"></span>
-    <button type="button" id="footFeedback" data-i18n="feedback">Feedback</button>
-    <button type="button" id="footHow" data-i18n="how_it_works">How it works</button>
-    <button type="button" id="footInstall" data-i18n="install_link">Install the app</button>
-    <a id="footAbout" href="/about" data-i18n="about_link">About</a>
+    <span class="flinks">
+      <button type="button" id="footFeedback" data-i18n="feedback">Feedback</button>
+      <button type="button" id="footHow" data-i18n="how_it_works">How it works</button>
+      <a id="footAbout" href="/about" data-i18n="about_link">About</a>
+      <button type="button" id="footInstall" data-i18n="install_link">Install the app</button>
+    </span>
     <span class="copy">&copy; 2026 JamWerk</span>
   </div>
 </footer>
