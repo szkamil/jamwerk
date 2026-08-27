@@ -18,6 +18,7 @@ import { Lang, t } from './i18n';
 import type { AppEnv } from './types';
 import { classifyMedia, parseLinks } from './media';
 import { isBlocked } from './messages';
+import { normGenres } from './genres';
 
 type Ctx = Context<AppEnv>;
 
@@ -70,7 +71,7 @@ function bandPublic(b: any) {
   const links: string[] = JSON.parse(b.links || '[]');
   return {
     id: b.id, name: b.name, slug: slugify(b.name), kind: b.kind || 'band',
-    genres: JSON.parse(b.genres || '[]'), home_city: b.home_city, description: b.description,
+    genres: normGenres(JSON.parse(b.genres || '[]')), home_city: b.home_city, description: b.description,
     pitch: b.pitch || '', bookable: !!b.bookable, fee_from: b.fee_from ?? null, fee_currency: b.fee_currency || 'CHF',
     links, media: links.map(classifyMedia).filter(Boolean),
   };
@@ -116,7 +117,7 @@ bands.post('/', async (c) => {
   if (!body) return c.json({ error: 'Invalid JSON body' }, 400);
 
   const name = typeof body.name === 'string' ? body.name.trim().slice(0, 80) : '';
-  const genres = parseSlugArray(body.genres) ?? [];
+  const genres = normGenres(body.genres);
   const seats = parseSlugArray(body.seats, 12) ?? [];
   const description = typeof body.description === 'string' ? body.description.trim().slice(0, 4000) : '';
   const links = parseLinks(body.links);
@@ -157,7 +158,7 @@ bands.get('/', async (c) => {
   const binds: unknown[] = [];
   if (q.kind === 'band' || q.kind === 'jam') { conds.push('b.kind = ?'); binds.push(q.kind); }
   if (q.bookable === '1') conds.push('b.bookable = 1');
-  if (q.genre) { conds.push('LOWER(b.genres) LIKE ?'); binds.push('%' + q.genre.toLowerCase().replace(/[%_]/g, '') + '%'); }
+  if (q.genre) { const g = normGenres([q.genre])[0]; if (g) { conds.push('b.genres LIKE ?'); binds.push('%"' + g + '"%'); } }
   let lat = parseFloat(q.lat), lng = parseFloat(q.lng);
   const radius = Math.min(parseFloat(q.radius_km) || 50, 300);
   if ((isNaN(lat) || isNaN(lng)) && q.city) {
@@ -206,7 +207,7 @@ bands.put('/:id', async (c) => {
   const body = await c.req.json().catch(() => null);
   if (!body) return c.json({ error: 'Invalid JSON body' }, 400);
   const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 80) : band.name;
-  const genres = parseSlugArray(body.genres) ?? JSON.parse(band.genres || '[]');
+  const genres = body.genres === undefined ? normGenres(JSON.parse(band.genres || '[]')) : normGenres(body.genres);
   if (!genres.length) return c.json({ error: 'genres must be a non-empty array of slugs' }, 400);
   const description = typeof body.description === 'string' ? body.description.trim().slice(0, 4000) : band.description;
   const links = parseLinks(body.links);

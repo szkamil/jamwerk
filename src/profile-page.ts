@@ -8,6 +8,7 @@ import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
 import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
 import { bandsForUser } from './gigs';
+import { normGenres, genreLabel } from './genres';
 
 export function esc(s: unknown): string {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -117,7 +118,7 @@ profilePage.get('/:handle', async (c) => {
   const name = m.display_name || 'JamWerk musician';
   const initials = name.split(/\s+/).map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
   const instruments: string[] = JSON.parse(m.instruments || '[]');
-  const genres: string[] = JSON.parse(m.genres || '[]');
+  const genres: string[] = normGenres(JSON.parse(m.genres || '[]'));
   const demos: string[] = JSON.parse(m.demo_links || '[]');
   const label = (s: string) => s.replace(/_/g, ' ');
   const avg = stats?.avg_rating != null ? Math.round(stats.avg_rating * 10) / 10 : null;
@@ -141,7 +142,7 @@ profilePage.get('/:handle', async (c) => {
     m.sings_backing ? '<span class="chip">backing vocals</span>' : '',
     m.own_transport ? '<span class="chip">own transport</span>' : '',
     m.own_pa ? '<span class="chip">own PA</span>' : '',
-    ...genres.map((x) => `<span class="chip">${esc(x)}</span>`),
+    ...genres.map((x) => `<span class="chip">${esc(genreLabel(lang, x))}</span>`),
   ].filter(Boolean).join('');
 
   const demoHtml = demos.length

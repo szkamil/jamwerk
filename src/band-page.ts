@@ -8,6 +8,7 @@ import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
 import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
 import { esc, PAGE_CSS } from './profile-page';
+import { normGenres, genreLabel } from './genres';
 
 const EXTRA_CSS = `
   .book { background: var(--accent-tint); border: 1px solid var(--accent-tint-line); border-radius: 12px; padding: 14px; margin-bottom: 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -43,7 +44,7 @@ bandPage.get('/:id', async (c) => {
      WHERE s.band_id = ? ORDER BY s.id`
   ).bind(id).all();
 
-  const genres: string[] = JSON.parse(b.genres || '[]');
+  const genres: string[] = normGenres(JSON.parse(b.genres || '[]'));
   const links: string[] = JSON.parse(b.links || '[]');
   const label = (s: string) => s.replace(/_/g, ' ');
   const isJam = b.kind === 'jam';
@@ -84,7 +85,7 @@ bandPage.get('/:id', async (c) => {
   const kindLabel = isJam
     ? t(lang, { en: 'Jam / practice group', fr: 'Groupe de jam / répétition', de: 'Jam-/Probegruppe', it: 'Gruppo jam / di prova' })
     : t(lang, { en: 'Band', fr: 'Groupe', de: 'Band', it: 'Gruppo' });
-  const title = `${b.name} — ${genres.map(label).join(', ') || kindLabel} | JamWerk`;
+  const title = `${b.name} — ${genres.map((x) => genreLabel(lang, x)).join(', ') || kindLabel} | JamWerk`;
   const ogDesc = `${kindLabel}${b.home_city ? ' · ' + b.home_city : ''}${b.bookable ? ' · ' + feeLine : ''}${b.pitch ? ' — ' + b.pitch : ''}`;
   return c.html(`<!doctype html>
 <html lang="${lang}">
@@ -119,7 +120,7 @@ ${NOTES_LAYER}
         <div class="sub">${kindLabel}${b.home_city ? ' · ' + esc(b.home_city) : ''}</div>
       </div>
     </div>
-    <div class="pills">${genres.map((x) => `<span class="pill">${esc(label(x))}</span>`).join('')}</div>
+    <div class="pills">${genres.map((x) => `<span class="pill">${esc(genreLabel(lang, x))}</span>`).join('')}</div>
   </div>
 </header>
 <main>

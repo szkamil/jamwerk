@@ -7,6 +7,7 @@
 // scatter of notation behind the page. Deterministic — same field every load.
 import { MEDIA_CSS } from './media';
 import { PLACES_JSON } from './places';
+import { GENRES, GENRE_LABELS } from './genres';
 
 export const WAVE_SVG = (() => {
   const heights = [8, 14, 10, 22, 30, 18, 12, 26, 36, 24, 14, 20, 32, 16, 10, 24, 34, 28, 16, 12, 22, 38, 26, 14, 18, 30, 20, 10, 16, 28, 36, 22, 12, 20, 26, 18, 32, 14, 8];
@@ -497,7 +498,7 @@ ${NOTES_LAYER}
         <div class="row"><label data-i18n="call_time">Call time</label><input type="time" id="pCall"></div>
         <div class="row"><label data-i18n="end_time">End time</label><input type="time" id="pEnd"></div>
       </div>
-      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="pGenres" required placeholder="jazz, funk, samba"></div>
+      <div class="row"><label data-i18n="genres_l">Genres</label><div class="checks" id="pGenres"></div></div>
       <div class="row"><label data-i18n="description">Description</label><textarea id="pDesc" required placeholder="Two 45-min sets, charts provided, backline on site…" data-i18n-ph="ph_desc"></textarea></div>
       <div class="row" id="pLevelRow" hidden><label data-i18n="whos_welcome">Who&#8217;s welcome</label>
         <select id="pLevel">
@@ -537,8 +538,8 @@ ${NOTES_LAYER}
         <div class="row"><label data-i18n="band_name">Band name</label><input type="text" id="bName" required maxlength="80"></div>
         <div class="row"><label data-i18n="city">City</label><input type="text" id="bCity" placeholder="Genève" data-i18n-ph="ph_city_ex"></div>
       </div>
-      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="bGenres" required placeholder="indie, rock"></div>
-      <div class="row" id="bBookRow"><label class="checks" style="font-weight: 600;"><input type="checkbox" id="bBookable"> <span data-i18n="bookable_l">Available for events — weddings, parties, corporate (people can book us)</span></label></div>
+      <div class="row"><label data-i18n="genres_l">Genres</label><div class="checks" id="bGenres"></div></div>
+      <div class="row" id="bBookRow"><label style="display: flex; gap: 8px; align-items: flex-start; font-weight: 600; margin: 0;"><input type="checkbox" id="bBookable" style="margin-top: 4px;"> <span data-i18n="bookable_l">Available for events — weddings, parties, corporate (people can book us)</span></label></div>
       <div id="bBookFields" hidden>
         <div class="grid2">
           <div class="row"><label data-i18n="fee_from_l">Fee from (whole band, one evening)</label>
@@ -559,7 +560,7 @@ ${NOTES_LAYER}
         <button type="button" data-bkind="" class="active" data-i18n="seg_all_bands">All</button>
         <button type="button" data-bkind="bookable" data-i18n="seg_bookable">Bookable</button>
       </div>
-      <input type="text" id="bGenreF" placeholder="Genre" data-i18n-ph="ph_genre" style="max-width: 160px;">
+      <select id="bGenreF"><option value="" data-i18n="all_genres">All genres</option></select>
       <input type="text" id="bCityF" placeholder="City" data-i18n-ph="ph_city">
       <select id="bRadiusF">
         <option value="10">10 km</option>
@@ -603,7 +604,7 @@ ${NOTES_LAYER}
       </div>
       <div class="row"><label data-i18n="instruments_l">Instruments</label><div class="checks" id="mInstruments"></div></div>
       <p class="muted" style="margin: -6px 0 12px;"><span data-i18n="missing_inst_q">Your instrument isn't listed?</span> <button type="button" class="linkish" data-fb="profile" data-i18n="tell_us">Tell us →</button></p>
-      <div class="row"><label data-i18n="genres_csv">Genres (comma-separated)</label><input type="text" id="mGenres" required placeholder="jazz, funk, samba, wedding pop"></div>
+      <div class="row"><label data-i18n="genres_l">Genres</label><div class="checks" id="mGenres"></div></div>
       <div class="grid2">
         <div class="row"><label data-i18n="home_city">Home city</label><input type="text" id="mCity" placeholder="Genève" data-i18n-ph="ph_city_ex"></div>
         <div class="row"><label data-i18n="radius">Travel radius (km)</label><input type="number" id="mRadius" value="30" min="1" max="300"></div>
@@ -702,6 +703,8 @@ ${NOTES_LAYER}
 
 <script>
 const $ = (id) => document.getElementById(id);
+const GENRES = ${JSON.stringify(GENRES)};
+const GENRE_LABELS = ${JSON.stringify(GENRE_LABELS)};
 const INSTRUMENTS = ['vocals','guitar','bass','double_bass','drums','percussion','keys','piano','accordion','violin','viola','cello','trumpet','trombone','saxophone','clarinet','flute','harmonica','cavaquinho','dj','other'];
 const I18N = {
   en: {
@@ -721,6 +724,7 @@ const I18N = {
     land_d_musicians: 'Everyone on JamWerk, by instrument, level and city \u2014 with the groups they play in. Send a message in one tap.',
     land_d_jams: 'Free and casual: people who want to jam, and groups that meet regularly. Ask to join.',
     land_d_msgs: 'All conversations in one place \u2014 direct messages, applications, booking requests. Alerts on your phone.',
+    genres_l: 'Genres', all_genres: 'All genres',
     nav_bands: 'Bands', start_band: 'Start a band', band_name: 'Band name', band_created: 'Band created.', seats_l: 'Open seats (choose instruments)', members_n2: '{0} members', add_seat: 'Add seat', seat_added: 'Seat added.', close_seat: 'Close seat', seat_closed: 'Seat closed.', joined_ok: '{0} joined the band — contact shared.', applied_seat_ok: 'Applied for the seat.', no_bands: 'No bands yet. Start one!', lineup_full: 'Lineup complete', applications_gigs: '{0} gigs', st_filled: 'filled', nav_post: 'Post a gig', nav_mine: 'My gigs', nav_profile: 'Musician profile',
     seg_musicians: 'Musicians', musicians_near: 'Musicians near you', see_all_musicians: 'See all {0} musicians', musicians_n: '{0} musicians', no_musicians: 'No musicians match yet \u2014 be the first.', cta_people: 'See who\u2019s here', looking_l: 'I\u2019m looking for', lf_dep: 'paid dep gigs', lf_jam: 'jam partners', lf_join_band: 'to join a band', lf_start_band: 'to start a band', seg_gigs: 'Paid gigs', seg_practice: 'Jam partners', all_instruments: 'All instruments', ph_city: 'City', ph_city_ex: 'Geneva', ph_desc: 'Two 45-min sets, charts provided, backline on site…', btn_filter: 'Search',
     login_btn: 'Log in', register_btn: 'Create my account', login: 'Log in', logout: 'Log out', alerts: 'Alerts', alerts_on: 'Alerts on', register: 'Register',
@@ -772,6 +776,7 @@ const I18N = {
     land_d_musicians: 'Tout le monde sur JamWerk, par instrument, niveau et ville \u2014 avec les groupes dans lesquels ils jouent. Un message en un clic.',
     land_d_jams: 'Gratuit et sans pression\u00a0: des musiciens qui veulent jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement. Demandez \u00e0 rejoindre.',
     land_d_msgs: 'Toutes vos conversations au m\u00eame endroit \u2014 messages directs, candidatures, demandes de r\u00e9servation. Alertes sur votre t\u00e9l\u00e9phone.',
+    genres_l: 'Genres', all_genres: 'Tous les genres',
     nav_bands: 'Groupes', start_band: 'Créer un groupe', band_name: 'Nom du groupe', band_created: 'Groupe créé.', seats_l: 'Places ouvertes (choisissez les instruments)', members_n2: '{0} membres', add_seat: 'Ajouter une place', seat_added: 'Place ajoutée.', close_seat: 'Fermer la place', seat_closed: 'Place fermée.', joined_ok: '{0} a rejoint le groupe — contact partagé.', applied_seat_ok: 'Candidature envoyée pour la place.', no_bands: 'Pas encore de groupes. Créez-en un !', lineup_full: 'Formation au complet', applications_gigs: '{0} concerts', st_filled: 'pourvue', nav_post: 'Publier une annonce', nav_mine: 'Mes concerts', nav_profile: 'Profil musicien',
     seg_musicians: 'Musiciens', musicians_near: 'Musiciens pr\u00e8s de vous', see_all_musicians: 'Voir les {0} musiciens', musicians_n: '{0} musiciens', no_musicians: 'Aucun musicien ne correspond pour le moment \u2014 soyez le premier.', cta_people: 'Voir qui est l\u00e0', looking_l: 'Je cherche', lf_dep: 'des remplacements pay\u00e9s', lf_jam: 'des partenaires de jam', lf_join_band: '\u00e0 rejoindre un groupe', lf_start_band: '\u00e0 monter un groupe', seg_gigs: 'Concerts payés', seg_practice: 'Partenaires', all_instruments: 'Tous les instruments', ph_city: 'Ville', ph_city_ex: 'Genève', ph_desc: 'Deux sets de 45 min, grilles fournies, backline sur place…', btn_filter: 'Rechercher',
     login_btn: 'Se connecter', register_btn: 'Créer mon compte', login: 'Connexion', logout: 'Déconnexion', alerts: 'Alertes', alerts_on: 'Alertes activées', register: 'Créer un compte',
@@ -823,6 +828,7 @@ const I18N = {
     land_d_musicians: 'Alle auf JamWerk, nach Instrument, Niveau und Stadt \u2014 mit den Gruppen, in denen sie spielen. Nachricht mit einem Tipp.',
     land_d_jams: 'Kostenlos und locker: Leute, die jammen wollen, und Gruppen, die sich regelm\u00e4ssig treffen. Frag nach einem Platz.',
     land_d_msgs: 'Alle Gespr\u00e4che an einem Ort \u2014 Direktnachrichten, Bewerbungen, Buchungsanfragen. Alerts aufs Handy.',
+    genres_l: 'Genres', all_genres: 'Alle Genres',
     nav_bands: 'Bands', start_band: 'Band gründen', band_name: 'Bandname', band_created: 'Band erstellt.', seats_l: 'Offene Plätze (Instrumente wählen)', members_n2: '{0} Mitglieder', add_seat: 'Platz hinzufügen', seat_added: 'Platz hinzugefügt.', close_seat: 'Platz schliessen', seat_closed: 'Platz geschlossen.', joined_ok: '{0} ist der Band beigetreten — Kontakt geteilt.', applied_seat_ok: 'Für den Platz beworben.', no_bands: 'Noch keine Bands. Gründe eine!', lineup_full: 'Besetzung komplett', applications_gigs: '{0} Gigs', st_filled: 'besetzt', nav_post: 'Gig einstellen', nav_mine: 'Meine Gigs', nav_profile: 'Musikerprofil',
     seg_musicians: 'Musiker:innen', musicians_near: 'Musiker:innen in deiner N\u00e4he', see_all_musicians: 'Alle {0} Musiker:innen', musicians_n: '{0} Musiker:innen', no_musicians: 'Noch niemand passt \u2014 sei die erste Person.', cta_people: 'Wer ist da?', looking_l: 'Ich suche', lf_dep: 'bezahlte Ersatz-Gigs', lf_jam: 'Jam-Partner', lf_join_band: 'eine Band zum Einsteigen', lf_start_band: 'Leute f\u00fcr eine neue Band', seg_gigs: 'Bezahlte Gigs', seg_practice: 'Jam-Partner', all_instruments: 'Alle Instrumente', ph_city: 'Stadt', ph_city_ex: 'Genf', ph_desc: 'Zwei 45-Minuten-Sets, Charts vorhanden, Backline vor Ort…', btn_filter: 'Suchen',
     login_btn: 'Anmelden', register_btn: 'Konto erstellen', login: 'Anmelden', logout: 'Abmelden', alerts: 'Alerts', alerts_on: 'Alerts an', register: 'Registrieren',
@@ -874,6 +880,7 @@ const I18N = {
     land_d_musicians: 'Tutti su JamWerk, per strumento, livello e citt\u00e0 \u2014 con i gruppi in cui suonano. Un messaggio con un tocco.',
     land_d_jams: 'Gratis e senza pressioni: musicisti che vogliono jammare e gruppi che si trovano regolarmente. Chiedi di unirti.',
     land_d_msgs: 'Tutte le conversazioni in un posto \u2014 messaggi diretti, candidature, richieste di prenotazione. Avvisi sul telefono.',
+    genres_l: 'Generi', all_genres: 'Tutti i generi',
     nav_bands: 'Gruppi', start_band: 'Crea un gruppo', band_name: 'Nome del gruppo', band_created: 'Gruppo creato.', seats_l: 'Posti aperti (scegli gli strumenti)', members_n2: '{0} membri', add_seat: 'Aggiungi posto', seat_added: 'Posto aggiunto.', close_seat: 'Chiudi il posto', seat_closed: 'Posto chiuso.', joined_ok: '{0} è entrato/a nel gruppo — contatto condiviso.', applied_seat_ok: 'Candidatura inviata per il posto.', no_bands: 'Ancora nessun gruppo. Creane uno!', lineup_full: 'Formazione al completo', applications_gigs: '{0} concerti', st_filled: 'assegnato', nav_post: 'Pubblica annuncio', nav_mine: 'I miei concerti', nav_profile: 'Profilo musicista',
     seg_musicians: 'Musicisti', musicians_near: 'Musicisti vicino a te', see_all_musicians: 'Vedi tutti i {0} musicisti', musicians_n: '{0} musicisti', no_musicians: 'Nessun musicista corrisponde ancora \u2014 sii il primo.', cta_people: 'Guarda chi c\u2019\u00e8', looking_l: 'Cerco', lf_dep: 'sostituzioni pagate', lf_jam: 'partner per jam', lf_join_band: 'di entrare in un gruppo', lf_start_band: 'di fondare un gruppo', seg_gigs: 'Concerti pagati', seg_practice: 'Partner', all_instruments: 'Tutti gli strumenti', ph_city: 'Città', ph_city_ex: 'Ginevra', ph_desc: 'Due set da 45 min, spartiti forniti, backline sul posto…', btn_filter: 'Cerca',
     login_btn: 'Accedi', register_btn: 'Crea il mio account', login: 'Accedi', logout: 'Esci', alerts: 'Avvisi', alerts_on: 'Avvisi attivi', register: 'Registrati',
@@ -933,6 +940,11 @@ const T = (k, a) => {
 };
 const TS = (s) => T('st_' + s) === 'st_' + s ? s : T('st_' + s);
 function applyI18n() {
+  if (typeof renderGenreChecks === 'function' && $('pGenres')) {
+    const keep = { pGenres: checkedValues('pGenres'), bGenres: checkedValues('bGenres'), mGenres: checkedValues('mGenres') };
+    for (const id in keep) { renderGenreChecks(id); setChecked(id, keep[id]); }
+    const sel = $('bGenreF'); const v = sel.value; [...sel.options].forEach((o) => { if (o.value) o.textContent = genreLabel(o.value); }); sel.value = v;
+  }
   document.querySelectorAll('[data-i18n]').forEach((n) => { n.textContent = T(n.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach((n) => { n.placeholder = T(n.dataset.i18nPh); });
   document.documentElement.lang = lang;
@@ -1032,6 +1044,13 @@ const flash = (text, kind) => {
 };
 const label = (i) => (I18N[lang].inst && I18N[lang].inst[i]) || i.replace(/_/g, ' ');
 const parseCsv = (s) => s.split(',').map((x) => x.trim().toLowerCase()).filter(Boolean);
+const genreLabel = (g) => (GENRE_LABELS[g] && GENRE_LABELS[g][lang]) || String(g).replace(/_/g, ' ');
+const checkedValues = (id) => [...document.querySelectorAll('#' + id + ' input:checked')].map((x) => x.value);
+const setChecked = (id, values) => document.querySelectorAll('#' + id + ' input').forEach((x) => { x.checked = (values || []).includes(x.value); });
+function renderGenreChecks(id) {
+  const box = $(id); box.replaceChildren();
+  for (const g of GENRES) { const cb = el('label'); const input = el('input'); input.type = 'checkbox'; input.value = g; cb.append(input, document.createTextNode(genreLabel(g))); box.append(cb); }
+}
 
 // ── Turnstile (bot protection) ───────────────────────
 // Public sitekey of the "jamwerk.app forms" widget; the server verifies
@@ -1165,7 +1184,7 @@ function gigCard(g, actions) {
   }
   c.append(head);
   const tags = el('div');
-  (g.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
+  (g.genres || []).forEach((x) => tags.append(el('span', 'tag', genreLabel(x)), document.createTextNode(' ')));
   if (g.requirements && g.requirements.reads_charts) tags.append(el('span', 'tag', 'reads charts'));
   c.append(tags);
   c.append(el('p', '', g.description));
@@ -1193,7 +1212,7 @@ function musicianCard(m) {
   card.append(head);
   const chips = el('div', 'chips');
   (m.looking_for || []).forEach((k) => chips.append(el('span', 'tag hot', T(LF_KEYS[k] || k))));
-  (m.genres || []).slice(0, 4).forEach((g) => chips.append(el('span', 'tag', g)));
+  (m.genres || []).slice(0, 4).forEach((g) => chips.append(el('span', 'tag', genreLabel(g))));
   (m.bands || []).forEach((b) => { const a = el('a', 'tag band-tag', '\u266b ' + b.name); a.href = '/b/' + b.id + '-' + b.slug; a.onclick = (e) => e.stopPropagation(); chips.append(a); });
   if (chips.childElementCount) card.append(chips);
   if (me && !m.is_me && m.accepts_dm !== false) {
@@ -1570,7 +1589,7 @@ $('postForm').onsubmit = async (e) => {
   const body = {
     kind: $('pKind').value,
     instrument: $('pInstrument').value,
-    genres: parseCsv($('pGenres').value),
+    genres: checkedValues('pGenres'),
     gig_date: $('pDate').value || undefined,
     venue_city: $('pCity').value,
     ...(taCity.coords() ? { venue_lat: taCity.coords().lat, venue_lng: taCity.coords().lng } : {}),
@@ -1778,7 +1797,7 @@ async function loadProfile() {
   const r = await api('/musicians/me');
   if (!r.ok) return;
   document.querySelectorAll('#mInstruments input').forEach((cb) => { cb.checked = r.json.instruments.includes(cb.value); });
-  $('mGenres').value = r.json.genres.join(', ');
+  setChecked('mGenres', r.json.genres);
   $('mCity').value = r.json.home_city || '';
   taHome.markPicked();
   $('mRadius').value = r.json.travel_radius_km;
@@ -1801,7 +1820,7 @@ $('profileForm').onsubmit = async (e) => {
   if (!me) { $('authDialog').showModal(); return; }
   const body = {
     instruments: [...document.querySelectorAll('#mInstruments input:checked')].map((x) => x.value),
-    genres: parseCsv($('mGenres').value),
+    genres: checkedValues('mGenres'),
     home_city: $('mCity').value || undefined,
     ...(taHome.coords() ? { home_lat: taHome.coords().lat, home_lng: taHome.coords().lng } : {}),
     travel_radius_km: parseInt($('mRadius').value, 10) || 30,
@@ -1821,6 +1840,8 @@ $('profileForm').onsubmit = async (e) => {
 };
 
 // ── Init ─────────────────────────────────────────────
+['pGenres', 'bGenres', 'mGenres'].forEach(renderGenreChecks);
+for (const g of GENRES) $('bGenreF').append(new Option(genreLabel(g), g));
 for (const i of INSTRUMENTS) {
   $('fInstrument').append(new Option(label(i), i));
   $('pInstrument').append(new Option(label(i), i));
@@ -2038,7 +2059,7 @@ function showBandForm(b) {
   $('bName').value = b ? b.name : '';
   $('bCity').value = b ? (b.home_city || '') : '';
   delete $('bCity').dataset.lat; delete $('bCity').dataset.lng;
-  $('bGenres').value = b ? (b.genres || []).join(', ') : '';
+  setChecked('bGenres', b ? b.genres : []);
   $('bDesc').value = b ? (b.description || '') : '';
   $('bLinks').value = b ? (b.links || []).join('\\n') : '';
   $('bPitch').value = b ? (b.pitch || '') : '';
@@ -2071,7 +2092,7 @@ $('bandForm').onsubmit = async (e) => {
     name: $('bName').value,
     home_city: $('bCity').value || undefined,
     ...(taBand.coords() ? { home_lat: taBand.coords().lat, home_lng: taBand.coords().lng } : {}),
-    genres: parseCsv($('bGenres').value),
+    genres: checkedValues('bGenres'),
     description: $('bDesc').value,
     links: $('bLinks').value.split('\\n').map((x) => x.trim()).filter(Boolean),
     kind: document.querySelector('input[name=bKind]:checked').value,
@@ -2093,7 +2114,7 @@ document.querySelectorAll('#bandSeg button').forEach((b) => {
 });
 $('bGo').onclick = loadBands;
 $('bCityF').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); loadBands(); } });
-$('bGenreF').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); loadBands(); } });
+$('bGenreF').onchange = loadBands;
 function feeText(b) {
   if (!b.bookable) return '';
   return b.fee_from ? T('from_fee', b.fee_currency + ' ' + Number(b.fee_from).toLocaleString('de-CH')) : T('fee_on_request');
@@ -2107,7 +2128,7 @@ async function loadBands() {
   document.querySelectorAll('#bandSeg button').forEach((x) => x.classList.toggle('active', x.dataset.bkind === bandFilter));
   const city = $('bCityF').value.trim();
   await renderBands({
-    wrap: $('bandsList'), kind: 'band', bookable: bandFilter === 'bookable', genre: $('bGenreF').value.trim(),
+    wrap: $('bandsList'), kind: 'band', bookable: bandFilter === 'bookable', genre: $('bGenreF').value,
     city, radius: $('bRadiusF').value, coords: taBandF.coords(), summary: $('bandSummary'), emptyKey: 'no_bands_near', countKey: 'bands_n',
   });
 }
@@ -2150,7 +2171,7 @@ async function renderBands(o) {
       fee.style.background = 'var(--accent-tint)'; fee.style.color = 'var(--accent-deep)'; fee.style.borderColor = 'var(--accent-tint-line)'; fee.style.fontWeight = '700';
       tags.append(fee, document.createTextNode(' '));
     }
-    (b.genres || []).forEach((x) => tags.append(el('span', 'tag', x), document.createTextNode(' ')));
+    (b.genres || []).forEach((x) => tags.append(el('span', 'tag', genreLabel(x)), document.createTextNode(' ')));
     card.append(tags);
     if (b.pitch) card.append(el('p', '', b.pitch));
     if (b.description) { const d = el('p', 'muted', b.description.length > 220 ? b.description.slice(0, 220) + '\u2026' : b.description); card.append(d); }
