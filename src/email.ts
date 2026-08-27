@@ -107,25 +107,27 @@ export async function sendEmail(env: Env, to: string, subject: string, text: str
  * non-critical best-effort. Pass the recipient's lang when the caller already
  * has it (saves a lookup); otherwise it is read from users.lang.
  */
+/** Same as notify() but without a request context — for cron jobs. Returns the promise. */
+export async function notifyEnv(env: Env, to: string, build: (lang: Lang) => { subject: string; body: string }, knownLang?: string): Promise<void> {
+  let lang = normLang(knownLang);
+  if (!knownLang) {
+    const row = await env.DB.prepare('SELECT lang FROM users WHERE email = ?').bind(to).first<{ lang: string }>();
+    lang = normLang(row?.lang);
+  }
+  const { subject, body } = build(lang);
+  await Promise.allSettled([
+    sendEmail(env, to, subject, body, { lang }),
+    sendPushTo(env, to, subject, body),
+  ]);
+}
+
 export function notify(
   c: Context<AppEnv>,
   to: string,
   build: (lang: Lang) => { subject: string; body: string },
   knownLang?: string
 ) {
-  const task = (async () => {
-    let lang = normLang(knownLang);
-    if (!knownLang) {
-      const row = await c.env.DB.prepare('SELECT lang FROM users WHERE email = ?')
-        .bind(to).first<{ lang: string }>();
-      lang = normLang(row?.lang);
-    }
-    const { subject, body } = build(lang);
-    await Promise.allSettled([
-      sendEmail(c.env, to, subject, body, { lang }),
-      sendPushTo(c.env, to, subject, body),
-    ]);
-  })();
+  const task = notifyEnv(c.env, to, build, knownLang);
   try {
     c.executionCtx.waitUntil(task);
   } catch {

@@ -19,7 +19,7 @@
 // open/booked. Reviews hang off the booking (one per direction), so a review
 // always corresponds to a gig that verifiably happened.
 import { Hono, Context } from 'hono';
-import { notify } from './email';
+import { notify, notifyEnv } from './email';
 import { Lang, normLang, t } from './i18n';
 import { rateLimited, clientIp } from './ratelimit';
 import type { AppEnv } from './types';
@@ -208,7 +208,7 @@ musicians.get('/', async (c) => {
   }
   const limit = Math.min(parseInt(q.limit || '24', 10) || 24, 60);
   const { results } = await c.env.DB.prepare(
-    `SELECT m.owner, m.instruments, m.genres, m.level, m.looking_for, m.accepts_dm, m.home_city, m.home_lat, m.home_lng, m.travel_radius_km, m.gigs_played, m.handle,
+    `SELECT m.owner, m.instruments, m.genres, m.level, m.looking_for, m.accepts_dm, m.unavailable_until, m.home_city, m.home_lat, m.home_lng, m.travel_radius_km, m.gigs_played, m.handle,
             u.display_name, u.photo_key, u.created_at,
             (SELECT AVG(rating) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS avg_rating,
             (SELECT COUNT(*) FROM gig_reviews r WHERE r.reviewee_email = m.owner AND r.direction = 'poster_to_musician') AS review_count
@@ -225,6 +225,7 @@ musicians.get('/', async (c) => {
     level: r.level,
     looking_for: JSON.parse(r.looking_for || '[]'),
     accepts_dm: r.accepts_dm !== 0,
+    unavailable_until: r.unavailable_until && r.unavailable_until >= new Date().toISOString().slice(0, 10) ? r.unavailable_until : null,
     is_me: !!viewer && viewer.email === r.owner,
     home_city: r.home_city,
     travel_radius_km: r.travel_radius_km,
@@ -300,6 +301,7 @@ musicians.post('/me', async (c) => {
   const LOOKING = ['dep', 'jam', 'join_band', 'start_band'];
   const lookingFor = (parseSlugArray(body.looking_for, 4) ?? []).filter((x) => LOOKING.includes(x));
   const acceptsDm = body.accepts_dm === undefined ? 1 : (body.accepts_dm ? 1 : 0);
+  const unavailableUntil = typeof body.unavailable_until === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(body.unavailable_until) ? body.unavailable_until : null;
   const homeCity = typeof body.home_city === 'string' ? body.home_city.trim().slice(0, 100) : null;
   let homeLat = typeof body.home_lat === 'number' && Math.abs(body.home_lat) <= 90 ? body.home_lat : null;
   let homeLng = typeof body.home_lng === 'number' && Math.abs(body.home_lng) <= 180 ? body.home_lng : null;
@@ -313,11 +315,11 @@ musicians.post('/me', async (c) => {
   await c.env.DB.prepare(
     `INSERT INTO musician_details
        (owner, instruments, genres, reads_charts, sings_backing, own_transport, own_pa,
-        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level, looking_for, accepts_dm)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        travel_radius_km, rate_min, rate_max, demo_links, home_city, home_lat, home_lng, handle, level, looking_for, accepts_dm, unavailable_until)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(owner) DO UPDATE SET
        handle = COALESCE(musician_details.handle, excluded.handle),
-       level = excluded.level, looking_for = excluded.looking_for, accepts_dm = excluded.accepts_dm,
+       level = excluded.level, looking_for = excluded.looking_for, accepts_dm = excluded.accepts_dm, unavailable_until = excluded.unavailable_until,
        instruments = excluded.instruments, genres = excluded.genres,
        reads_charts = excluded.reads_charts, sings_backing = excluded.sings_backing,
        own_transport = excluded.own_transport, own_pa = excluded.own_pa,
@@ -329,7 +331,7 @@ musicians.post('/me', async (c) => {
   ).bind(
     user.email, JSON.stringify(instruments), JSON.stringify(genres),
     flag(body.reads_charts), flag(body.sings_backing), flag(body.own_transport), flag(body.own_pa),
-    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level, JSON.stringify(lookingFor), acceptsDm
+    radius, rateMin, rateMax, JSON.stringify(demoLinks), homeCity, homeLat, homeLng, handle, level, JSON.stringify(lookingFor), acceptsDm, unavailableUntil
   ).run();
 
   return c.json({ ok: true, handle });
@@ -425,53 +427,63 @@ gigs.post('/', async (c) => {
     body.description.trim(), expiresAt, need
   ).run();
 
-  // Fan out to matching musicians: same instrument, within their own travel
-  // radius of the gig (city-name match when either side lacks coordinates).
-  // Best-effort and capped; failures never block the post.
+  const gigForFanOut = { id: result.meta.last_row_id as number, kind, instrument: body.instrument, venue_city: body.venue_city.trim(), venue_lat: lat, venue_lng: lng, gig_date: isIsoDate(body.gig_date) ? body.gig_date : null, fee_chf: kind === 'gig' ? body.fee_chf : null, currency, description: body.description.trim(), need, poster_email: user.email };
+  try { c.executionCtx.waitUntil(fanOutGig(c.env, gigForFanOut, urgent)); } catch { await fanOutGig(c.env, gigForFanOut, urgent); }
+
+  return c.json({ ok: true, id: result.meta.last_row_id }, 201);
+});
+
+/**
+ * Alert every matching musician: same instrument, within their own travel radius
+ * of the gig (city-name match when either side lacks coordinates), not marked
+ * unavailable. Used on post and when a failed standby becomes an urgent replacement.
+ * Best-effort and capped; never throws.
+ */
+export async function fanOutGig(env: AppEnv['Bindings'], g: { id: number; kind: 'gig' | 'practice'; instrument: string; venue_city: string; venue_lat: number | null; venue_lng: number | null; gig_date: string | null; fee_chf: number | null; currency: string; description: string; need: 'dep' | 'standby'; poster_email: string }, urgent: boolean): Promise<number> {
   try {
-    const { results } = await c.env.DB.prepare(
+    const { results } = await env.DB.prepare(
       `SELECT m.owner, m.travel_radius_km, m.home_lat, m.home_lng, m.home_city, u.lang
        FROM musician_details m JOIN users u ON u.email = m.owner
-       WHERE m.instruments LIKE ? AND m.owner != ? LIMIT 500`
-    ).bind(`%"${body.instrument}"%`, user.email).all();
-    const city = body.venue_city.trim().toLowerCase();
+       WHERE m.instruments LIKE ? AND m.owner != ? AND (m.unavailable_until IS NULL OR m.unavailable_until < date()) LIMIT 500`
+    ).bind(`%"${g.instrument}"%`, g.poster_email).all();
+    const city = g.venue_city.trim().toLowerCase();
+    const lat = g.venue_lat, lng = g.venue_lng;
     const targets = (results as any[]).filter((m) => {
       if (lat !== null && lng !== null && m.home_lat !== null && m.home_lng !== null) {
         return haversineKm(lat, lng, m.home_lat, m.home_lng) <= (m.travel_radius_km || 30);
       }
       return (m.home_city || '').trim().toLowerCase() === city;
     }).slice(0, 50);
-    for (const target of targets) {
-      notify(c, target.owner, (lang: Lang) => ({
-        subject: kind === 'practice'
+    const link = `https://jamwerk.app/?gig=${g.id}`;
+    await Promise.allSettled(targets.map((target) => notifyEnv(env, target.owner, (lang: Lang) => ({
+      subject: g.kind === 'practice'
+        ? t(lang, {
+            en: `Jam: ${g.instrument} wanted in ${g.venue_city}`,
+            fr: `Jam : ${g.instrument} recherché à ${g.venue_city}`,
+            de: `Jam: ${g.instrument} gesucht in ${g.venue_city}`,
+            it: `Jam: cercasi ${g.instrument} a ${g.venue_city}`,
+          })
+        : (urgent ? t(lang, { en: 'URGENT — ', fr: 'URGENT — ', de: 'DRINGEND — ', it: 'URGENTE — ' }) : '') + (g.need === 'standby'
           ? t(lang, {
-              en: `Jam: ${body.instrument} wanted in ${body.venue_city}`,
-              fr: `Jam : ${body.instrument} recherché à ${body.venue_city}`,
-              de: `Jam: ${body.instrument} gesucht in ${body.venue_city}`,
-              it: `Jam: cercasi ${body.instrument} a ${body.venue_city}`,
-            })
-          : (urgent ? t(lang, { en: 'URGENT — ', fr: 'URGENT — ', de: 'DRINGEND — ', it: 'URGENTE — ' }) : '') + (need === 'standby'
-            ? t(lang, {
-              en: `Standby: ${body.instrument} in ${body.venue_city} on ${body.gig_date} — ${currency} ${body.fee_chf} (only if needed)`,
-              fr: `Réserve : ${body.instrument} à ${body.venue_city} le ${body.gig_date} — ${currency} ${body.fee_chf} (seulement si besoin)`,
-              de: `Reserve: ${body.instrument} in ${body.venue_city} am ${body.gig_date} — ${currency} ${body.fee_chf} (nur bei Bedarf)`,
-              it: `Riserva: ${body.instrument} a ${body.venue_city} il ${body.gig_date} — ${currency} ${body.fee_chf} (solo se serve)`,
-            })
-            : t(lang, {
-              en: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
-              fr: `Concert : ${body.instrument} à ${body.venue_city} — ${currency} ${body.fee_chf}`,
-              de: `Gig: ${body.instrument} in ${body.venue_city} — ${currency} ${body.fee_chf}`,
-              it: `Concerto: ${body.instrument} a ${body.venue_city} — ${currency} ${body.fee_chf}`,
-            })),
-        body: `${body.gig_date ?? t(lang, { en: 'flexible', fr: 'flexible', de: 'flexibel', it: 'flessibile' })} · ${body.venue_city}\n\n${body.description.trim().slice(0, 300)}\n\nhttps://jamwerk.app`,
-      }), target.lang);
-    }
+            en: `Standby: ${g.instrument} in ${g.venue_city} on ${g.gig_date} — ${g.currency} ${g.fee_chf} (only if needed)`,
+            fr: `Réserve : ${g.instrument} à ${g.venue_city} le ${g.gig_date} — ${g.currency} ${g.fee_chf} (seulement si besoin)`,
+            de: `Reserve: ${g.instrument} in ${g.venue_city} am ${g.gig_date} — ${g.currency} ${g.fee_chf} (nur bei Bedarf)`,
+            it: `Riserva: ${g.instrument} a ${g.venue_city} il ${g.gig_date} — ${g.currency} ${g.fee_chf} (solo se serve)`,
+          })
+          : t(lang, {
+            en: `Gig: ${g.instrument} in ${g.venue_city} — ${g.currency} ${g.fee_chf}`,
+            fr: `Concert : ${g.instrument} à ${g.venue_city} — ${g.currency} ${g.fee_chf}`,
+            de: `Gig: ${g.instrument} in ${g.venue_city} — ${g.currency} ${g.fee_chf}`,
+            it: `Concerto: ${g.instrument} a ${g.venue_city} — ${g.currency} ${g.fee_chf}`,
+          })),
+      body: `${g.gig_date ?? t(lang, { en: 'flexible', fr: 'flexible', de: 'flexibel', it: 'flessibile' })} · ${g.venue_city}\n\n${g.description.slice(0, 300)}\n\n${link}`,
+    }), target.lang)));
+    return targets.length;
   } catch (err) {
     console.error('Gig fan-out failed:', err);
+    return 0;
   }
-
-  return c.json({ ok: true, id: result.meta.last_row_id }, 201);
-});
+}
 
 gigs.get('/', async (c) => {
   const user = c.get('user');
