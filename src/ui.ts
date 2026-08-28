@@ -229,6 +229,11 @@ ${MEDIA_CSS}
     header #notifBtn #notifLabel { display: none; }
     header #authBtn { padding: 7px 12px; white-space: nowrap; }
     body.authed header #authBtn { display: none; }
+    body:not(.authed) header #notifBtn { display: none !important; }
+    header { gap: 6px; }
+    header #howBtn { width: 36px; min-width: 36px; }
+    header #langSel { padding-left: 10px; padding-right: 26px; }
+    header h1 { min-width: 0; }
     body.authed #profileBtn { display: flex; }
     #profileBtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.35); background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 15px; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
     .mobile-only { display: flex !important; }
