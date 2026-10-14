@@ -58,7 +58,7 @@ export const PAGE = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JamWerk — paid gigs, jam partners & bands for local musicians</title>
 <meta name="description" content="JamWerk connects local musicians: paid dep gigs with public CHF fees, free jam partners and bands with open seats — filtered by your instrument and region. Swiss, in EN/FR/DE/IT.">
 <link rel="canonical" href="https://jamwerk.app/">
@@ -234,7 +234,7 @@ ${MEDIA_CSS}
      header avatar; its tab button is hidden from the bar. */
   @media (max-width: 380px) { header h1 { font-size: 24px !important; } }
   @media (max-width: 640px) {
-    header { flex-wrap: nowrap; gap: 8px; padding: 12px 14px; }
+    header { flex-wrap: nowrap; gap: 8px; padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 12px; }
     header h1 { font-size: 27px; letter-spacing: -0.6px; }
     header .tagline, header .who { display: none; }
     header #langSel { padding: 7px 26px 7px 11px; font-size: 13.5px; background-position: right 9px center; }
@@ -250,17 +250,23 @@ ${MEDIA_CSS}
     body.authed #profileBtn { display: flex; }
     #profileBtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.35); background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 15px; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
     .mobile-only { display: flex !important; }
-    nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-width: none; margin: 0; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); gap: 0;
-      display: grid; grid-template-columns: repeat(5, 1fr); background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(20,19,26,0.06); }
-    nav button { border: 0; background: transparent; border-radius: 10px; padding: 5px 2px; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: var(--muted); position: relative; line-height: 1.1; }
-    nav button svg { display: block; }
-    nav button .lf { display: none; }
-    nav button .ls { display: block; white-space: nowrap; }
-    nav button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
-    nav button[data-tab=profile] { display: none; }
-    body:not(.authed) nav { grid-template-columns: repeat(4, 1fr); }
-    body:not(.authed) nav button[data-tab=msgs] { display: none !important; }
-    nav #msgBadge, nav #actBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
+    /* nav#tabs, not nav: the desktop rule is more specific, so a bare nav
+       selector never won and the bar stayed a left-packed flex row with no
+       safe-area padding. flex:1 shares the width for 4 or 5 visible items.
+       Icon and label boxes are fixed so the active font colour cannot shift
+       the glyph. The bar's content height stays 63px (6+51+6). */
+    nav#tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-width: none; margin: 0; display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: stretch; min-height: 0;
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); gap: 0;
+      background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(20,19,26,0.06); }
+    nav#tabs button { flex: 1 1 0%; min-width: 0; width: auto; border: 0; background: transparent; border-radius: 10px; padding: 4px 1px 3px; height: 51px; min-height: 51px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; font-size: 11px; font-weight: 600; line-height: 1; color: var(--muted); position: relative; }
+    nav#tabs button svg { display: block; width: 22px; height: 22px; flex: 0 0 22px; }
+    nav#tabs button .lf { display: none; }
+    nav#tabs button .ls { display: block; width: 100%; height: 14px; line-height: 14px; font-size: 11px; font-weight: 600; letter-spacing: -0.02em; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    nav#tabs button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
+    nav#tabs button[data-tab=profile] { display: none; }
+    body:not(.authed) nav#tabs button[data-tab=msgs] { display: none !important; }
+    nav #msgBadge, nav #actBadge { position: absolute; top: 2px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
+    main { padding-bottom: calc(79px + env(safe-area-inset-bottom, 0px)); }
     /* Tab bar is 63px tall (+ safe area); the footer's bottom padding hides
        under it exactly, and the waveform stands on the tab bar's top edge. */
     footer { padding-bottom: calc(63px + 28px + env(safe-area-inset-bottom)); margin-top: 32px; }

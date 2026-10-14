@@ -22,7 +22,7 @@ const MANIFEST = JSON.stringify({
 // Network-first for navigations so deploys land immediately; the last good
 // shell is cached as an offline fallback. Hashed CSS/JS and fonts are
 // cache-first. API calls are never intercepted.
-const SW = `const VERSION = 'jamwerk-v34';
+const SW = `const VERSION = 'jamwerk-v35';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
