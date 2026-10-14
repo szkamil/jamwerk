@@ -8,6 +8,7 @@ import type { AppEnv } from './types';
 import { notFoundPage } from './not-found';
 import { classifyMedia, mediaHtml, MEDIA_CSS } from './media';
 import { esc, PAGE_CSS } from './profile-page';
+import { FONT_PRELOAD } from './font-face';
 import { normGenres, genreLabel } from './genres';
 
 const EXTRA_CSS = `
@@ -102,9 +103,7 @@ bandPage.get('/:id', async (c) => {
 <meta property="og:url" content="${esc(baseUrl)}/b/${b.id}">
 <meta property="og:image" content="${esc(baseUrl)}${b.cover_key ? '/img/' + esc(b.cover_key) : '/icons/icon-512.png'}">
 <meta name="twitter:card" content="summary">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+${FONT_PRELOAD}
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
 <style>${MEDIA_CSS}${PAGE_CSS}${EXTRA_CSS}</style>
@@ -114,7 +113,7 @@ ${NOTES_LAYER}
 <header${b.cover_key ? ` style="background-image: linear-gradient(rgba(20,19,26,0.55), rgba(20,19,26,0.85)), url('/img/${esc(b.cover_key)}'); background-size: cover; background-position: center;"` : ''}>
   ${WAVE_SVG}
   <div class="inner">
-    <a class="back" href="/?tab=band">&larr; JamWerk · ${t(lang, { en: 'Bands', fr: 'Groupes', de: 'Bands', it: 'Gruppi' })}</a>
+    <a class="back" href="/bands">&larr; JamWerk · ${t(lang, { en: 'Bands', fr: 'Groupes', de: 'Bands', it: 'Gruppi' })}</a>
     <div class="hero">
       <div class="avatar">${esc(initials)}</div>
       <div>

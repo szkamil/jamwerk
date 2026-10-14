@@ -49,10 +49,10 @@ function sendConfirmEmail(c: Context<AppEnv>, email: string, lang: Lang, confirm
   return sendEmail(c.env, email,
     t(lang, { en: 'Confirm your JamWerk account', fr: 'Confirmez votre compte JamWerk', de: 'Bestätige dein JamWerk-Konto', it: 'Conferma il tuo account JamWerk' }),
     t(lang, {
-      en: `Welcome to JamWerk!\n\nConfirm your email address:\n{link}\n\nTip: tap the bell in the app header to get gig alerts for your instrument near you.\n\nIf you did not sign up, ignore this message.`,
-      fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : touchez la cloche dans l'en-tête de l'app pour recevoir les alertes de concerts près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
-      de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Tippe auf die Glocke in der App, um Gig-Alerts für dein Instrument in deiner Nähe zu erhalten.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
-      it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: tocca la campanella nell'app per ricevere avvisi sui concerti vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
+      en: `Welcome to JamWerk!\n\nConfirm your email address:\n{link}\n\nTip: after you sign in, turn on alerts to hear about gigs for your instrument near you.\n\nIf you did not sign up, ignore this message.`,
+      fr: `Bienvenue sur JamWerk !\n\nConfirmez votre adresse e-mail :\n{link}\n\nAstuce : une fois connecté, activez les alertes pour être prévenu des concerts pour votre instrument près de chez vous.\n\nSi vous n'êtes pas à l'origine de cette inscription, ignorez ce message.`,
+      de: `Willkommen bei JamWerk!\n\nBestätige deine E-Mail-Adresse:\n{link}\n\nTipp: Schalte nach dem Anmelden Alerts ein, um über Gigs für dein Instrument in deiner Nähe informiert zu werden.\n\nFalls du dich nicht registriert hast, ignoriere diese Nachricht.`,
+      it: `Benvenuto su JamWerk!\n\nConferma il tuo indirizzo e-mail:\n{link}\n\nSuggerimento: dopo l'accesso, attiva gli avvisi per sapere dei concerti per il tuo strumento vicino a te.\n\nSe non ti sei registrato tu, ignora questo messaggio.`,
     }).replace('{link}', `${baseUrl(c)}/auth/confirm?token=${confirmToken}`), { lang });
 }
 
@@ -193,7 +193,9 @@ auth.post('/logout', (c) => {
 
 auth.get('/me', async (c) => {
   const user = c.get('user');
-  if (!user) return c.json({ error: 'Not logged in' }, 401);
+  // 200 so a logged-out visit is not an error in the console or in Lighthouse.
+  // Logged-in shape stays { email, confirmed, photo, name, handle, digest }.
+  if (!user) return c.json({ user: null });
   const row = await c.env.DB.prepare('SELECT u.confirmed, u.photo_key, u.display_name, u.digest, m.handle FROM users u LEFT JOIN musician_details m ON m.owner = u.email WHERE u.email = ?').bind(user.email).first<{ confirmed: number; photo_key: string | null; display_name: string | null }>();
   return c.json({ email: user.email, confirmed: !!row?.confirmed, photo: photoUrl(row?.photo_key), name: row?.display_name || '', handle: (row as any)?.handle || null, digest: (row as any)?.digest !== 0 });
 });

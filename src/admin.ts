@@ -8,6 +8,19 @@ import type { AppEnv } from './types';
 import { esc } from './profile-page';
 import { loadThread } from './messages';
 
+// Exact bytes hashed into the Content-Security-Policy script-src. Keep this
+// free of report data — buttons carry data-* attributes, read here.
+export const ADMIN_SCRIPT = `// Data never goes through inline JS: buttons carry data-* attributes (HTML-escaped), read here.
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const path = b.dataset.act;
+  if (!/^\\/admin\\/[a-z-]+$/.test(path)) return;
+  const body = b.dataset.email !== undefined ? { email: b.dataset.email } : { id: Number(b.dataset.id) };
+  if (!confirm(path + ' ' + JSON.stringify(body) + ' ?')) return;
+  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  alert(r.ok ? 'OK' : 'Failed: ' + r.status); if (r.ok) location.reload();
+});`;
+
 type Ctx = Context<AppEnv>;
 export function isAdmin(c: Ctx): boolean {
   const user = c.get('user');
@@ -82,18 +95,7 @@ admin.get('/', async (c) => {
 <table><tr><th>#</th><th>Target</th><th>Reason</th><th>By</th><th>When</th><th></th></tr>${(reps as any[]).map(row).join('') || '<tr><td colspan="6">None</td></tr>'}</table>
 <h2>Recent users</h2>
 <table><tr><th>Email</th><th>Name</th><th>Joined</th><th>Conf.</th><th></th></tr>${(recentUsers as any[]).map(urow).join('')}</table>
-<script>
-// Data never goes through inline JS: buttons carry data-* attributes (HTML-escaped), read here.
-document.addEventListener('click', async (e) => {
-  const b = e.target.closest('button[data-act]'); if (!b) return;
-  const path = b.dataset.act;
-  if (!/^\/admin\/[a-z-]+$/.test(path)) return;
-  const body = b.dataset.email !== undefined ? { email: b.dataset.email } : { id: Number(b.dataset.id) };
-  if (!confirm(path + ' ' + JSON.stringify(body) + ' ?')) return;
-  const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  alert(r.ok ? 'OK' : 'Failed: ' + r.status); if (r.ok) location.reload();
-});
-</script>`);
+<script>${ADMIN_SCRIPT}</script>`);
 });
 
 admin.post('/ban', async (c) => {

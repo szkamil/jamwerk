@@ -37,7 +37,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
 - Replacement vs standby gigs (migration 018 `gigs.need`, `standby_activated_at`): `POST /gigs/:id/applications/:appId/shortlist` (keep on standby), `POST /gigs/:id/activate-standby` (owner; pings all shortlisted), `POST /gigs/:id/confirm` (shortlisted musician; first wins via `bookApplication()`); `/gigs` rows carry `need`, `standby_activated_at`, `my_status` for the viewer; cron reopens activated standby gigs as `dep` after 2 h. UI: `gigActions()` = one plain-language button/state chip per card; onboarding checklist `renderOnboard()`; `askLine()` feedback prompt at the end of every list
 - E-mails: `renderEmail(subject, text, lang)` in email.ts wraps every mail (notify, confirm, reset, feedback) in the branded table layout — ink header, violet bar, card, CTA button for the first URL in the text (label by URL: confirm/reset/open), 4-lang footer. Preview: `docs/email-preview.html` (regenerate with a tsx script calling renderEmail)
 - `src/about-page.ts` — `/about` (story, what it is, contact, `#terms` 7-clause terms of use, `#privacy`) ×4 langs; `?lang=` override. Sign-up requires `accept_terms: true` (400 `terms_required` otherwise) and stores `users.terms_accepted_at` (migration 019)
-- Deep links on `/`: `?tab=jams|band|help`, `?band=ID`, `?dm=handle`, `?gig=ID`, `?feedback=1`
+- Deep links: `/musicians`, `/bands`, `/jams`, `/gigs`, `/gigs/:id`, `/messages`, `/profile`, `/post` are the app shell for document navigations (JSON APIs stay on the same paths for `fetch`). Legacy query links still work: `?tab=jams|band|help`, `?band=ID`, `?dm=handle`, `?gig=ID`, `?feedback=1`
 - `src/genres.ts` — fixed genre list (slugs) + labels ×4 + `normGenres()` (maps legacy free text / any-language labels to slugs; applied on write and on read). Client renders checkbox groups from `GENRES`/`GENRE_LABELS`; never store free-text genres
 - `src/media.ts` — demo/promo URL → embed descriptor (YouTube/Vimeo/Spotify/SoundCloud), used by the public profile page and the bands API
 - Profile photos: client resizes to a 512px JPEG, `POST /auth/photo` stores it in the R2 bucket `jamwerk-media` (binding `MEDIA`), served at `/img/avatars/<uuid>.<ext>` with immutable caching; `users.photo_key`
@@ -66,7 +66,9 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
   (see `fbMsg`/`fbDone`, `authMsg`), not via the page toast. The page-level
   `#flash` toast is position:fixed top-of-viewport for non-modal contexts.
 - Bump the service-worker `VERSION` in `src/pwa.ts` when the app shell
-  changes materially (currently `jamwerk-v3`).
+  changes materially (currently `jamwerk-v34`). The shell CSS and client
+  script are emitted to `src/generated/client-assets.ts` by
+  `node scripts/emit-assets.mjs` — rerun it after editing `src/ui.ts`.
 - Privacy rule: contact emails are only revealed on booking/acceptance;
   everywhere else show display names.
 

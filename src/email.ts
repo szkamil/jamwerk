@@ -67,9 +67,9 @@ export function renderEmail(subject: string, text: string, lang: Lang = 'en'): s
 export async function sendEmail(env: Env, to: string, subject: string, text: string, opts: { replyTo?: string; lang?: Lang } = {}): Promise<boolean> {
   const key = env.MAILJET_API_KEY;
   const secret = env.MAILJET_SECRET_KEY;
-  const from = env.EMAIL_FROM || 'gigwerk@hotmail.com';
-  if (!key || !secret) {
-    console.log(`[EMAIL skipped — no Mailjet keys] to=${to} subject=${JSON.stringify(subject)}${opts.replyTo ? ` replyTo=${opts.replyTo}` : ''} body=${JSON.stringify(text)}`);
+  const from = env.EMAIL_FROM;
+  if (!key || !secret || !from) {
+    console.log(`[EMAIL skipped — Mailjet not configured] to=${to} subject=${JSON.stringify(subject)}${opts.replyTo ? ` replyTo=${opts.replyTo}` : ''}`);
     return false;
   }
   try {

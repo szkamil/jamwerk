@@ -72,13 +72,13 @@ export const PAGE = `<!doctype html>
 <meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#14131a">
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JamWerk">
@@ -87,8 +87,13 @@ export const PAGE = `<!doctype html>
     --ink: #14131a; --paper: #f4f2ec; --card: #fffdf8; --line: #e5e1d8;
     --accent: #6440fb; --accent-deep: #4f30d8; --accent-light: #a58bff;
     --accent-tint: #efeaff; --accent-tint-line: #d8cdfd; --accent-ink: #ffffff;
-    --ok: #0a7d4f; --warn: #b3261e; --muted: #6f6c64; --gold: #b98a00; --r: 14px;
+    --ok: #0a7d4f; --warn: #b3261e; --muted: #3e3c36; --gold: #b98a00; --r: 14px;
   }
+  @font-face { font-family: 'Instrument Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/instrument-sans-latin-ext.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Instrument Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/instrument-sans-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600 800; font-stretch: 100%; font-display: swap; src: url('/fonts/bricolage-grotesque-latin-ext.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 600 800; font-stretch: 100%; font-display: swap; src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  [hidden] { display: none !important; }
   * { box-sizing: border-box; }
   /* Column layout so the footer sits at the bottom even on short pages
      (e.g. an empty tab); main stretches, footer never floats mid-screen. */
@@ -100,7 +105,7 @@ export const PAGE = `<!doctype html>
     background-color: var(--ink);
     background-image: radial-gradient(circle at 88% -12%, rgba(100,64,251,0.34), transparent 58%);
     color: #fff; padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    position: relative; z-index: 0; overflow: hidden;
+    position: relative; z-index: 0; overflow: hidden; min-height: 72px;
   }
   header .wave { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: 32px; z-index: -1; opacity: 0.28; }
   header h1 { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 25px; font-weight: 800; margin: 0; letter-spacing: -0.5px; cursor: pointer; }
@@ -134,12 +139,12 @@ export const PAGE = `<!doctype html>
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
   header #langSel option { color: #1b1a16; background: #fff; }
   header #notifBtn.on { color: var(--accent-light) !important; border-color: var(--accent-light) !important; }
-  nav { display: flex; gap: 6px; padding: 14px 20px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
+  nav#tabs { display: flex; gap: 6px; padding: 14px 20px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; min-height: 58px; }
   nav button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; }
   nav button.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
   nav button svg, nav button .ls, .mobile-only, #profileBtn { display: none; }
   #profileBtn { position: relative; }
-  .ask-line { margin: 18px 0 6px; text-align: center; font-size: 13.5px; color: var(--muted); }
+  .ask-line { margin: 18px 0 6px; text-align: center; font-size: 15px; color: var(--muted); }
   .ask-line button { background: none; border: 0; padding: 0; font: inherit; color: var(--accent-deep); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
   button.danger { background: #b3261e !important; }
   .tag.urgent { background: #fde8e6; color: #b3261e; border-color: #f5c2bd; font-weight: 700; }
@@ -178,7 +183,7 @@ export const PAGE = `<!doctype html>
   .steps .muted { font-size: 14.5px; }
   .recent-h { font-size: 20px; font-weight: 800; margin: 4px 0 12px; letter-spacing: -0.3px; }
   .m-instruments { font-size: 14px; color: var(--ink); margin-top: 1px; }
-  .m-meta { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .m-meta { font-size: 15px; color: var(--muted); margin-top: 3px; }
   #mPublic:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight: 600; color: var(--ink); min-height: 44px; }
   @media (max-width: 640px) { #mPublic:not([hidden]) { width: 100%; } }
   .card.hilite { box-shadow: 0 0 0 3px var(--accent-light); }
@@ -196,7 +201,15 @@ ${MEDIA_CSS}
   .tag.status-open { color: var(--ok); border-color: var(--ok); }
   .tag.status-booked, .tag.status-completed { color: var(--accent-deep); border-color: var(--accent-tint-line); background: var(--accent-tint); }
   .tag.status-cancelled, .tag.status-expired { color: var(--warn); border-color: var(--warn); }
-  .muted { color: var(--muted); font-size: 14px; }
+  .muted { color: var(--muted); font-size: 15px; }
+  body:not(.authed) nav button[data-tab=msgs],
+  body:not(.authed) nav button[data-tab=profile],
+  body:not(.authed) header #notifBtn { display: none !important; }
+  body.authed .guest-gate { display: none !important; }
+  body:not(.authed) #msgArea,
+  body:not(.authed) #profileView,
+  body:not(.authed) #profileEdit { display: none !important; }
+  .help-ask { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-color: var(--accent-tint-line); background: var(--accent-tint); }
   h2 { font-family: 'Bricolage Grotesque', 'Avenir Next Condensed', system-ui, sans-serif; font-size: 18px; font-weight: 700; margin: 20px 0 10px; }
   form .row { margin-bottom: 12px; }
   label { display: block; font-size: 13.5px; font-weight: 600; margin-bottom: 5px; color: #3a382f; }
@@ -245,6 +258,8 @@ ${MEDIA_CSS}
     nav button .ls { display: block; white-space: nowrap; }
     nav button.active { background: var(--accent-tint); color: var(--accent-deep); font-weight: 600; }
     nav button[data-tab=profile] { display: none; }
+    body:not(.authed) nav { grid-template-columns: repeat(4, 1fr); }
+    body:not(.authed) nav button[data-tab=msgs] { display: none !important; }
     nav #msgBadge, nav #actBadge { position: absolute; top: 4px; left: calc(50% + 6px); margin: 0; padding: 0 5px; min-width: 16px; height: 16px; font-size: 10.5px; line-height: 16px; }
     /* Tab bar is 63px tall (+ safe area); the footer's bottom padding hides
        under it exactly, and the waveform stands on the tab bar's top edge. */
@@ -373,7 +388,7 @@ ${MEDIA_CSS}
   }
   .applicant-head { display: flex; align-items: center; gap: 10px; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
-  .applicant-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .applicant-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; color: var(--muted); }
   .rating { color: var(--gold); font-weight: 600; }
 </style>
 </head>
@@ -400,7 +415,7 @@ ${NOTES_LAYER}
   <button id="profileBtn" hidden aria-label="Musician profile" title="Musician profile"></button>
 </header>
 <nav id="tabs">
-  <button data-tab="musicians" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="lf" data-i18n="nav_musicians">Musicians</span><span class="ls" data-i18n="nav_musicians_s">Musicians</span></button>
+  <button data-tab="musicians"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="lf" data-i18n="nav_musicians">Musicians</span><span class="ls" data-i18n="nav_musicians_s">Musicians</span></button>
   <button data-tab="bands"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="lf" data-i18n="nav_bands">Bands</span><span class="ls" data-i18n="nav_bands_s">Bands</span></button>
   <button data-tab="jams"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3zM16 14a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3z"/><path d="M3 14v-2a9 9 0 0 1 18 0v2"/></svg><span class="lf" data-i18n="nav_jams">Jams</span><span class="ls" data-i18n="nav_jams_s">Jams</span></button>
   <button data-tab="board"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span class="lf" data-i18n="nav_board">Gig board</span><span class="ls" data-i18n="nav_board_s">Gigs</span></button>
@@ -411,12 +426,13 @@ ${NOTES_LAYER}
 <main>
   <div class="msg" id="flash"></div>
 
-    <div id="landing" hidden>
+    <div id="landing">
       <div id="helpClose" style="align-items: center; gap: 10px; margin-bottom: 10px;"><button type="button" class="ghost small" id="helpBack">&larr; <span data-i18n="back">Back</span></button><span class="muted" data-i18n="help_title">Help</span></div>
       <div style="background-color: var(--ink); background-image: radial-gradient(circle at 85% -20%, rgba(100,64,251,0.45), transparent 60%); border-radius: 16px; padding: 34px 24px 40px; text-align: center; position: relative; z-index: 0; overflow: hidden; margin-bottom: 12px; color: #fff;">
         ${WAVE_SVG}
         <div class="display" style="font-size: 30px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px;" data-i18n="land_head">Find a dep. Fill a gig. Start a band.</div>
-        <p style="max-width: 560px; margin: 0 auto 22px; color: rgba(255,255,255,0.72); font-size: 15px;" data-i18n="land_sub">JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.</p>
+        <p style="max-width: 560px; margin: 0 auto 10px; color: rgba(255,255,255,0.72); font-size: 15px;" data-i18n="land_sub">JamWerk connects local musicians: paid gigs with public fees, free jam partners, and open band seats — matched to your instrument and your area.</p>
+        <p style="max-width: 560px; margin: 0 auto 22px; color: rgba(255,255,255,0.88); font-size: 15px;" data-i18n="dep_expl">A dep is a paid stand-in gig: you cover for another musician for one date, and the fee is shown up front.</p>
         <div class="cta-row" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           <button class="primary" id="ctaJoin" data-i18n="cta_join">Create your free profile</button>
           <button class="ghost" id="ctaPeople" style="background: transparent; color: #fff; border-color: rgba(255,255,255,0.4);" data-i18n="cta_people">See who's here</button>
@@ -424,7 +440,7 @@ ${NOTES_LAYER}
         </div>
         <p style="margin: 16px 0 0; color: #fff; font-weight: 700; font-size: 15px;" data-i18n="free_line">100% free for musicians — no fees, no commission.</p>
       </div>
-      <div class="card help-ask" id="helpAsk1" hidden style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-color: var(--accent-tint-line); background: var(--accent-tint);">
+      <div class="card help-ask" id="helpAsk1" hidden>
         <div style="flex: 1; min-width: 200px;">
           <div class="display" style="font-size: 16px; font-weight: 700;" data-i18n="help_ask_t">A question? Something unclear?</div>
           <p class="muted" style="margin: 2px 0 0;" data-i18n="help_ask_p">Tell us what you were trying to do \u2014 we read every message and fix things fast.</p>
@@ -454,60 +470,23 @@ ${NOTES_LAYER}
         <div class="display" style="font-size: 20px; font-weight: 800; margin-bottom: 12px;" data-i18n="how_it_works">How it works</div>
         <ol class="steps">
           <li><span class="num">1</span><div><b data-i18n="step1_t">Create your profile</b><span class="muted" data-i18n="step1_p">Your instrument, your city, what you're looking for. Free, two minutes.</span></div></li>
-          <li><span class="num">2</span><div><b data-i18n="step2_t">Find people</b><span class="muted" data-i18n="step2_p">Musicians, bands, jam groups and paid gigs near you — the tabs at the bottom.</span></div></li>
+          <li><span class="num">2</span><div><b data-i18n="step2_t">Find people</b><span class="muted" data-i18n="step2_p">Musicians, bands, jam groups and paid gigs near you.</span></div></li>
           <li><span class="num">3</span><div><b data-i18n="step3_t">Write to them</b><span class="muted" data-i18n="step3_p">Messages stay in the app; alerts reach your phone. That's it.</span></div></li>
         </ol>
       </div>
-      <div class="card" id="landTiles" style="display: flex; flex-direction: column; gap: 14px;">
-        <div data-goto="musicians" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#9834;</span>
-          <span><b data-i18n="nav_musicians">nav_musicians</b><br><span class="muted" data-i18n="land_d_musicians">land_d_musicians</span></span>
-        </div>
-        <div data-goto="bands" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#9835;</span>
-          <span><b data-i18n="nav_bands">nav_bands</b><br><span class="muted" data-i18n="land_d_bands">land_d_bands</span></span>
-        </div>
-        <div data-goto="jams" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#9836;</span>
-          <span><b data-i18n="nav_jams">nav_jams</b><br><span class="muted" data-i18n="land_d_jams">land_d_jams</span></span>
-        </div>
-        <div data-goto="board" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#9833;</span>
-          <span><b data-i18n="nav_board">nav_board</b><br><span class="muted" data-i18n="land_d_board">land_d_board</span></span>
-        </div>
-        <div data-goto="msgs" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#128172;</span>
-          <span><b data-i18n="nav_msgs">nav_msgs</b><br><span class="muted" data-i18n="land_d_msgs">land_d_msgs</span></span>
-        </div>
-        <div data-goto="post" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">+</span>
-          <span><b data-i18n="nav_post">nav_post</b><br><span class="muted" data-i18n="land_d_post">land_d_post</span></span>
-        </div>
-        <div data-goto="profile" style="display: flex; gap: 12px; align-items: flex-start; cursor: pointer; min-height: 44px;">
-          <span style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-tint); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">&#9679;</span>
-          <span><b data-i18n="nav_profile">nav_profile</b><br><span class="muted" data-i18n="land_d_profile">land_d_profile</span></span>
-        </div>
-      </div>
       <div class="card" style="display: flex; align-items: center; gap: 12px;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6440fb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-        <p class="muted" style="margin: 0;" data-i18n="land_alerts">Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.</p>
+        <p class="muted" style="margin: 0;" data-i18n="land_alerts">Turn on alerts after you sign up — gigs for your instrument near you arrive as soon as they are posted.</p>
       </div>
       <div class="card" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 200px;">
           <div class="display" style="font-size: 17px; font-weight: 700;" data-i18n="invite_t">Know musicians?</div>
           <p class="muted" style="margin: 4px 0 0;" data-i18n="invite_p">The more people here, the more it works. Send them the link — one tap.</p>
         </div>
-        <button class="primary aud-cta invite-btn" data-i18n="invite_btn">Invite via WhatsApp</button>
-      </div>
-      <div class="card help-ask" id="helpAsk2" hidden style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-color: var(--accent-tint-line); background: var(--accent-tint);">
-        <div style="flex: 1; min-width: 200px;">
-          <div class="display" style="font-size: 16px; font-weight: 700;" data-i18n="help_ask_t">A question? Something unclear?</div>
-          <p class="muted" style="margin: 2px 0 0;" data-i18n="help_ask_p">Tell us what you were trying to do \u2014 we read every message and fix things fast.</p>
-        </div>
-        <button class="primary aud-cta help-ask-btn" data-i18n="help_ask_btn">Write to us</button>
+        <button class="ghost aud-cta invite-btn" data-i18n="invite_btn">Invite via WhatsApp</button>
       </div>
     </div>
-  <section id="tab-musicians">
+  <section id="tab-musicians" hidden>
     <div class="card onboard" id="onboard" hidden>
       <div class="display" style="font-size: 17px; font-weight: 700; margin-bottom: 10px;" data-i18n="onboard_t">Two things and you're set</div>
       <ol>
@@ -617,7 +596,14 @@ ${NOTES_LAYER}
     </form></div>
   </section>
 
-  <section id="tab-msgs" hidden><div id="msgArea"></div></section>
+  <section id="tab-msgs" hidden>
+    <div class="card guest-gate" id="guestMsgs">
+      <div class="display" style="font-size: 17px; font-weight: 700;" data-i18n="guest_msgs_t">Messages</div>
+      <p class="muted" data-i18n="guest_msgs">Messages are for members. Create a free profile to write to musicians and bands.</p>
+      <button type="button" class="primary guest-join" data-i18n="cta_join">Create your free profile</button>
+    </div>
+    <div id="msgArea"></div>
+  </section>
 
   <section id="tab-bands" hidden>
     <div class="card" id="bandIntro" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
@@ -676,6 +662,11 @@ ${NOTES_LAYER}
   </section>
 
   <section id="tab-profile" hidden>
+    <div class="card guest-gate" id="guestProfile">
+      <div class="display" style="font-size: 17px; font-weight: 700;" data-i18n="guest_profile_t">Your profile</div>
+      <p class="muted" data-i18n="guest_profile">Your profile is where bands and organisers find you. Create it free — it takes about two minutes.</p>
+      <button type="button" class="primary guest-join" data-i18n="cta_join">Create your free profile</button>
+    </div>
     <div id="profileView">
       <div class="card profile-hero">
         <div class="avatar" id="heroAvatar"></div>
@@ -873,14 +864,14 @@ const I18N = {
     nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Send', msg_sent: 'Message sent.', msg_placeholder: 'Write a message\u2026', no_threads: 'No conversations yet — they start from an application.', thread_empty: 'No messages yet — say hello.', back: 'Back',
     cta_jam: 'Find jam partners', cta_gigs: 'See paid gigs', land_d_board: 'Paid dep gigs near you with the fee stated up front, in CHF or EUR. Apply with your profile.', land_d_post: 'Need a dep or a jam partner? Post in two minutes \u2014 matching musicians get alerted. Bands and jam groups list themselves under Bands / Jams.', land_d_mine: 'Track your posts and applications, book musicians, leave reviews after the gig.', land_d_bands: 'Bands present themselves with demos and a starting fee: book one for your event, or apply for an open seat.', land_d_profile: 'Your photo, instruments, demos and reviews \u2014 plus a public page to share anywhere.',
     how_it_works: 'How it works', tagline: 'gigs · jams · bands', feedback: 'Feedback', fb_label: 'What should we improve?', fb_email_label: 'Your email (optional, if you want a reply)', fb_send: 'Send', fb_sent_t: 'Message sent', fb_thanks: 'Thanks — your feedback reached us.', missing_q: 'Missing an instrument, a genre or an option?', missing_inst_q: 'Your instrument isn\u2019t listed?', tell_us: 'Tell us \u2192', fb_prefill_post: 'Posting a gig — missing: ', fb_prefill_profile: 'My profile — missing instrument: ', fb_fail: 'Could not send feedback', welcome_profile: 'Welcome aboard! We sent you a confirmation email — if it is not in your inbox, check the spam folder. Then set up your musician profile — it is what lets you apply to gigs and jams.',
-    land_head: 'Find a dep. Join a jam. Start a band.', land_sub: 'JamWerk connects local musicians: find people by instrument and city, join or book a band, find a jam group, take paid dep gigs with the fee shown up front \u2014 and message each other inside the app.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF or EUR. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Tap the bell after signing up — gigs for your instrument near you reach your phone the moment they are posted.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    land_head: 'Find a dep. Join a jam. Start a band.', land_sub: 'JamWerk connects local musicians: find people by instrument and city, join or book a band, find a jam group, take paid dep gigs with the fee shown up front \u2014 and message each other inside the app.', land_s1: 'Create your free musician profile: instruments, city, travel radius.', land_s2: 'Browse or post: paid gigs, jam sessions, band seats. Turn on alerts and matches reach your phone.', land_s3: 'Book or connect. Completed gigs earn reviews that build your public track record.', aud_jam_t: 'Just here to jam?', aud_jam_p: 'Practice listings are free and casual — no fees, no ratings, no pressure. Find people at your level, from beginners to weekend bands.', aud_pro_t: 'Working musician?', aud_pro_p: 'Paid dep gigs with the fee stated up front, in CHF or EUR. Reviews from real completed gigs build a track record you can share.', land_alerts: 'Turn on alerts after you sign up — gigs for your instrument near you arrive as soon as they are posted.', dep_expl: 'A dep is a paid stand-in gig: you cover for another musician for one date, and the fee is shown up front.', widened: 'Nothing in that radius — showing the whole region.', guest_msgs_t: 'Messages', guest_msgs: 'Messages are for members. Create a free profile to write to musicians and bands.', guest_profile_t: 'Your profile', guest_profile: 'Your profile is where bands and organisers find you. Create it free — it takes about two minutes.', cta_join: 'Create your free profile', cta_browse: 'Browse the board', lvl_label: 'Experience level', whos_welcome: 'Who\u2019s welcome', lvl_any: 'anyone welcome', lvl_hobby: 'hobby', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     save_band: 'Save changes',
     band_intro_t: 'Bands & jam groups', band_intro_p: 'Bands announce themselves here with demos and a fee \u2014 book one for your event, ask for an open seat, or find a jam group at your level.', list_my_band: 'List my band', band_kind_l: 'What is it?', kind_band: 'A band \u2014 we play concerts and events', kind_jam: 'A jam / practice group \u2014 we meet to play, no bookings', bookable_l: 'Available for events \u2014 weddings, parties, corporate (people can book us)', fee_from_l: 'Fee from (whole band, one evening)', pitch_l: 'One-line pitch (shown on the card)', pitch_ph: '5-piece soul & funk band, 3 sets, own PA', cancel: 'Cancel', edit: 'Edit', band_saved: 'Band updated.', seg_all_bands: 'All', seg_bookable: 'Bookable', seg_jamgroups: 'Jam groups', ph_genre: 'Genre', bands_n: '{0} bands', no_bands_near: 'No bands match yet \u2014 list yours and be the first.', from_fee: 'from {0}', fee_on_request: 'fee on request', book_band: 'Book this band', contact_band: 'Contact the band', jam_group: 'jam group', ask_to_join: 'Ask to join', inquiry_prompt: 'Your message to the band \u2014 date, place, type of event, budget:', inquiry_sent: 'Message sent \u2014 the band will answer here in Messages.', confirm_to_contact: 'Confirm your email address before contacting a band \u2014 check your inbox.', view_band_page: 'Band page \u2197', aud_event_t: 'Organising an event?', aud_event_p: 'Bands list themselves with demos and a starting fee. Filter by genre and city, listen, and message the band directly.', cta_hire: 'Book a band',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam groups', jams_intro_t: 'Play for the fun of it', jams_intro_p: 'Free and casual: people looking for someone to jam with, and groups that meet regularly to play. No fees, no ratings.', jam_list_group: 'List a jam group', my_activity: 'My activity', activity_hint: 'Gigs you posted, applications you sent, reviews to leave.', activity_open: 'Show all', activity_close: 'Show less', activity_pending: '{0} waiting for you', dm_btn: 'Message', dm_prompt: 'Your message:', dm_sent: 'Message sent.', dm_ctx: 'Direct message', dm_closed: 'This musician does not accept direct messages.', dm_accept_l: 'Other musicians can send me direct messages', no_jam_groups: 'No jam groups yet \u2014 list yours and be the first.', jam_groups_n: '{0} jam groups',
     block: 'Block', unblock: 'Unblock', block_confirm: 'Block {0}? They will no longer be able to message you, and this conversation disappears from your list.', blocked_ok: 'Blocked.', unblocked_ok: 'Unblocked.', blocked_h: 'Blocked people', blocked_msg: 'You cannot message this person.', compose_hint: 'Say hello to {0} \u2014 the date, the place, what you have in mind.', inquiry_ctx: 'Booking request',
     nav_musicians: 'Musicians', nav_musicians_s: 'Musicians', board_intro_t: 'Paid gigs', board_intro_p: 'Dep gigs with the fee stated up front, in CHF or EUR. Need someone? Post a gig and the right musicians get alerted.', post_gig_cta: 'Post a gig', post_jam_cta: 'Post a jam listing', by_poster: 'by {0}',
     today: 'Today', yesterday: 'Yesterday',
-    step1_t: 'Create your profile', step1_p: 'Your instrument, your city, what you\u2019re looking for. Free, two minutes.', step2_t: 'Find people', step2_p: 'Musicians, bands, jam groups and paid gigs near you \u2014 the tabs at the bottom.', step3_t: 'Write to them', step3_p: 'Messages stay in the app; alerts reach your phone. That\u2019s it.',
+    step1_t: 'Create your profile', step1_p: 'Your instrument, your city, what you\u2019re looking for. Free, two minutes.', step2_t: 'Find people', step2_p: 'Musicians, bands, jam groups and paid gigs near you.', step3_t: 'Write to them', step3_p: 'Messages stay in the app; alerts reach your phone. That\u2019s it.',
     free_line: '100% free for musicians \u2014 no fees, no commission.',
     land_d_musicians: 'Everyone on JamWerk, by instrument, level and city \u2014 with the groups they play in. Send a message in one tap.',
     land_d_jams: 'Free and casual: people who want to jam, and groups that meet regularly. Ask to join.',
@@ -939,14 +930,14 @@ const I18N = {
     nav_msgs: 'Messages', msg_btn: 'Message', msg_send: 'Envoyer', msg_sent: 'Message envoy\u00e9.', msg_placeholder: '\u00c9crivez un message\u2026', no_threads: 'Pas encore de conversations — elles commencent par une candidature.', thread_empty: 'Pas encore de messages — dites bonjour.', back: 'Retour',
     cta_jam: 'Trouver des partenaires de jam', cta_gigs: 'Voir les concerts pay\u00e9s', land_d_board: 'Des remplacements pay\u00e9s pr\u00e8s de chez vous, cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Postulez avec votre profil.', land_d_post: 'Besoin d\u2019un rempla\u00e7ant ou d\u2019un partenaire de jam\u00a0? Publiez en deux minutes \u2014 les musiciens correspondants sont alert\u00e9s. Les groupes et groupes de jam s\u2019inscrivent sous Groupes / Jams.', land_d_mine: 'Suivez vos annonces et candidatures, engagez des musiciens, laissez des avis apr\u00e8s le concert.', land_d_bands: 'Les groupes se pr\u00e9sentent avec d\u00e9mos et tarif de d\u00e9part\u00a0: r\u00e9servez-en un pour votre \u00e9v\u00e9nement, ou postulez \u00e0 une place libre.', land_d_profile: 'Votre photo, vos instruments, d\u00e9mos et avis \u2014 plus une page publique \u00e0 partager partout.',
     how_it_works: 'Comment \u00e7a marche', tagline: 'concerts \u00b7 jams \u00b7 groupes', feedback: 'Vos retours', fb_label: 'Que pouvons-nous améliorer ?', fb_email_label: 'Votre e-mail (facultatif, pour une réponse)', fb_send: 'Envoyer', fb_sent_t: 'Message envoyé', fb_thanks: 'Merci — votre retour nous est bien parvenu.', missing_q: 'Il manque un instrument, un genre ou une option ?', missing_inst_q: 'Votre instrument n\u2019est pas dans la liste ?', tell_us: 'Dites-le-nous \u2192', fb_prefill_post: 'Publication d\u2019une annonce — il manque : ', fb_prefill_profile: 'Mon profil — instrument manquant : ', fb_fail: 'Impossible d’envoyer le retour', welcome_profile: 'Bienvenue ! Un e-mail de confirmation vous a \u00e9t\u00e9 envoy\u00e9 — s\u2019il n\u2019est pas dans votre bo\u00eete de r\u00e9ception, v\u00e9rifiez le dossier spam. Cr\u00e9ez ensuite votre profil musicien — c\u2019est lui qui vous permet de postuler aux concerts et aux jams.',
-    land_head: 'Trouvez un rempla\u00e7ant. Rejoignez un jam. Montez un groupe.', land_sub: 'JamWerk met en relation les musiciens du coin\u00a0: trouvez des gens par instrument et par ville, rejoignez ou r\u00e9servez un groupe, trouvez un groupe de jam, prenez des remplacements pay\u00e9s au cachet affich\u00e9 \u2014 et \u00e9crivez-vous directement dans l\u2019app.', land_s1: 'Cr\u00e9ez votre profil musicien gratuit : instruments, ville, rayon de d\u00e9placement.', land_s2: 'Parcourez ou publiez : concerts pay\u00e9s, jams, places de groupe. Activez les alertes et les annonces arrivent sur votre t\u00e9l\u00e9phone.', land_s3: 'R\u00e9servez ou connectez-vous. Les concerts effectu\u00e9s g\u00e9n\u00e8rent des avis qui construisent votre r\u00e9putation publique.', aud_jam_t: 'Envie de jammer ?', aud_jam_p: 'Les annonces de jam sont gratuites et d\u00e9contract\u00e9es — pas de cachet, pas de notes, pas de pression. Trouvez des gens de votre niveau, du d\u00e9butant au groupe du week-end.', aud_pro_t: 'Musicien professionnel ?', aud_pro_p: 'Concerts pay\u00e9s avec le cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Les avis de vrais concerts construisent une r\u00e9putation partageable.', land_alerts: 'Touchez la cloche apr\u00e8s l\u2019inscription — les concerts pour votre instrument pr\u00e8s de chez vous arrivent sur votre t\u00e9l\u00e9phone d\u00e8s leur publication.', cta_join: 'Cr\u00e9er un profil gratuit', cta_browse: 'Voir les annonces', lvl_label: 'Niveau', whos_welcome: 'Qui est bienvenu', lvl_any: 'ouvert \u00e0 tous', lvl_hobby: 'amateur', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    land_head: 'Trouvez un rempla\u00e7ant. Rejoignez un jam. Montez un groupe.', land_sub: 'JamWerk met en relation les musiciens du coin\u00a0: trouvez des gens par instrument et par ville, rejoignez ou r\u00e9servez un groupe, trouvez un groupe de jam, prenez des remplacements pay\u00e9s au cachet affich\u00e9 \u2014 et \u00e9crivez-vous directement dans l\u2019app.', land_s1: 'Cr\u00e9ez votre profil musicien gratuit : instruments, ville, rayon de d\u00e9placement.', land_s2: 'Parcourez ou publiez : concerts pay\u00e9s, jams, places de groupe. Activez les alertes et les annonces arrivent sur votre t\u00e9l\u00e9phone.', land_s3: 'R\u00e9servez ou connectez-vous. Les concerts effectu\u00e9s g\u00e9n\u00e8rent des avis qui construisent votre r\u00e9putation publique.', aud_jam_t: 'Envie de jammer ?', aud_jam_p: 'Les annonces de jam sont gratuites et d\u00e9contract\u00e9es — pas de cachet, pas de notes, pas de pression. Trouvez des gens de votre niveau, du d\u00e9butant au groupe du week-end.', aud_pro_t: 'Musicien professionnel ?', aud_pro_p: 'Concerts pay\u00e9s avec le cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Les avis de vrais concerts construisent une r\u00e9putation partageable.', land_alerts: 'Activez les alertes apr\u00e8s l\u2019inscription — les concerts pour votre instrument pr\u00e8s de chez vous arrivent d\u00e8s leur publication.', dep_expl: 'Un dep est un remplacement pay\u00e9 : vous jouez \u00e0 la place d\u2019un autre musicien pour une date, et le cachet est affich\u00e9 d\u2019avance.', widened: 'Rien dans ce rayon — affichage de toute la r\u00e9gion.', guest_msgs_t: 'Messages', guest_msgs: 'Les messages sont r\u00e9serv\u00e9s aux membres. Cr\u00e9ez un profil gratuit pour \u00e9crire aux musiciens et aux groupes.', guest_profile_t: 'Votre profil', guest_profile: 'Votre profil est l\u2019endroit o\u00f9 les groupes et les organisateurs vous trouvent. Cr\u00e9ez-le gratuitement — deux minutes.', cta_join: 'Cr\u00e9er un profil gratuit', cta_browse: 'Voir les annonces', lvl_label: 'Niveau', whos_welcome: 'Qui est bienvenu', lvl_any: 'ouvert \u00e0 tous', lvl_hobby: 'amateur', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     save_band: 'Enregistrer',
     band_intro_t: 'Groupes & groupes de jam', band_intro_p: 'Les groupes se pr\u00e9sentent ici avec d\u00e9mos et tarif \u2014 r\u00e9servez-en un pour votre \u00e9v\u00e9nement, postulez \u00e0 une place libre ou trouvez un groupe de jam \u00e0 votre niveau.', list_my_band: 'Inscrire mon groupe', band_kind_l: 'De quoi s\u2019agit-il\u00a0?', kind_band: 'Un groupe \u2014 on joue des concerts et des \u00e9v\u00e9nements', kind_jam: 'Un groupe de jam / r\u00e9p\u00e9tition \u2014 on se retrouve pour jouer, sans r\u00e9servations', bookable_l: 'Disponible pour \u00e9v\u00e9nements \u2014 mariages, soir\u00e9es, entreprises (on peut nous r\u00e9server)', fee_from_l: 'Tarif d\u00e8s (groupe entier, une soir\u00e9e)', pitch_l: 'Accroche en une ligne (affich\u00e9e sur la carte)', pitch_ph: 'Groupe soul & funk \u00e0 5, 3 sets, sono incluse', cancel: 'Annuler', edit: 'Modifier', band_saved: 'Groupe mis \u00e0 jour.', seg_all_bands: 'Tous', seg_bookable: '\u00c0 r\u00e9server', seg_jamgroups: 'Groupes de jam', ph_genre: 'Genre', bands_n: '{0} groupes', no_bands_near: 'Aucun groupe ne correspond pour l\u2019instant \u2014 inscrivez le v\u00f4tre et soyez le premier.', from_fee: 'd\u00e8s {0}', fee_on_request: 'tarif sur demande', book_band: 'R\u00e9server ce groupe', contact_band: 'Contacter le groupe', jam_group: 'groupe de jam', ask_to_join: 'Demander \u00e0 rejoindre', inquiry_prompt: 'Votre message au groupe \u2014 date, lieu, type d\u2019\u00e9v\u00e9nement, budget\u00a0:', inquiry_sent: 'Message envoy\u00e9 \u2014 le groupe vous r\u00e9pondra ici dans Messages.', confirm_to_contact: 'Confirmez votre adresse e-mail avant de contacter un groupe \u2014 v\u00e9rifiez votre bo\u00eete mail.', view_band_page: 'Page du groupe \u2197', aud_event_t: 'Vous organisez un \u00e9v\u00e9nement\u00a0?', aud_event_p: 'Les groupes s\u2019inscrivent avec leurs d\u00e9mos et un tarif de d\u00e9part. Filtrez par genre et ville, \u00e9coutez, et \u00e9crivez directement au groupe.', cta_hire: 'R\u00e9server un groupe',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Groupes de jam', jams_intro_t: 'Jouer pour le plaisir', jams_intro_p: 'Gratuit et sans pression\u00a0: des musiciens qui cherchent avec qui jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement pour jouer. Pas de cachet, pas de notes.', jam_list_group: 'Inscrire un groupe de jam', my_activity: 'Mon activit\u00e9', activity_hint: 'Vos annonces, vos candidatures, les avis \u00e0 laisser.', activity_open: 'Voir tout', activity_close: 'R\u00e9duire', activity_pending: '{0} en attente', dm_btn: 'Message', dm_prompt: 'Votre message\u00a0:', dm_sent: 'Message envoy\u00e9.', dm_ctx: 'Message direct', dm_closed: 'Ce musicien n\u2019accepte pas les messages directs.', dm_accept_l: 'Les autres musiciens peuvent m\u2019envoyer des messages directs', no_jam_groups: 'Aucun groupe de jam pour l\u2019instant \u2014 inscrivez le v\u00f4tre et soyez le premier.', jam_groups_n: '{0} groupes de jam',
     block: 'Bloquer', unblock: 'D\u00e9bloquer', block_confirm: 'Bloquer {0}\u00a0? Cette personne ne pourra plus vous \u00e9crire et la conversation dispara\u00eet de votre liste.', blocked_ok: 'Personne bloqu\u00e9e.', unblocked_ok: 'Personne d\u00e9bloqu\u00e9e.', blocked_h: 'Personnes bloqu\u00e9es', blocked_msg: 'Vous ne pouvez pas \u00e9crire \u00e0 cette personne.', compose_hint: 'Dites bonjour \u00e0 {0} \u2014 la date, le lieu, ce que vous avez en t\u00eate.', inquiry_ctx: 'Demande de r\u00e9servation',
     nav_musicians: 'Musiciens', nav_musicians_s: 'Musiciens', board_intro_t: 'Concerts pay\u00e9s', board_intro_p: 'Des remplacements avec le cachet annonc\u00e9 d\u2019avance, en CHF ou EUR. Besoin de quelqu\u2019un\u00a0? Publiez un concert et les bons musiciens sont alert\u00e9s.', post_gig_cta: 'Publier un concert', post_jam_cta: 'Publier une annonce de jam', by_poster: 'par {0}',
     today: 'Aujourd\u2019hui', yesterday: 'Hier',
-    step1_t: 'Cr\u00e9e ton profil', step1_p: 'Ton instrument, ta ville, ce que tu cherches. Gratuit, deux minutes.', step2_t: 'Trouve du monde', step2_p: 'Musiciens, groupes, jams et concerts pay\u00e9s pr\u00e8s de chez toi \u2014 les onglets en bas.', step3_t: '\u00c9cris-leur', step3_p: 'Les messages restent dans l\u2019app, les alertes arrivent sur ton t\u00e9l\u00e9phone. C\u2019est tout.',
+    step1_t: 'Cr\u00e9e ton profil', step1_p: 'Ton instrument, ta ville, ce que tu cherches. Gratuit, deux minutes.', step2_t: 'Trouve du monde', step2_p: 'Musiciens, groupes, jams et concerts pay\u00e9s pr\u00e8s de chez toi.', step3_t: '\u00c9cris-leur', step3_p: 'Les messages restent dans l\u2019app, les alertes arrivent sur ton t\u00e9l\u00e9phone. C\u2019est tout.',
     free_line: '100\u00a0% gratuit pour les musiciens \u2014 sans frais, sans commission.',
     land_d_musicians: 'Tout le monde sur JamWerk, par instrument, niveau et ville \u2014 avec les groupes dans lesquels ils jouent. Un message en un clic.',
     land_d_jams: 'Gratuit et sans pression\u00a0: des musiciens qui veulent jammer, et des groupes qui se retrouvent r\u00e9guli\u00e8rement. Demandez \u00e0 rejoindre.',
@@ -1005,14 +996,14 @@ const I18N = {
     nav_msgs: 'Nachrichten', msg_btn: 'Nachricht', msg_send: 'Senden', msg_sent: 'Nachricht gesendet.', msg_placeholder: 'Nachricht schreiben\u2026', no_threads: 'Noch keine Unterhaltungen — sie beginnen mit einer Bewerbung.', thread_empty: 'Noch keine Nachrichten — sag hallo.', back: 'Zur\u00fcck',
     cta_jam: 'Jam-Partner finden', cta_gigs: 'Bezahlte Gigs ansehen', land_d_board: 'Bezahlte Ersatz-Gigs in deiner N\u00e4he, Gage vorab genannt, in CHF oder EUR. Bewirb dich mit deinem Profil.', land_d_post: 'Du brauchst Ersatz oder Jam-Partner? In zwei Minuten einstellen \u2014 passende Leute werden benachrichtigt. Bands und Jam-Gruppen tragen sich unter Bands / Jams ein.', land_d_mine: 'Behalte Anzeigen und Bewerbungen im Blick, buche Musiker:innen, bewerte nach dem Gig.', land_d_bands: 'Bands stellen sich mit Demos und Startgage vor: buche eine f\u00fcr deinen Anlass oder bewirb dich auf einen freien Platz.', land_d_profile: 'Dein Foto, deine Instrumente, Demos und Bewertungen \u2014 plus eine \u00f6ffentliche Seite zum Teilen.',
     how_it_works: 'So funktioniert\u2019s', tagline: 'Gigs \u00b7 Jams \u00b7 Bands', feedback: 'Feedback', fb_label: 'Was sollen wir verbessern?', fb_email_label: 'Deine E-Mail (optional, f\u00fcr eine Antwort)', fb_send: 'Senden', fb_sent_t: 'Nachricht gesendet', fb_thanks: 'Danke \u2014 dein Feedback ist bei uns angekommen.', missing_q: 'Fehlt ein Instrument, ein Genre oder eine Option?', missing_inst_q: 'Dein Instrument fehlt in der Liste?', tell_us: 'Sag es uns \u2192', fb_prefill_post: 'Gig einstellen \u2014 es fehlt: ', fb_prefill_profile: 'Mein Profil \u2014 fehlendes Instrument: ', fb_fail: 'Feedback konnte nicht gesendet werden', welcome_profile: 'Willkommen! Wir haben dir eine Best\u00e4tigungs-E-Mail geschickt — falls sie nicht im Posteingang ist, schau im Spam-Ordner nach. Richte dann dein Musikerprofil ein — damit kannst du dich auf Gigs und Jams bewerben.',
-    land_head: 'Finde einen Ersatz. Finde Jam-Partner. Gr\u00fcnde eine Band.', land_sub: 'JamWerk verbindet Musiker:innen vor Ort: Leute nach Instrument und Stadt finden, einer Band beitreten oder eine buchen, eine Jam-Gruppe finden, bezahlte Ersatz-Gigs mit vorab genannter Gage \u00fcbernehmen \u2014 und sich direkt in der App schreiben.', land_s1: 'Erstelle dein gratis Musikerprofil: Instrumente, Stadt, Reiseradius.', land_s2: 'St\u00f6bern oder inserieren: bezahlte Gigs, Jams, Bandpl\u00e4tze. Alerts an, und Treffer erreichen dein Handy.', land_s3: 'Buchen oder verbinden. Abgeschlossene Gigs bringen Bewertungen f\u00fcr deinen \u00f6ffentlichen Leistungsausweis.', aud_jam_t: 'Einfach nur jammen?', aud_jam_p: 'Jam-Anzeigen sind gratis und locker — keine Gagen, keine Bewertungen, kein Druck. Finde Leute auf deinem Niveau, vom Anf\u00e4nger bis zur Wochenendband.', aud_pro_t: 'Berufsmusiker:in?', aud_pro_p: 'Bezahlte Ersatz-Gigs mit vorab genannter Gage in CHF oder EUR. Bewertungen aus echten Gigs bauen einen teilbaren Leistungsausweis auf.', land_alerts: 'Tippe nach der Anmeldung auf die Glocke — Gigs f\u00fcr dein Instrument in deiner N\u00e4he erreichen dein Handy, sobald sie erscheinen.', cta_join: 'Gratis Profil erstellen', cta_browse: 'Anzeigen ansehen', lvl_label: 'Erfahrungsstufe', whos_welcome: 'Wer ist willkommen', lvl_any: 'alle willkommen', lvl_hobby: 'Hobby', lvl_semi: 'semiprofessionell', lvl_pro: 'Profi',
+    land_head: 'Finde einen Ersatz. Finde Jam-Partner. Gr\u00fcnde eine Band.', land_sub: 'JamWerk verbindet Musiker:innen vor Ort: Leute nach Instrument und Stadt finden, einer Band beitreten oder eine buchen, eine Jam-Gruppe finden, bezahlte Ersatz-Gigs mit vorab genannter Gage \u00fcbernehmen \u2014 und sich direkt in der App schreiben.', land_s1: 'Erstelle dein gratis Musikerprofil: Instrumente, Stadt, Reiseradius.', land_s2: 'St\u00f6bern oder inserieren: bezahlte Gigs, Jams, Bandpl\u00e4tze. Alerts an, und Treffer erreichen dein Handy.', land_s3: 'Buchen oder verbinden. Abgeschlossene Gigs bringen Bewertungen f\u00fcr deinen \u00f6ffentlichen Leistungsausweis.', aud_jam_t: 'Einfach nur jammen?', aud_jam_p: 'Jam-Anzeigen sind gratis und locker — keine Gagen, keine Bewertungen, kein Druck. Finde Leute auf deinem Niveau, vom Anf\u00e4nger bis zur Wochenendband.', aud_pro_t: 'Berufsmusiker:in?', aud_pro_p: 'Bezahlte Ersatz-Gigs mit vorab genannter Gage in CHF oder EUR. Bewertungen aus echten Gigs bauen einen teilbaren Leistungsausweis auf.', land_alerts: 'Schalte nach der Anmeldung Alerts ein — Gigs f\u00fcr dein Instrument in deiner N\u00e4he kommen, sobald sie eingestellt werden.', dep_expl: 'Ein Dep ist ein bezahlter Einspring-Gig: du vertrittst eine Musiker:in an einem Termin, die Gage steht vorher fest.', widened: 'Nichts in diesem Radius — die ganze Region wird angezeigt.', guest_msgs_t: 'Nachrichten', guest_msgs: 'Nachrichten sind f\u00fcr Mitglieder. Erstelle ein gratis Profil, um Musiker:innen zu schreiben.', guest_profile_t: 'Dein Profil', guest_profile: '\u00dcber dein Profil finden dich Bands und Veranstalter. Erstelle es gratis — das dauert zwei Minuten.', cta_join: 'Gratis Profil erstellen', cta_browse: 'Anzeigen ansehen', lvl_label: 'Erfahrungsstufe', whos_welcome: 'Wer ist willkommen', lvl_any: 'alle willkommen', lvl_hobby: 'Hobby', lvl_semi: 'semiprofessionell', lvl_pro: 'Profi',
     save_band: 'Speichern',
     band_intro_t: 'Bands & Jam-Gruppen', band_intro_p: 'Bands stellen sich hier mit Demos und Gage vor \u2014 buche eine f\u00fcr deinen Anlass, bewirb dich auf einen freien Platz oder finde eine Jam-Gruppe auf deinem Niveau.', list_my_band: 'Meine Band eintragen', band_kind_l: 'Was ist es?', kind_band: 'Eine Band \u2014 wir spielen Konzerte und Events', kind_jam: 'Eine Jam-/Probegruppe \u2014 wir treffen uns zum Spielen, keine Buchungen', bookable_l: 'F\u00fcr Events buchbar \u2014 Hochzeiten, Partys, Firmenanl\u00e4sse', fee_from_l: 'Gage ab (ganze Band, ein Abend)', pitch_l: 'Ein Satz zur Band (auf der Karte sichtbar)', pitch_ph: '5-k\u00f6pfige Soul-&-Funk-Band, 3 Sets, eigene PA', cancel: 'Abbrechen', edit: 'Bearbeiten', band_saved: 'Band aktualisiert.', seg_all_bands: 'Alle', seg_bookable: 'Buchbar', seg_jamgroups: 'Jam-Gruppen', ph_genre: 'Genre', bands_n: '{0} Bands', no_bands_near: 'Noch keine passende Band \u2014 trag deine ein und sei die erste.', from_fee: 'ab {0}', fee_on_request: 'Gage auf Anfrage', book_band: 'Diese Band buchen', contact_band: 'Band kontaktieren', jam_group: 'Jam-Gruppe', ask_to_join: 'Mitspielen anfragen', inquiry_prompt: 'Deine Nachricht an die Band \u2014 Datum, Ort, Art des Anlasses, Budget:', inquiry_sent: 'Nachricht gesendet \u2014 die Band antwortet dir hier unter Nachrichten.', confirm_to_contact: 'Best\u00e4tige zuerst deine E-Mail-Adresse \u2014 schau in dein Postfach.', view_band_page: 'Bandseite \u2197', aud_event_t: 'Du organisierst einen Anlass?', aud_event_p: 'Bands tragen sich mit Demos und einer Startgage ein. Nach Genre und Stadt filtern, reinh\u00f6ren und der Band direkt schreiben.', cta_hire: 'Band buchen',
     nav_jams: 'Jams', nav_jams_s: 'Jams', seg_jam_groups: 'Jam-Gruppen', jams_intro_t: 'Spielen aus Spass', jams_intro_p: 'Kostenlos und locker: Leute, die jemanden zum Jammen suchen, und Gruppen, die sich regelm\u00e4ssig zum Spielen treffen. Keine Gage, keine Bewertungen.', jam_list_group: 'Jam-Gruppe eintragen', my_activity: 'Meine Aktivit\u00e4t', activity_hint: 'Deine Inserate, deine Bewerbungen, offene Bewertungen.', activity_open: 'Alle anzeigen', activity_close: 'Weniger', activity_pending: '{0} warten auf dich', dm_btn: 'Nachricht', dm_prompt: 'Deine Nachricht:', dm_sent: 'Nachricht gesendet.', dm_ctx: 'Direktnachricht', dm_closed: 'Diese Person nimmt keine Direktnachrichten an.', dm_accept_l: 'Andere Musiker:innen d\u00fcrfen mir Direktnachrichten schicken', no_jam_groups: 'Noch keine Jam-Gruppen \u2014 trag deine ein und sei die erste.', jam_groups_n: '{0} Jam-Gruppen',
     block: 'Blockieren', unblock: 'Freigeben', block_confirm: '{0} blockieren? Die Person kann dir nicht mehr schreiben und das Gespr\u00e4ch verschwindet aus deiner Liste.', blocked_ok: 'Blockiert.', unblocked_ok: 'Freigegeben.', blocked_h: 'Blockierte Personen', blocked_msg: 'Du kannst dieser Person nicht schreiben.', compose_hint: 'Sag {0} hallo \u2014 Datum, Ort, was du vorhast.', inquiry_ctx: 'Buchungsanfrage',
     nav_musicians: 'Musiker:innen', nav_musicians_s: 'Musiker', board_intro_t: 'Bezahlte Gigs', board_intro_p: 'Ersatz-Gigs mit vorab genannter Gage, in CHF oder EUR. Du brauchst jemanden? Stell einen Gig ein und die passenden Leute werden benachrichtigt.', post_gig_cta: 'Gig einstellen', post_jam_cta: 'Jam-Inserat einstellen', by_poster: 'von {0}',
     today: 'Heute', yesterday: 'Gestern',
-    step1_t: 'Profil anlegen', step1_p: 'Dein Instrument, deine Stadt, was du suchst. Gratis, zwei Minuten.', step2_t: 'Leute finden', step2_p: 'Musiker:innen, Bands, Jam-Gruppen und bezahlte Gigs in deiner N\u00e4he \u2014 die Tabs unten.', step3_t: 'Schreib ihnen', step3_p: 'Nachrichten bleiben in der App, Alerts kommen aufs Handy. Das war\u2019s.',
+    step1_t: 'Profil anlegen', step1_p: 'Dein Instrument, deine Stadt, was du suchst. Gratis, zwei Minuten.', step2_t: 'Leute finden', step2_p: 'Musiker:innen, Bands, Jam-Gruppen und bezahlte Gigs in deiner N\u00e4he.', step3_t: 'Schreib ihnen', step3_p: 'Nachrichten bleiben in der App, Alerts kommen aufs Handy. Das war\u2019s.',
     free_line: '100\u00a0% gratis f\u00fcr Musiker:innen \u2014 keine Geb\u00fchren, keine Provision.',
     land_d_musicians: 'Alle auf JamWerk, nach Instrument, Niveau und Stadt \u2014 mit den Gruppen, in denen sie spielen. Nachricht mit einem Tipp.',
     land_d_jams: 'Kostenlos und locker: Leute, die jammen wollen, und Gruppen, die sich regelm\u00e4ssig treffen. Frag nach einem Platz.',
@@ -1071,14 +1062,14 @@ const I18N = {
     nav_msgs: 'Messaggi', msg_btn: 'Messaggio', msg_send: 'Invia', msg_sent: 'Messaggio inviato.', msg_placeholder: 'Scrivi un messaggio\u2026', no_threads: 'Ancora nessuna conversazione — iniziano da una candidatura.', thread_empty: 'Ancora nessun messaggio — saluta.', back: 'Indietro',
     cta_jam: 'Trova partner per jam', cta_gigs: 'Vedi i concerti pagati', land_d_board: 'Sostituzioni pagate vicino a te, cachet indicato in anticipo, in CHF o EUR. Candidati con il tuo profilo.', land_d_post: 'Cerchi un sostituto o un partner per jam? Pubblica in due minuti \u2014 i musicisti giusti vengono avvisati. Gruppi e gruppi jam si iscrivono sotto Gruppi / Jam.', land_d_mine: 'Segui annunci e candidature, ingaggia musicisti, lascia recensioni dopo il concerto.', land_d_bands: 'I gruppi si presentano con demo e tariffa di partenza: prenotane uno per il tuo evento, o candidati a un posto libero.', land_d_profile: 'La tua foto, i tuoi strumenti, demo e recensioni \u2014 pi\u00f9 una pagina pubblica da condividere ovunque.',
     how_it_works: 'Come funziona', tagline: 'concerti · jam · band', feedback: 'Feedback', fb_label: 'Cosa possiamo migliorare?', fb_email_label: 'La tua e-mail (facoltativa, per una risposta)', fb_send: 'Invia', fb_sent_t: 'Messaggio inviato', fb_thanks: 'Grazie — il tuo feedback ci è arrivato.', missing_q: 'Manca uno strumento, un genere o un\u2019opzione?', missing_inst_q: 'Il tuo strumento non è in lista?', tell_us: 'Diccelo \u2192', fb_prefill_post: 'Pubblicazione annuncio — manca: ', fb_prefill_profile: 'Il mio profilo — strumento mancante: ', fb_fail: 'Impossibile inviare il feedback', welcome_profile: 'Benvenuto/a! Ti abbiamo inviato un\u2019e-mail di conferma — se non \u00e8 nella posta in arrivo, controlla la cartella spam. Poi crea il tuo profilo musicista — \u00e8 ci\u00f2 che ti permette di candidarti a concerti e jam.',
-    land_head: 'Trova un sostituto. Trova una jam. Crea un gruppo.', land_sub: 'JamWerk collega i musicisti della zona: trova persone per strumento e citt\u00e0, entra in un gruppo o prenotane uno, trova un gruppo jam, prendi sostituzioni pagate con il cachet indicato in anticipo \u2014 e scrivetevi direttamente nell\u2019app.', land_s1: 'Crea il tuo profilo musicista gratuito: strumenti, citt\u00e0, raggio di spostamento.', land_s2: 'Sfoglia o pubblica: concerti pagati, jam, posti nei gruppi. Attiva gli avvisi e le corrispondenze arrivano sul telefono.', land_s3: 'Prenota o connettiti. I concerti completati generano recensioni che costruiscono la tua reputazione pubblica.', aud_jam_t: 'Vuoi solo suonare?', aud_jam_p: 'Gli annunci di prova sono gratuiti e informali — niente cachet, niente voti, niente pressione. Trova persone del tuo livello, dai principianti alle band del weekend.', aud_pro_t: 'Musicista professionista?', aud_pro_p: 'Concerti pagati con il cachet dichiarato in anticipo, in CHF o EUR. Le recensioni di concerti reali costruiscono una reputazione condivisibile.', land_alerts: 'Tocca la campanella dopo la registrazione — i concerti per il tuo strumento vicino a te arrivano sul telefono appena pubblicati.', cta_join: 'Crea il tuo profilo gratuito', cta_browse: 'Guarda gli annunci', lvl_label: 'Livello', whos_welcome: 'Chi \u00e8 benvenuto', lvl_any: 'aperto a tutti', lvl_hobby: 'amatoriale', lvl_semi: 'semi-pro', lvl_pro: 'pro',
+    land_head: 'Trova un sostituto. Trova una jam. Crea un gruppo.', land_sub: 'JamWerk collega i musicisti della zona: trova persone per strumento e citt\u00e0, entra in un gruppo o prenotane uno, trova un gruppo jam, prendi sostituzioni pagate con il cachet indicato in anticipo \u2014 e scrivetevi direttamente nell\u2019app.', land_s1: 'Crea il tuo profilo musicista gratuito: strumenti, citt\u00e0, raggio di spostamento.', land_s2: 'Sfoglia o pubblica: concerti pagati, jam, posti nei gruppi. Attiva gli avvisi e le corrispondenze arrivano sul telefono.', land_s3: 'Prenota o connettiti. I concerti completati generano recensioni che costruiscono la tua reputazione pubblica.', aud_jam_t: 'Vuoi solo suonare?', aud_jam_p: 'Gli annunci di prova sono gratuiti e informali — niente cachet, niente voti, niente pressione. Trova persone del tuo livello, dai principianti alle band del weekend.', aud_pro_t: 'Musicista professionista?', aud_pro_p: 'Concerti pagati con il cachet dichiarato in anticipo, in CHF o EUR. Le recensioni di concerti reali costruiscono una reputazione condivisibile.', land_alerts: 'Attiva gli avvisi dopo l\u2019iscrizione — i concerti per il tuo strumento vicino a te arrivano appena vengono pubblicati.', dep_expl: 'Un dep \u00e8 una sostituzione pagata: suoni al posto di un altro musicista per una data, e il cachet \u00e8 indicato in anticipo.', widened: 'Niente in questo raggio — mostriamo tutta la regione.', guest_msgs_t: 'Messaggi', guest_msgs: 'I messaggi sono per i membri. Crea un profilo gratuito per scrivere ai musicisti.', guest_profile_t: 'Il tuo profilo', guest_profile: 'Il tuo profilo \u00e8 dove gruppi e organizzatori ti trovano. Crealo gratis — ci vogliono due minuti.', cta_join: 'Crea il tuo profilo gratuito', cta_browse: 'Guarda gli annunci', lvl_label: 'Livello', whos_welcome: 'Chi \u00e8 benvenuto', lvl_any: 'aperto a tutti', lvl_hobby: 'amatoriale', lvl_semi: 'semi-pro', lvl_pro: 'pro',
     save_band: 'Salva',
     band_intro_t: 'Gruppi & gruppi jam', band_intro_p: 'I gruppi si presentano qui con demo e tariffa \u2014 prenotane uno per il tuo evento, candidati a un posto libero o trova un gruppo jam al tuo livello.', list_my_band: 'Iscrivi il mio gruppo', band_kind_l: 'Di cosa si tratta?', kind_band: 'Un gruppo \u2014 suoniamo concerti ed eventi', kind_jam: 'Un gruppo jam / di prova \u2014 ci troviamo per suonare, senza prenotazioni', bookable_l: 'Disponibile per eventi \u2014 matrimoni, feste, aziende (ci si pu\u00f2 prenotare)', fee_from_l: 'Tariffa da (gruppo intero, una serata)', pitch_l: 'Frase di presentazione (mostrata sulla scheda)', pitch_ph: 'Band soul & funk in 5, 3 set, impianto proprio', cancel: 'Annulla', edit: 'Modifica', band_saved: 'Gruppo aggiornato.', seg_all_bands: 'Tutti', seg_bookable: 'Prenotabili', seg_jamgroups: 'Gruppi jam', ph_genre: 'Genere', bands_n: '{0} gruppi', no_bands_near: 'Nessun gruppo corrisponde per ora \u2014 iscrivi il tuo e sii il primo.', from_fee: 'da {0}', fee_on_request: 'tariffa su richiesta', book_band: 'Prenota questo gruppo', contact_band: 'Contatta il gruppo', jam_group: 'gruppo jam', ask_to_join: 'Chiedi di unirti', inquiry_prompt: 'Il tuo messaggio al gruppo \u2014 data, luogo, tipo di evento, budget:', inquiry_sent: 'Messaggio inviato \u2014 il gruppo ti risponder\u00e0 qui in Messaggi.', confirm_to_contact: 'Conferma il tuo indirizzo e-mail prima di contattare un gruppo \u2014 controlla la posta.', view_band_page: 'Pagina del gruppo \u2197', aud_event_t: 'Organizzi un evento?', aud_event_p: 'I gruppi si iscrivono con demo e una tariffa di partenza. Filtra per genere e citt\u00e0, ascolta e scrivi direttamente al gruppo.', cta_hire: 'Prenota un gruppo',
     nav_jams: 'Jam', nav_jams_s: 'Jam', seg_jam_groups: 'Gruppi jam', jams_intro_t: 'Suonare per il gusto di farlo', jams_intro_p: 'Gratis e senza pressioni: musicisti che cercano con chi suonare, e gruppi che si trovano regolarmente per jammare. Niente cachet, niente voti.', jam_list_group: 'Iscrivi un gruppo jam', my_activity: 'La mia attivit\u00e0', activity_hint: 'I tuoi annunci, le tue candidature, le recensioni da lasciare.', activity_open: 'Vedi tutto', activity_close: 'Riduci', activity_pending: '{0} in attesa', dm_btn: 'Messaggio', dm_prompt: 'Il tuo messaggio:', dm_sent: 'Messaggio inviato.', dm_ctx: 'Messaggio diretto', dm_closed: 'Questo musicista non accetta messaggi diretti.', dm_accept_l: 'Gli altri musicisti possono inviarmi messaggi diretti', no_jam_groups: 'Nessun gruppo jam per ora \u2014 iscrivi il tuo e sii il primo.', jam_groups_n: '{0} gruppi jam',
     block: 'Blocca', unblock: 'Sblocca', block_confirm: 'Bloccare {0}? Non potr\u00e0 pi\u00f9 scriverti e la conversazione sparir\u00e0 dalla tua lista.', blocked_ok: 'Bloccato.', unblocked_ok: 'Sbloccato.', blocked_h: 'Persone bloccate', blocked_msg: 'Non puoi scrivere a questa persona.', compose_hint: 'Saluta {0} \u2014 la data, il luogo, cosa hai in mente.', inquiry_ctx: 'Richiesta di prenotazione',
     nav_musicians: 'Musicisti', nav_musicians_s: 'Musicisti', board_intro_t: 'Concerti pagati', board_intro_p: 'Sostituzioni con il cachet indicato in anticipo, in CHF o EUR. Cerchi qualcuno? Pubblica un concerto e i musicisti giusti vengono avvisati.', post_gig_cta: 'Pubblica un concerto', post_jam_cta: 'Pubblica un annuncio jam', by_poster: 'di {0}',
     today: 'Oggi', yesterday: 'Ieri',
-    step1_t: 'Crea il tuo profilo', step1_p: 'Il tuo strumento, la tua citt\u00e0, cosa cerchi. Gratis, due minuti.', step2_t: 'Trova gente', step2_p: 'Musicisti, gruppi, jam e concerti pagati vicino a te \u2014 le schede in basso.', step3_t: 'Scrivi loro', step3_p: 'I messaggi restano nell\u2019app, gli avvisi arrivano sul telefono. Tutto qui.',
+    step1_t: 'Crea il tuo profilo', step1_p: 'Il tuo strumento, la tua citt\u00e0, cosa cerchi. Gratis, due minuti.', step2_t: 'Trova gente', step2_p: 'Musicisti, gruppi, jam e concerti pagati vicino a te.', step3_t: 'Scrivi loro', step3_p: 'I messaggi restano nell\u2019app, gli avvisi arrivano sul telefono. Tutto qui.',
     free_line: '100% gratis per i musicisti \u2014 niente costi, niente commissioni.',
     land_d_musicians: 'Tutti su JamWerk, per strumento, livello e citt\u00e0 \u2014 con i gruppi in cui suonano. Un messaggio con un tocco.',
     land_d_jams: 'Gratis e senza pressioni: musicisti che vogliono jammare e gruppi che si trovano regolarmente. Chiedi di unirti.',
@@ -1171,19 +1162,12 @@ function applyI18n() {
 let me = null;
 let boardKind = 'gig';
 let landingDismissed = false;
-$('ctaBrowse').onclick = () => { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=board]').click(); };
-$('ctaJam').onclick = () => { landingDismissed = true; $('landing').hidden = true; boardKind = 'practice'; document.querySelector('[data-tab=jams]').click(); };
-$('ctaGigs').onclick = () => { landingDismissed = true; $('landing').hidden = true; boardKind = 'gig'; document.querySelector('[data-tab=board]').click(); };
-$('ctaPeople').onclick = () => { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=musicians]').click(); };
-$('ctaHire').onclick = () => { landingDismissed = true; $('landing').hidden = true; bandFilter = 'bookable'; document.querySelector('[data-tab=bands]').click(); };
-document.querySelectorAll('#landTiles [data-goto]').forEach((tile) => {
-  tile.onclick = () => {
-    landingDismissed = true;
-    $('landing').hidden = true;
-    document.querySelector('[data-tab=' + tile.dataset.goto + ']').click();
-    if (tile.dataset.activity && !activityOpen) $('activityBtn').click();
-  };
-});
+$('ctaBrowse').onclick = () => activateTab('board', { history: 'push' });
+$('ctaJam').onclick = () => { boardKind = 'practice'; activateTab('jams', { history: 'push' }); };
+$('ctaGigs').onclick = () => { boardKind = 'gig'; activateTab('board', { history: 'push' }); };
+$('ctaPeople').onclick = () => activateTab('musicians', { history: 'push' });
+$('ctaHire').onclick = () => { bandFilter = 'bookable'; activateTab('bands', { history: 'push', keepBandFilter: true }); };
+document.querySelectorAll('.guest-join').forEach((b) => { b.onclick = () => { if (!registering) $('authSwitch').onclick(); $('authDialog').showModal(); }; });
 let helpMode = false;
 $('howBtn').onclick = () => {
   stopChat();
@@ -1192,19 +1176,14 @@ $('howBtn').onclick = () => {
   landingDismissed = false;
   TABS.forEach((t) => { $('tab-' + t).hidden = true; });
   document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
-  $('helpAsk1').hidden = false; $('helpAsk2').hidden = false;
+  $('helpAsk1').hidden = false;
   $('landing').hidden = false;
   window.scrollTo({ top: 0 });
 };
 document.querySelectorAll('.help-ask-btn').forEach((b) => { b.onclick = () => openFeedback(); });
 document.querySelectorAll('.ask-open').forEach((b) => { b.onclick = () => openFeedback(b.dataset.fb ? T('fb_prefill_post') : undefined); });
-$('helpBack').onclick = () => { (document.querySelector('[data-tab=' + (lastBrowse || 'musicians') + ']') || document.querySelector('[data-tab=musicians]')).click(); };
-$('logoHome').onclick = () => {
-  landingDismissed = false;
-  document.querySelector('[data-tab=board]').click();
-  if (!me) $('landing').hidden = false;
-  window.scrollTo({ top: 0 });
-};
+$('helpBack').onclick = () => activateTab(lastBrowse || 'musicians', { history: 'push' });
+$('logoHome').onclick = () => showHome('push');
 $('footLogo').onclick = () => $('logoHome').onclick();
 $('footHow').onclick = () => $('howBtn').onclick();
 function openFeedback(prefill) {
@@ -1423,20 +1402,66 @@ function mountBoard(tab) {
   if (!current || current.dataset.group !== group) boardKind = group === 'jams' ? 'practice' : group === 'musicians' ? 'musicians' : 'gig';
   switchKind(boardKind);
 }
+const TAB_PATH = { musicians: '/musicians', bands: '/bands', jams: '/jams', board: '/gigs', msgs: '/messages', profile: '/profile', post: '/post' };
+function gigIdFromPath(pathname) {
+  const parts = String(pathname || '/').split('/');
+  if (parts.length === 3 && parts[1] === 'gigs' && /^[0-9]+$/.test(parts[2])) return parts[2];
+  return '';
+}
+function pathTab(pathname) {
+  let p = pathname || '/';
+  if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
+  if (gigIdFromPath(p)) return 'board';
+  const found = Object.keys(TAB_PATH).find((k) => TAB_PATH[k] === p);
+  return found || null;
+}
+function showHome(historyMode) {
+  stopChat();
+  helpMode = false;
+  document.body.classList.remove('help-mode');
+  $('helpAsk1').hidden = true;
+  if (me) { activateTab('musicians', { history: historyMode }); return; }
+  landingDismissed = false;
+  $('landing').hidden = false;
+  TABS.forEach((t) => { $('tab-' + t).hidden = true; });
+  document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
+  if (historyMode === 'push') history.pushState({ tab: null }, '', '/');
+  else if (historyMode === 'replace') history.replaceState({ tab: null }, '', '/');
+  window.scrollTo({ top: 0 });
+}
+function activateTab(name, opts) {
+  opts = opts || {};
+  stopChat();
+  if (helpMode) { helpMode = false; document.body.classList.remove('help-mode'); $('helpAsk1').hidden = true; }
+  landingDismissed = true;
+  $('landing').hidden = true;
+  document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === name));
+  TABS.forEach((t) => { $('tab-' + t).hidden = t !== name; });
+  if (name === 'board' || name === 'jams' || name === 'musicians') {
+    if (name !== 'musicians') lastBrowse = name;
+    mountBoard(name);
+  }
+  if (name === 'bands') { if (!opts.keepBandFilter) bandFilter = ''; loadBands(); }
+  if (name === 'msgs' && me) loadThreads();
+  if (name === 'post') { if (lastBrowse === 'jams' && $('pKind').value !== 'practice') { $('pKind').value = 'practice'; $('pKind').onchange(); } }
+  if (name === 'profile' && me) refreshActivity();
+  const gigMatch = opts.gigId ? '/gigs/' + opts.gigId : '';
+  const url = gigMatch || TAB_PATH[name] || '/';
+  if (opts.history === 'push' && location.pathname !== url) history.pushState({ tab: name }, '', url);
+  else if (opts.history === 'replace') history.replaceState({ tab: name }, '', url);
+  if (opts.scroll !== false) window.scrollTo({ top: 0 });
+}
 document.querySelectorAll('#tabs button').forEach((b) => {
   b.onclick = () => {
-    stopChat();
-    if (helpMode) { helpMode = false; document.body.classList.remove('help-mode'); landingDismissed = true; $('landing').hidden = true; $('helpAsk1').hidden = true; $('helpAsk2').hidden = true; }
-    document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('active'));
-    b.classList.add('active');
-    if (b.scrollIntoView) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    TABS.forEach((t) => { $('tab-' + t).hidden = t !== b.dataset.tab; });
-    if (b.dataset.tab === 'board' || b.dataset.tab === 'jams' || b.dataset.tab === 'musicians') { if (b.dataset.tab !== 'musicians') lastBrowse = b.dataset.tab; mountBoard(b.dataset.tab); }
-    if (b.dataset.tab === 'bands') { bandFilter = ''; loadBands(); }
-    if (b.dataset.tab === 'msgs') loadThreads();
-    if (b.dataset.tab === 'post') { if (lastBrowse === 'jams' && $('pKind').value !== 'practice') { $('pKind').value = 'practice'; $('pKind').onchange(); } }
-    if (b.dataset.tab === 'profile') refreshActivity();
+    if (b.dataset.tab === 'bands') bandFilter = '';
+    activateTab(b.dataset.tab, { history: 'push' });
   };
+});
+window.addEventListener('popstate', () => {
+  const tab = pathTab(location.pathname);
+  const gig = gigIdFromPath(location.pathname);
+  if (!tab) showHome(false);
+  else activateTab(tab, { history: false, keepBandFilter: true, scroll: !gig, gigId: gig || undefined });
 });
 
 // ── Board ────────────────────────────────────────────
@@ -1538,13 +1563,20 @@ async function loadMusicians(params) {
   const board = $('board');
   const city = $('fCity').value.trim(), km = $('fRadius').value;
   board.replaceChildren(el('p', 'muted', T('loading')));
-  const r = await api('/musicians?' + params);
+  let r = await api('/musicians?' + params);
+  let widened = false;
+  if (r.ok && !(r.json.musicians || []).length && params.has('city')) {
+    const wide = new URLSearchParams(params);
+    ['city', 'radius_km', 'lat', 'lng'].forEach((k) => wide.delete(k));
+    const r2 = await api('/musicians?' + wide);
+    if (r2.ok && (r2.json.musicians || []).length) { r = r2; widened = true; }
+  }
   board.replaceChildren();
   if (!r.ok) { board.append(el('p', 'msg err', r.json.error || T('failed'))); return; }
   const list = r.json.musicians || [];
   const filtered = !!($('fInstrument').value || city);
-  if (!filtered && list.length) board.append(el('h2', 'recent-h', T('recent_musicians')));
-  else board.append(el('p', 'muted board-summary', T('musicians_n', list.length) + (city ? ' \u00b7 ' + city + ' \u00b7 ' + km + ' km' : '')));
+  if (!filtered && list.length && !widened) board.append(el('h2', 'recent-h', T('recent_musicians')));
+  else board.append(el('p', 'muted board-summary', T('musicians_n', list.length) + (widened ? ' \u00b7 ' + T('widened') : (city ? ' \u00b7 ' + city + ' \u00b7 ' + km + ' km' : ''))));
   if (!list.length) {
     const card = el('div', 'card');
     card.append(el('p', 'muted', T('no_musicians')));
@@ -1575,15 +1607,23 @@ async function loadBoard() {
   const board = $('board');
   board.replaceChildren(el('p', 'muted', T('loading')));
   fBtn.disabled = true; fBtn.classList.add('busy');
-  const r = await api('/gigs?' + params);
+  let r = await api('/gigs?' + params);
   fBtn.disabled = false; fBtn.classList.remove('busy');
   if (seq !== boardSeq) return;
+  let widened = false;
+  if (r.ok && !(r.json.gigs || []).length && params.has('city')) {
+    const wide = new URLSearchParams(params);
+    ['city', 'radius_km', 'lat', 'lng'].forEach((k) => wide.delete(k));
+    const r2 = await api('/gigs?' + wide);
+    if (seq !== boardSeq) return;
+    if (r2.ok && (r2.json.gigs || []).length) { r = r2; widened = true; }
+  }
   board.replaceChildren();
   if (!r.ok) { board.append(el('p', 'msg err', r.json.error || T('failed'))); return; }
   // Always say what was searched and how many came back, so applying a
   // filter visibly does something even when the answer is "nothing".
   const n = (r.json.gigs || []).length;
-  board.append(el('p', 'muted board-summary', T('results_n', n) + (city ? ' \u00b7 ' + city + ' \u00b7 ' + km + ' km' : '')));
+  board.append(el('p', 'muted board-summary', T('results_n', n) + (widened ? ' \u00b7 ' + T('widened') : (city ? ' \u00b7 ' + city + ' \u00b7 ' + km + ' km' : ''))));
   if (!n) {
     const card = el('div', 'card');
     const title = el('div', 'display', city
@@ -1621,7 +1661,12 @@ async function loadBoard() {
     // The people are the content while listings are scarce.
     params.set('limit', '6');
     board.append(askLine());
-    const r2 = await api('/musicians?' + params);
+    let r2 = await api('/musicians?' + params);
+    if (r2.ok && !(r2.json.musicians || []).length && params.has('city')) {
+      const wide = new URLSearchParams(params);
+      ['city', 'radius_km', 'lat', 'lng'].forEach((k) => wide.delete(k));
+      r2 = await api('/musicians?' + wide);
+    }
     if (seq !== boardSeq || !r2.ok) return;
     const near = r2.json.musicians || [];
     if (near.length) { board.append(el('h2', '', T('musicians_near'))); near.forEach((m) => board.append(musicianCard(m))); }
@@ -1705,7 +1750,7 @@ function askLine(prefill) {
 function gigActions(gig) {
   const bar = el('div', 'actions');
   const shareTitle = (gig.kind === 'practice' ? T('jam') : T('gig_short')) + ' \u00b7 ' + label(gig.instrument) + ' \u00b7 ' + gig.venue_city;
-  const sb = shareBtn('/?gig=' + gig.id, shareTitle);
+  const sb = shareBtn('/gigs/' + gig.id, shareTitle);
   if (gig.is_mine) { bar.append(el('span', 'muted', T('your_gig')), sb); return bar; }
   const st = gig.my_status;
   if (st === 'accepted') { bar.append(el('span', 'state-chip good', '\u2713 ' + T('state_booked'))); return bar; }
@@ -2336,8 +2381,11 @@ async function loadThreads() {
   wrap.append(askLine());
 }
 function showMsgsTab() {
+  landingDismissed = true;
+  $('landing').hidden = true;
   document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === 'msgs'));
   TABS.forEach((t) => { $('tab-' + t).hidden = t !== 'msgs'; });
+  if (location.pathname !== '/messages') history.pushState({ tab: 'msgs' }, '', '/messages');
   window.scrollTo({ top: 0 });
 }
 // One chat screen for existing threads and not-yet-created ones (first DM,
@@ -2615,10 +2663,19 @@ async function renderBands(o) {
     params.set('radius_km', o.radius);
     if (o.coords) { params.set('lat', o.coords.lat); params.set('lng', o.coords.lng); }
   }
-  const r = await api('/bands' + (params.toString() ? '?' + params : ''));
+  let r = await api('/bands' + (params.toString() ? '?' + params : ''));
+  let list = (r.json && r.json.bands) || [];
+  let widened = false;
+  if (r.ok && !list.length && city) {
+    const wide = new URLSearchParams();
+    wide.set('kind', o.kind);
+    if (o.bookable) wide.set('bookable', '1');
+    if (o.genre) wide.set('genre', o.genre);
+    const r2 = await api('/bands?' + wide);
+    if (r2.ok && (r2.json.bands || []).length) { r = r2; list = r2.json.bands; widened = true; }
+  }
   wrap.replaceChildren();
-  const list = r.json.bands || [];
-  const summaryText = T(o.countKey, list.length) + (city ? ' \u00b7 ' + city + ' \u00b7 ' + o.radius + ' km' : '');
+  const summaryText = T(o.countKey, list.length) + (widened ? ' \u00b7 ' + T('widened') : (city ? ' \u00b7 ' + city + ' \u00b7 ' + o.radius + ' km' : ''));
   if (!list.length) { wrap.append(el('div', 'empty', T(o.emptyKey))); return; }
   if (o.summary) { o.summary.hidden = false; o.summary.textContent = summaryText; }
   else wrap.append(el('p', 'muted board-summary', summaryText));
@@ -2874,31 +2931,33 @@ applyI18n();
     }
   }
   const deepBand = q.get('band'), deepTab = q.get('tab'), deepDm = q.get('dm'), deepReview = q.get('review_band');
-  if (q.toString()) history.replaceState(null, '', '/');
+  const pathGig = gigIdFromPath(location.pathname);
+  const deepGig = q.get('gig') || pathGig || '';
+  const legacy = { jams: 'jams', band: 'bands', bands: 'bands', board: 'board', gigs: 'board', musicians: 'musicians', msgs: 'msgs', messages: 'msgs', profile: 'profile', post: 'post' };
   const r = await api('/auth/me');
-  if (r.ok) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null, name: r.json.name || '', handle: r.json.handle || null, digest: r.json.digest !== false };
+  if (r.ok && r.json.email) me = { email: r.json.email, confirmed: !!r.json.confirmed, photo: r.json.photo || null, name: r.json.name || '', handle: r.json.handle || null, digest: r.json.digest !== false };
+  let boot = pathTab(location.pathname);
+  if (legacy[deepTab]) boot = legacy[deepTab];
+  if (deepBand) boot = 'bands';
+  if (deepGig) boot = 'board';
+  if (deepTab === 'help') boot = null;
+  if (boot) landingDismissed = true;
   renderAuth(); loadProfile();
-  const deepGig = q.get('gig');
+  if (deepTab === 'help') $('howBtn').onclick();
+  else if (boot) activateTab(boot, { history: 'replace', scroll: !deepGig, keepBandFilter: true, gigId: deepGig || undefined });
+  else if (me) activateTab('musicians', { history: 'replace', scroll: false });
+  else showHome(false);
+  if (q.toString()) history.replaceState({ tab: boot }, '', location.pathname);
+  if (q.get('feedback') === '1') openFeedback();
+  if (deepReview) { if (!me) $('authDialog').showModal(); else { const bd = await api('/bands/' + deepReview); if (bd.ok) openReview(bd.json.id, bd.json.name); } }
+  if (deepDm) { if (!me) { $('authDialog').showModal(); } else dmUser(deepDm, ''); }
   if (deepGig) {
-    landingDismissed = true; $('landing').hidden = true;
-    document.querySelector('[data-tab=board]').click();
-    boardSeq++; const seqNow = boardSeq;
-    await loadBoard();
     const card = $('gig-' + deepGig);
     if (card) { card.scrollIntoView({ block: 'center' }); card.classList.add('hilite'); setTimeout(() => card.classList.remove('hilite'), 2500); }
-  } else if (!(deepTab === 'jams' || deepTab === 'band' || deepBand)) mountBoard('musicians');
-  if (q.get('feedback') === '1') openFeedback();
-  if (deepTab === 'help') $('howBtn').onclick();
-  if (deepReview) { if (!me) $('authDialog').showModal(); else { const bd = await api('/bands/' + deepReview); if (bd.ok) openReview(bd.json.id, bd.json.name); } }
-  if (deepTab === 'jams') { landingDismissed = true; $('landing').hidden = true; document.querySelector('[data-tab=jams]').click(); }
-  if (deepDm) { if (!me) { $('authDialog').showModal(); } else dmUser(deepDm, ''); }
-  if (deepTab === 'band' || deepBand) {
-    landingDismissed = true; $('landing').hidden = true;
-    document.querySelector('[data-tab=bands]').click();
-    if (deepBand) {
-      const bd = await api('/bands/' + deepBand);
-      if (bd.ok && !bd.json.is_mine) inquireBand(bd.json);
-    }
+  }
+  if (deepBand) {
+    const bd = await api('/bands/' + deepBand);
+    if (bd.ok && !bd.json.is_mine) inquireBand(bd.json);
   }
 })();
 </script>

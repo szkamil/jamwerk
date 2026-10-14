@@ -30,9 +30,11 @@ export async function encryptPayload(p256dh: string, auth: string, plaintext: st
   const uaPub = b64uDecode(p256dh);
   const authSecret = b64uDecode(auth);
   const asKeys = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']) as CryptoKeyPair;
-  const asPub = new Uint8Array(await crypto.subtle.exportKey('raw', asKeys.publicKey));
+  const asPub = new Uint8Array(await crypto.subtle.exportKey('raw', asKeys.publicKey) as ArrayBuffer);
   const uaKey = await crypto.subtle.importKey('raw', uaPub, { name: 'ECDH', namedCurve: 'P-256' }, false, []);
-  const ecdh = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: uaKey }, asKeys.privateKey, 256));
+  // WebCrypto's field is `public`. The Workers type names it `$public`.
+  const ecdhParams = { name: 'ECDH', public: uaKey } as unknown as Parameters<SubtleCrypto['deriveBits']>[0];
+  const ecdh = new Uint8Array(await crypto.subtle.deriveBits(ecdhParams, asKeys.privateKey, 256));
 
   const enc = new TextEncoder();
   const keyInfo = new Uint8Array([...enc.encode('WebPush: info\0'), ...uaPub, ...asPub]);
@@ -66,7 +68,7 @@ async function vapidAuth(env: Env, endpoint: string): Promise<string> {
   const payload = b64u(enc.encode(JSON.stringify({
     aud: new URL(endpoint).origin,
     exp: Math.floor(Date.now() / 1000) + 12 * 3600,
-    sub: env.VAPID_SUBJECT || 'mailto:rupert.szewczyk@gmail.com',
+    sub: env.VAPID_SUBJECT || 'https://jamwerk.app',
   })));
   const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, enc.encode(`${header}.${payload}`));
   return `vapid t=${header}.${payload}.${b64u(sig)}, k=${env.VAPID_PUBLIC_KEY}`;
@@ -78,7 +80,7 @@ export async function sendPushTo(env: Env, email: string, title: string, body: s
   const { results } = await env.DB.prepare(
     'SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE owner = ?'
   ).bind(email).all();
-  for (const sub of results as any[]) {
+  await Promise.allSettled((results as any[]).map(async (sub) => {
     try {
       const payload = await encryptPayload(sub.p256dh, sub.auth, JSON.stringify({ title, body }));
       const res = await fetch(sub.endpoint, {
@@ -91,6 +93,7 @@ export async function sendPushTo(env: Env, email: string, title: string, body: s
           Urgency: 'high',
         },
         body: payload,
+        signal: AbortSignal.timeout(8000),
       });
       if (res.status === 404 || res.status === 410) {
         await env.DB.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(sub.endpoint).run();
@@ -100,7 +103,7 @@ export async function sendPushTo(env: Env, email: string, title: string, body: s
     } catch (err) {
       console.error('Push error:', err);
     }
-  }
+  }));
 }
 
 // ─── Routes ───────────────────────────────────────────────────────────────────

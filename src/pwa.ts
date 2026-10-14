@@ -20,21 +20,38 @@ const MANIFEST = JSON.stringify({
 });
 
 // Network-first for navigations so deploys land immediately; the last good
-// shell is cached as an offline fallback. API calls are never intercepted.
-const SW = `const VERSION = 'jamwerk-v33';
+// shell is cached as an offline fallback. Hashed CSS/JS and fonts are
+// cache-first. API calls are never intercepted.
+const SW = `const VERSION = 'jamwerk-v34';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET' || req.mode !== 'navigate') return;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/fonts/')) {
+    e.respondWith(caches.open(VERSION).then(async (cache) => {
+      const hit = await cache.match(req);
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok) cache.put(req, res.clone());
+      return res;
+    }));
+    return;
+  }
+  if (req.mode !== 'navigate') return;
   e.respondWith(
     fetch(req)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(VERSION).then((c) => c.put('/', copy));
+        if (res.ok) {
+          const copy = res.clone();
+          const home = res.clone();
+          caches.open(VERSION).then((c) => Promise.all([c.put(req, copy), c.put('/', home)]));
+        }
         return res;
       })
-      .catch(() => caches.match('/'))
+      .catch(() => caches.match(req).then((hit) => hit || caches.match('/')))
   );
 });
 self.addEventListener('push', (e) => {

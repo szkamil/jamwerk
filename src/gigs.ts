@@ -454,7 +454,7 @@ export async function fanOutGig(env: AppEnv['Bindings'], g: { id: number; kind: 
       }
       return (m.home_city || '').trim().toLowerCase() === city;
     }).slice(0, 50);
-    const link = `https://jamwerk.app/?gig=${g.id}`;
+    const link = `https://jamwerk.app/gigs/${g.id}`;
     await Promise.allSettled(targets.map((target) => notifyEnv(env, target.owner, (lang: Lang) => ({
       subject: g.kind === 'practice'
         ? t(lang, {

@@ -2,6 +2,7 @@
 // Server-rendered (works logged out); shows the musician's public track record
 // but never their email. Mirrors the Profile artboard in design/.
 import { Hono } from 'hono';
+import { FONT_FACE_CSS, FONT_PRELOAD } from './font-face';
 import { WAVE_SVG, NOTES_LAYER } from './ui';
 import { pickLang, t } from './i18n';
 import type { AppEnv } from './types';
@@ -15,11 +16,12 @@ export function esc(s: unknown): string {
 }
 
 export const PAGE_CSS = `
+  ${FONT_FACE_CSS}
   :root {
     --ink: #14131a; --paper: #f4f2ec; --card: #fffdf8; --line: #e5e1d8;
     --accent: #6440fb; --accent-deep: #4f30d8; --accent-light: #a58bff;
     --accent-tint: #efeaff; --accent-tint-line: #d8cdfd;
-    --muted: #6f6c64; --gold: #b98a00; --r: 14px;
+    --muted: #3e3c36; --gold: #b98a00; --r: 14px;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font: 16px/1.5 'Instrument Sans', system-ui, sans-serif; background: var(--paper); color: #1b1a16; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
@@ -176,9 +178,7 @@ profilePage.get('/:handle', async (c) => {
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+${FONT_PRELOAD}
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
 <style>${MEDIA_CSS}${PAGE_CSS}</style>
