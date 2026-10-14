@@ -7,11 +7,14 @@ describe('SEO', () => {
 	it('serves robots.txt and a sitemap with landing, about and band pages; app shell is indexable', async () => {
 		await env.DB.prepare("INSERT OR IGNORE INTO users (email, password_hash) VALUES ('seo@example.com', 'x')").run();
 		await env.DB.prepare("INSERT INTO bands (owner_email, name, genres) VALUES ('seo@example.com', 'Lémanic Soul', '[\"soul\"]')").run();
+		const gig = await env.DB.prepare("INSERT INTO gigs (poster_email, instrument, genres, gig_date, venue_city, fee_chf, description, expires_at) VALUES ('seo@example.com', 'bass', '[]', '2030-06-01', 'Genève', 200, 'dep', '2030-06-02')").run();
 		const robots = await get('/robots.txt');
 		expect(robots.text).toContain('Sitemap:'); expect(robots.text).toContain('Disallow: /m/');
 		const sm = await get('/sitemap.xml');
 		expect(sm.status).toBe(200); expect(sm.type).toContain('xml');
 		expect(sm.text).toContain('/about'); expect(sm.text).toMatch(/\/b\/\d+-lemanic-soul/);
+		expect(sm.text).toContain('/musicians'); expect(sm.text).toContain('/bands');
+		expect(sm.text).toContain('/jams'); expect(sm.text).toContain('/gigs/' + gig.meta.last_row_id);
 		expect((await get('/')).text).not.toContain('name="robots" content="noindex"');
 	});
 });

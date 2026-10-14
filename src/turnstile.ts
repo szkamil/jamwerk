@@ -4,8 +4,8 @@
 // API; its public sitekey is hardcoded in src/ui.ts and its secret lives as
 // the TURNSTILE_SECRET_KEY Worker secret. Protects /auth/register and
 // /feedback. With no secret configured (tests, local dev) verification is
-// skipped; if the siteverify service itself is unreachable we fail open —
-// the per-IP rate limits still apply either way.
+// skipped. If siteverify is unreachable we fail closed: a thrown check must
+// not let a registration or feedback post through. Rate limits stay as well.
 import type { Env } from './types';
 
 export async function turnstileOk(env: Env, token: unknown, ip: string): Promise<boolean> {
@@ -20,7 +20,8 @@ export async function turnstileOk(env: Env, token: unknown, ip: string): Promise
     });
     const data = (await res.json()) as { success?: boolean };
     return !!data.success;
-  } catch {
-    return true;
+  } catch (err) {
+    console.error('Turnstile siteverify failed:', err);
+    return false;
   }
 }

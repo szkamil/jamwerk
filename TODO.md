@@ -24,7 +24,15 @@
 ## Roadmap agreed 2026-08-27 (working through it in this order)
 
 ### Needs YOU
-- [x] Lighthouse (mobile, /) 2026-08-27: SEO 100, Accessibility 90 → contrast on help cards + select labels fixed; Best practices 73 = Turnstile third-party cookies + expected 401 from /auth/me when logged out (nothing to do).
+- [x] Lighthouse (mobile, /) 2026-08-27: SEO 100, Accessibility 90 → contrast on help cards + select labels fixed; Best practices 73 = Turnstile third-party cookies + a 401 from /auth/me when logged out. The 401 is gone (200 `{user:null}`) in the October 2026 audit fixes; Turnstile's third-party cookies remain a Cloudflare widget behaviour.
+- [ ] **Audit follow-ups (not code)** — left on purpose, 2026-10-14:
+  - Seed listings. Production has 0 gigs and 0 bands, so the board is empty even with no city filter. Widening a city search cannot invent rows.
+  - Marketing copy beyond the device-neutral alert wording and the "dep" explanation.
+  - Cloudflare dashboard: Bot Fight Mode, and WAF rules for `/wp-*`, `xmlrpc.php`, `.env`.
+  - Session revocation. Logout only clears the cookie; a stolen 7-day JWT still works until it expires. Needs a sessions table.
+  - hreflang. Language is `localStorage`, not a URL, so there is nothing to annotate.
+  - `FEEDBACK_EMAIL` stays the operator inbox. It is config, not a silent code fallback. A `feedback@jamwerk.app` alias is a product choice.
+  - Mailjet file-validation URL was removed. Domain ownership is already validated by DNS (2026-08-22). Put the file back only if Mailjet asks for it again.
 - [ ] Rotate the Mailjet API keys (transited chat) → `wrangler secret put MAILJET_API_KEY / MAILJET_SECRET_KEY`.
 - [ ] Google Cloud Console: OAuth client + redirect https://jamwerk.app/auth/google/callback → then "Continuer avec Google".
 - [ ] External uptime check on https://jamwerk.app/health (UptimeRobot/BetterStack, free) + Cloudflare notification on Worker errors.

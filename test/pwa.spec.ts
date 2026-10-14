@@ -42,8 +42,14 @@ describe('PWA', () => {
 		const page = await get('/');
 		const html = await page.text();
 		expect(html).toContain('manifest.webmanifest');
-		expect(html).toContain("serviceWorker' in navigator");
 		expect(html).toContain('apple-touch-icon');
+		expect(html).toContain('mobile-web-app-capable');
+		expect(html).toContain('apple-mobile-web-app-capable');
+		const src = html.match(/src="(\/assets\/app\.[a-f0-9]+\.js)"/);
+		expect(src).toBeTruthy();
+		const js = await (await get(src![1])).text();
+		expect(js).toContain('/sw.js');
+		expect(js).toContain('serviceWorker');
 	});
 
 	it('serves the apple-touch icon and favicon', async () => {

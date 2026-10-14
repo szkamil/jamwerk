@@ -2,7 +2,10 @@
 # Own Worker + own D1 database, served at jamwerk.app.
 name = "jamwerk"
 main = "src/index.ts"
-compatibility_date = "2024-09-23"
+# Newest date this repo's Wrangler (4.66) actually runs. A later date is
+# silently downgraded by the bundled workerd (max 2025-02-04), so tests would
+# not be exercising it.
+compatibility_date = "2025-02-04"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
@@ -34,8 +37,7 @@ BASE_URL = "https://jamwerk.app"
 # gigwerk@hotmail.com, account name "Gig Werk"), NOT the TrustAxis account.
 # jamwerk.app is validated (ownership via DNS record, 2026-08-22) and
 # authenticated (SPF/DKIM OK, DMARC p=none) in that account, so mail goes out
-# DKIM-signed from notify@jamwerk.app. gigwerk@hotmail.com stays a validated
-# fallback sender if the domain ever needs re-validation.
+# DKIM-signed from notify@jamwerk.app. Sends are skipped when EMAIL_FROM is unset.
 EMAIL_FROM = "notify@jamwerk.app"
 # Secrets (set with `npx wrangler secret put NAME`, never in this file):
 #   JWT_SECRET          — session cookie signing key (rotated 2026-08-22)
@@ -44,8 +46,17 @@ EMAIL_FROM = "notify@jamwerk.app"
 #   MAILJET_API_KEY / MAILJET_SECRET_KEY / TURNSTILE_SECRET_KEY
 # Rotating the VAPID pair invalidates existing push subscriptions (users just
 # re-enable alerts).
-VAPID_SUBJECT = "mailto:rupert.szewczyk@gmail.com"
+VAPID_SUBJECT = "mailto:notify@jamwerk.app"
 
 # Footer feedback form submissions are stored in D1 and forwarded here by
 # email (once the Mailjet keys are configured — see README "Email").
 FEEDBACK_EMAIL = "rupert.szewczyk@gmail.com"
+# Same operator inbox, set explicitly so admin access does not depend on the
+# feedback address staying in place. isAdmin() still falls back to FEEDBACK_EMAIL.
+ADMIN_EMAIL = "rupert.szewczyk@gmail.com"
+
+# Self-hosted woff2 subsets (src/fonts). fallthrough keeps .ts compilation.
+[[rules]]
+type = "Data"
+globs = ["**/*.woff2"]
+fallthrough = true

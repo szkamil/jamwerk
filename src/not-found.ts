@@ -4,6 +4,7 @@ import type { Context } from 'hono';
 import type { AppEnv } from './types';
 import { pickLang, t } from './i18n';
 import { WAVE_SVG } from './ui';
+import { FONT_FACE_CSS } from './font-face';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] as string));
 
@@ -26,6 +27,7 @@ export function notFoundPage(lang: ReturnType<typeof pickLang>, message?: string
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
 <style>
+  ${FONT_FACE_CSS}
   body { margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: #f6f4fb; color: #14131a; font-family: "Instrument Sans", system-ui, sans-serif; }
   main { flex: 1; display: grid; place-items: center; }
   main > div { max-width: 440px; padding: 40px 28px; text-align: center; }
@@ -36,7 +38,7 @@ export function notFoundPage(lang: ReturnType<typeof pickLang>, message?: string
   footer .brand span { color: #a58bff; }
   .code { font-size: 72px; font-weight: 800; letter-spacing: -0.04em; color: #6d4df2; line-height: 1; margin-bottom: 12px; }
   h1 { font-size: 22px; margin: 0 0 10px; }
-  p { color: #5b5870; line-height: 1.5; margin: 0 0 24px; }
+  p { color: #3e3c36; line-height: 1.5; margin: 0 0 24px; font-size: 16px; }
   a { display: inline-block; background: #6d4df2; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 999px; font-weight: 600; }
 </style>
 </head>

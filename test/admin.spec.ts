@@ -59,7 +59,9 @@ describe('Reports & admin', () => {
 	});
 	it('ban logs the user out and blocks login; unban restores', async () => {
 		expect((await call('/admin/ban', { method: 'POST', as: adminE, body: { email: u2 } })).status).toBe(200);
-		expect((await call('/auth/me', { as: u2 })).status).toBe(401);
+		const bannedMe = await call('/auth/me', { as: u2 });
+		expect(bannedMe.status).toBe(200);
+		expect(bannedMe.json.user).toBeNull();
 		const login = await call('/auth/login', { method: 'POST', body: { email: u2, password: 'anything' } });
 		expect(login.status).toBe(403); expect(login.json.code).toBe('banned');
 		expect((await call('/admin/unban', { method: 'POST', as: adminE, body: { email: u2 } })).status).toBe(200);

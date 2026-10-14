@@ -2,6 +2,7 @@
 // push (most iPhone users). Runs from the daily cron on Mondays; one mail per
 // user with a located profile, only when there is something to say.
 import { sendEmail } from './email';
+import { mapPool } from './pool';
 import { haversineKm } from './gigs';
 import { Lang, normLang, t } from './i18n';
 import { genreLabel } from './genres';
@@ -26,13 +27,14 @@ export async function sendWeeklyDigests(env: Env, opts: { force?: boolean; now?:
     "SELECT id, name, kind, genres, home_city, home_lat, home_lng, bookable FROM bands WHERE created_at > datetime('now', '-7 days') AND home_lat IS NOT NULL"
   ).all();
   let sent = 0;
-  for (const u of users as any[]) {
+  await mapPool(users as any[], 5, async (u) => {
+    try {
     const r = u.travel_radius_km || 30;
     const near = (lat: number, lng: number) => haversineKm(u.home_lat, u.home_lng, lat, lng) <= Math.max(r, 25);
     const g = (gigs as any[]).filter((x) => near(x.venue_lat, x.venue_lng));
     const b = (bands as any[]).filter((x) => near(x.home_lat, x.home_lng));
     const paid = g.filter((x) => x.kind === 'gig'), jams = g.filter((x) => x.kind === 'practice');
-    if (!paid.length && !jams.length && !b.length) continue;
+    if (!paid.length && !jams.length && !b.length) return;
     const lang: Lang = normLang(u.lang);
     const city = u.home_city || '';
     const subject = t(lang, {
@@ -48,10 +50,13 @@ export async function sendWeeklyDigests(env: Env, opts: { force?: boolean; now?:
       + sec(t(lang, { en: 'Jams', fr: 'Jams', de: 'Jams', it: 'Jam' }), jams.map(line))
       + sec(t(lang, { en: 'New bands', fr: 'Nouveaux groupes', de: 'Neue Bands', it: 'Nuovi gruppi' }), b.map(bline))
       + t(lang, { en: 'Open the app to answer — or turn on alerts to hear about gigs the moment they are posted.', fr: 'Ouvrez l’app pour répondre — ou activez les alertes pour être prévenu dès qu’un concert est publié.', de: 'Öffne die App zum Antworten — oder schalte Alerts ein, um Gigs sofort zu erfahren.', it: 'Apri l’app per rispondere — o attiva gli avvisi per sapere dei concerti appena pubblicati.' })
-      + '\n\nhttps://jamwerk.app/?tab=board';
+      + '\n\nhttps://jamwerk.app/gigs';
     const ok = await sendEmail(env, u.email, subject, body, { lang });
     await env.DB.prepare("UPDATE users SET digest_sent_at = datetime('now') WHERE email = ?").bind(u.email).run();
     if (ok) sent++;
-  }
+    } catch (err) {
+      console.error('Digest user failed:', err);
+    }
+  });
   return sent;
 }

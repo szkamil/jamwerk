@@ -5,6 +5,7 @@ import { WAVE_SVG, NOTES_LAYER } from './ui';
 import { pickLang, t, Lang } from './i18n';
 import type { AppEnv } from './types';
 import { esc, PAGE_CSS } from './profile-page';
+import { FONT_PRELOAD } from './font-face';
 
 const CSS = `
   main { padding: 20px 20px 48px; }
@@ -63,9 +64,7 @@ Così abbiamo costruito il posto in cui queste strade si incrociano. I musicisti
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} | JamWerk</title>
 <meta name="description" content="${esc(L(lang, { en: 'Why JamWerk exists, what it is, how to reach us, and the legal notice.', fr: 'Pourquoi JamWerk existe, ce que c’est, comment nous joindre, et les mentions légales.', de: 'Warum es JamWerk gibt, was es ist, wie du uns erreichst, und das Impressum.', it: 'Perché esiste JamWerk, cos’è, come contattarci e le note legali.' }))}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+${FONT_PRELOAD}
 <link rel="icon" type="image/png" href="/icons/icon-192.png">
 <meta name="theme-color" content="#14131a">
 <style>${PAGE_CSS}${CSS}</style>
