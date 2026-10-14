@@ -64,6 +64,7 @@
 - [x] "Autour de moi" (geolocation) instead of typing the city.
 - [x] "Vu" read receipts in chat.
 - [x] Accessibility: focus-visible rings, aria-labels on icon buttons done. Still open: full contrast audit + Lighthouse run on /, /about, /b, /m.
+- [x] Phone tab bar (2026-10-14): logged-out items spread across the width and stay vertically aligned; the bar keeps the iOS safe-area inset. The old grid column count never applied because `nav#tabs` outranked `nav`.
 
 ## Shipped 2026-08-27
 

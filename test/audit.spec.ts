@@ -65,7 +65,15 @@ describe('Audit fixes', () => {
 		const css = await get(cssHref!);
 		expect(css.status).toBe(200);
 		expect(css.headers.get('cache-control')).toContain('immutable');
-		expect(await css.text()).toMatch(/--muted:\s*#3e3c36/);
+		const cssText = await css.text();
+		expect(cssText).toMatch(/--muted:\s*#3e3c36/);
+		// Phone tab bar must beat nav#tabs (the desktop rule). A fixed column
+		// count left logged-out items packed to the left.
+		expect(cssText).toContain('nav#tabs{position:fixed');
+		expect(cssText).toContain('flex:1 1 0%');
+		expect(cssText).toContain('env(safe-area-inset-bottom');
+		expect(cssText).not.toContain('grid-template-columns:repeat(5');
+		expect(html).toContain('viewport-fit=cover');
 	});
 
 	it('does not serve the old Mailjet ownership file', async () => {

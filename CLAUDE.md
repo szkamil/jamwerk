@@ -66,7 +66,7 @@ page: CSS + HTML + one inline client script + the I18N dictionary).
   (see `fbMsg`/`fbDone`, `authMsg`), not via the page toast. The page-level
   `#flash` toast is position:fixed top-of-viewport for non-modal contexts.
 - Bump the service-worker `VERSION` in `src/pwa.ts` when the app shell
-  changes materially (currently `jamwerk-v34`). The shell CSS and client
+  changes materially (currently `jamwerk-v35`). The shell CSS and client
   script are emitted to `src/generated/client-assets.ts` by
   `node scripts/emit-assets.mjs` — rerun it after editing `src/ui.ts`.
 - Privacy rule: contact emails are only revealed on booking/acceptance;
