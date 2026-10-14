@@ -2,7 +2,10 @@
 # Own Worker + own D1 database, served at jamwerk.app.
 name = "jamwerk"
 main = "src/index.ts"
-compatibility_date = "2026-10-14"
+# Newest date this repo's Wrangler (4.66) actually runs. A later date is
+# silently downgraded by the bundled workerd (max 2025-02-04), so tests would
+# not be exercising it.
+compatibility_date = "2025-02-04"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 

@@ -56,16 +56,15 @@ function geoHint(c: Context<AppEnv>): string {
   return geo && geo !== ':' ? geo : '';
 }
 
-// A browser navigation (address bar, link, back/forward) gets the HTML shell.
-// fetch() from the app sends Sec-Fetch-Dest: empty and Accept: */*, so the
-// JSON APIs on the same paths stay JSON. Tests send no Accept header.
+// A browser navigation gets the HTML shell. The service worker re-fetches
+// navigations with Sec-Fetch-Dest: empty but keeps Accept: text/html, so that
+// still counts. fetch() from the app sends Accept: */* and stays on the JSON API.
 function wantsDocument(c: Context<AppEnv>): boolean {
   const dest = (c.req.header('Sec-Fetch-Dest') || '').toLowerCase();
   if (dest === 'document') return true;
-  if (dest) return false;
+  if (dest && dest !== 'empty') return false;
   const mode = (c.req.header('Sec-Fetch-Mode') || '').toLowerCase();
   if (mode === 'navigate') return true;
-  if (mode) return false;
   return (c.req.header('Accept') || '').includes('text/html');
 }
 

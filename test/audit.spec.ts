@@ -40,7 +40,12 @@ describe('Audit fixes', () => {
 		expect(html.headers.get('content-security-policy')).toContain("script-src 'self'");
 		expect(html.headers.get('content-security-policy')).toContain('challenges.cloudflare.com');
 
-		const api = await get('/gigs');
+		// The service worker re-fetches navigations without Sec-Fetch-Dest: document.
+		const viaSw = await get('/messages', { Accept: 'text/html', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors' });
+		expect(viaSw.status).toBe(200);
+		expect(viaSw.headers.get('content-type')).toContain('text/html');
+		expect(await viaSw.text()).toContain('id="guestMsgs"');
+		const api = await get('/gigs', { Accept: '*/*', 'Sec-Fetch-Dest': 'empty' });
 		expect(api.headers.get('content-type')).toContain('application/json');
 		const json = await api.json() as { gigs?: unknown };
 		expect(Array.isArray(json.gigs)).toBe(true);
