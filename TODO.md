@@ -38,6 +38,7 @@
 - [ ] External uptime check on https://jamwerk.app/health (UptimeRobot/BetterStack, free) + Cloudflare notification on Worker errors.
 - [ ] Legal review: lawyer reads /about terms + privacy (boilerplate, not legal advice; CO art. 100). 3 pre-gate accounts have no terms_accepted_at.
 - [ ] Outreach: seeding kit + flyer + WhatsApp message (docs/); the app cannot fix an empty board.
+- [ ] Compare the opt-in preview at `/v2` with the current site and decide which UI to keep. `/v2` is noindex and absent from the sitemap; the production pages are unchanged until that decision.
 - [ ] Delete old bridge workflow on poc-poc branch `claude/musician-matching-app-wefw3d`.
 
 ### 1. Getting people in

@@ -18,6 +18,7 @@ import { admin, reports, backupToR2 } from './admin';
 import { sendWeeklyDigests } from './digest';
 import placesRoutes from './places-api';
 import { appHtml, assetBody } from './shell';
+import { v2Asset, v2Routes } from './v2';
 import { FONT_FILES } from './fonts';
 import { securityHeaderMap } from './security';
 import { mapPool } from './pool';
@@ -94,7 +95,7 @@ function renderApp(c: Context<AppEnv>, opts: { tab: string | null; title?: strin
 }
 
 app.get('/assets/:file', (c) => {
-  const hit = assetBody(c.req.param('file'));
+  const hit = assetBody(c.req.param('file')) || v2Asset(c.req.param('file'));
   if (!hit) return c.notFound();
   return c.body(hit.body, 200, {
     'Content-Type': hit.type,
@@ -151,7 +152,7 @@ app.route('/admin', admin);
 
 // SEO: public pages worth indexing. Musician pages stay noindex (people, not
 // businesses). Messages and profile are shells behind a login, so noindex.
-app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nDisallow: /m/\nSitemap: ${c.env.BASE_URL || 'https://jamwerk.app'}/sitemap.xml\n`));
+app.get('/robots.txt', (c) => c.text(`User-agent: *\nAllow: /\nDisallow: /m/\nDisallow: /v2\nSitemap: ${c.env.BASE_URL || 'https://jamwerk.app'}/sitemap.xml\n`));
 app.get('/sitemap.xml', async (c) => {
   const base = (c.env.BASE_URL || 'https://jamwerk.app').replace(/\/$/, '');
   const { results: bands } = await c.env.DB.prepare('SELECT id, name FROM bands ORDER BY id DESC LIMIT 5000').all();
@@ -169,6 +170,7 @@ app.route('/push', pushRoutes);
 app.route('/bands', bandRoutes);
 app.route('/messages', messageRoutes);
 app.route('/musicians', musicianRoutes);
+app.route('/v2', v2Routes);
 app.route('/feedback', feedbackRoutes);
 app.route('/places', placesRoutes);
 // Photos from R2. Keys are immutable (uuid), so cache hard.
